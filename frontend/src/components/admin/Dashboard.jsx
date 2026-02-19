@@ -133,9 +133,6 @@ const AdminDashboard = ({ stats, adminName, realTimeEnabled, recentInventory = [
                         <Trophy size={18} color="#FF0000" />
                         <span>{adminName}</span>
                     </div>
-                    <button className="btn-primary">
-                        <Plus size={18} /> Add Equipment
-                    </button>
                 </div>
             </header>
 

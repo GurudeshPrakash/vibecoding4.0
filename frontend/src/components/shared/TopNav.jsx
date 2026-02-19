@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, User, Sun, Moon, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor } from 'lucide-react';
+import { Bell, User, Sun, Moon, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft } from 'lucide-react';
 import '../../style/TopNav.css';
 
 const TopNav = ({
@@ -19,7 +19,8 @@ const TopNav = ({
     setNotifications,
     loginRole,
     setSelectedEquipmentId,
-    onViewLog
+    onViewLog,
+    currentTab
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -107,6 +108,26 @@ const TopNav = ({
     return (
         <div className="top-nav">
             <div className="top-nav-left">
+                {currentTab && currentTab !== 'dashboard' && (
+                    <button
+                        className="back-btn-nav"
+                        onClick={() => window.history.back()}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--color-text)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginRight: '16px',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            fontWeight: '600'
+                        }}
+                    >
+                        <ArrowLeft size={20} /> Back
+                    </button>
+                )}
                 <div className="admin-greeting-left">
                     <span className="hello-text-red">Hello,</span>
                     <span className="admin-name-top">{adminName}</span>

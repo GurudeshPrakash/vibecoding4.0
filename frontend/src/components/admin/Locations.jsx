@@ -12,6 +12,34 @@ const Locations = () => {
     // Current time is set once on mount
   }, []);
 
+  // Handle browser back button to close modal
+  useEffect(() => {
+    const handlePopState = (event) => {
+      // If we popped back to a state where we shouldn't have a gym selected, close it
+      if (selectedGym) {
+        setSelectedGym(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedGym]);
+
+  const handleGymSelect = (gym) => {
+    // Push a new state so back button works
+    window.history.pushState({ gymId: gym.id }, '', '');
+    setSelectedGym(gym);
+  };
+
+  const handleCloseDetail = () => {
+    // Go back in history if we are in a 'pushed' state, otherwise just close (safeguard)
+    if (window.history.state && window.history.state.gymId) {
+      window.history.back();
+    } else {
+      setSelectedGym(null);
+    }
+  };
+
   const [managers, setManagers] = useState([]);
 
   // Fetch real managers from backend to sync with Locations
@@ -134,7 +162,7 @@ const Locations = () => {
       <div className="gym-detail-wrapper" style={{ '--bg-photo': `url(${selectedGym.photo})` }}>
         <div className="detail-overlay">
           <header className="detail-nav-header">
-            <button className="back-btn-catchy" onClick={() => setSelectedGym(null)}>
+            <button className="back-btn-catchy" onClick={handleCloseDetail}>
               <ArrowLeft size={18} /> Back to Locations
             </button>
           </header>
@@ -263,7 +291,7 @@ const Locations = () => {
         {filteredGyms.map((gym) => {
           const gymStatus = checkStatus(gym.operatingHours, currentTime);
           return (
-            <div key={gym.id} className="gym-box" onClick={() => setSelectedGym(gym)}>
+            <div key={gym.id} className="gym-box" onClick={() => handleGymSelect(gym)}>
               <div className="gym-img-container">
                 <img src={gym.photo} alt={gym.name} className="gym-preview-img" />
                 <div className="gym-status-corner">

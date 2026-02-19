@@ -1,4 +1,4 @@
-/* AdminDashboard.css - Dashboard Fixes */
+/* AdminDashboard.css - Dashboard Fixes, Activity Logs, and General Tables */
 
 /* ---------------------------
    DASHBOARD SELECT BOX
@@ -407,6 +407,96 @@
     border-color: var(--color-red);
     color: var(--color-red);
     background: rgba(230, 57, 70, 0.05);
+}
+
+/* -------------------------------------
+   DATA TABLE STYLES (Activity Logs, etc)
+------------------------------------- */
+
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.equipment-table {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.table-header {
+    display: grid;
+    /* Columns defined inline or override here */
+    padding: 16px 24px;
+    background: var(--color-surface-hover);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 700;
+    color: var(--color-text-dim);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    align-items: center;
+}
+
+.table-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.table-row {
+    display: grid;
+    /* Columns defined inline matching header */
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    transition: background 0.2s;
+    font-size: 0.95rem;
+    color: var(--color-text);
+}
+
+.table-row:hover {
+    background: var(--color-surface-hover);
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+/* Search Box Container */
+.search-box-container {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.search-box-container:focus-within {
+    border-color: var(--color-red);
+    box-shadow: 0 0 0 2px rgba(220, 20, 60, 0.1);
+}
+
+.search-icon-inside {
+    position: absolute;
+    left: 12px;
+    color: var(--color-text-dim);
+    pointer-events: none;
+}
+
+.dynamic-search-input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    /* Padding left for icon */
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    outline: none;
 }
 
 @media (max-width: 1200px) {

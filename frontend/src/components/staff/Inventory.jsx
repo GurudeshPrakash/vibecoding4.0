@@ -50,15 +50,54 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
         if (selectedEquipmentId) {
             const equipment = inventoryData.find(item => item.id === selectedEquipmentId);
             if (equipment) {
+                // Determine if we should replace or push? For deep link from notif, maybe replace?
+                // But user wants 'windows back'.
+                // If we come from notification, we are landing here.
                 setSelectedEquipment(equipment);
                 setDetailStatus(equipment.status);
                 setViewMode('detail');
                 setIsScanned(false);
-                // Reset to avoid infinite loop or re-opening
                 setSelectedEquipmentId(null);
             }
         }
     }, [selectedEquipmentId, inventoryData, setSelectedEquipmentId]);
+
+    // Handle Browser Back Button for View Modes
+    useEffect(() => {
+        const handlePopState = (event) => {
+            // When user hits back, if we are in a detail/add/edit view, we want to go back to list
+            // Checking event.state is optional, but if we are just popping, we likely want to close the 'modal' view
+            if (viewMode !== 'list') {
+                setViewMode('list');
+                setSelectedEquipment(null);
+                // We might want to clear editItem too
+                setEditItem(null);
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [viewMode]);
+
+    const navigateToView = (mode, item = null) => {
+        window.history.pushState({ mode: mode }, '', '');
+        setViewMode(mode);
+        if (item) {
+            setSelectedEquipment(item);
+            setDetailStatus(item.status); // specific for detail view
+        }
+    };
+
+    const handleNavigateBack = () => {
+        if (window.history.state && window.history.state.mode) {
+            window.history.back();
+        } else {
+            // Fallback if accessed directly or refreshed
+            setViewMode('list');
+            setSelectedEquipment(null);
+            setEditItem(null);
+        }
+    };
 
     // Form logic for adding new equipment
     const [newMachine, setNewMachine] = useState({
@@ -176,7 +215,7 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
             customId: item.customId || '',
             id: item.id || ''
         });
-        setViewMode('edit');
+        navigateToView('edit');
     };
 
     const handleUpdateInventory = async (itemToUpdate = editItem) => {
@@ -263,22 +302,17 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
     };
 
     const handleCancelEdit = () => {
-        setEditItem(null);
-        setViewMode('detail');
+        handleNavigateBack();
     };
 
     const handleCardClick = (item) => {
-        setSelectedEquipment(item);
-        setDetailStatus(item.status);
-        setViewMode('detail');
         setIsScanned(false);
+        navigateToView('detail', item);
     };
 
     const handleBackToList = () => {
-        setViewMode('list');
-        setSelectedEquipment(null);
-        setIsScanned(false);
-        resetForm();
+        handleNavigateBack();
+        resetForm(); // Ensure form is reset when going back
     };
 
     const handleImageChange = (e) => {
@@ -377,7 +411,7 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                             <p className="subtitle">Select an equipment card to update status or view full documentation.</p>
                         </div>
                         <div className="header-right-tools">
-                            <button className="add-inventory-btn" onClick={() => setViewMode('add')}>
+                            <button className="add-inventory-btn" onClick={() => navigateToView('add')}>
                                 <Plus size={20} /> Add
                             </button>
                             <div className="search-box-v4">

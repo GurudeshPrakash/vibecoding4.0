@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Download, Filter, Search, Shield, MapPin, Activity, User, ExternalLink } from 'lucide-react';
+import '../../style/AdminDashboard.css';
 
 const ActivityLogs = ({ onViewLog }) => {
     const [logs, setLogs] = useState([]);

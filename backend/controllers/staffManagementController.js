@@ -1,6 +1,7 @@
 const Staff = require('../models/Staff');
 const ActivityLog = require('../models/ActivityLog');
 const Notification = require('../models/Notification');
+const Branch = require('../models/Branch');
 
 // @desc    Admin create staff
 // @route   POST /api/admin/staff
@@ -17,6 +18,25 @@ exports.createStaff = async (req, res) => {
                 return res.status(400).json({
                     message: `The branch "${branch}" is already assigned to ${branchExists.firstName} ${branchExists.lastName}.`
                 });
+            }
+
+            // Sync with Branch Collection (Auto-create or Update)
+            let branchDoc = await Branch.findOne({ name: branch });
+            if (!branchDoc) {
+                // Create new branch if not exists
+                branchDoc = await Branch.create({
+                    name: branch,
+                    location: `${branch}, Sri Lanka`, // Default format
+                    phone: phone,
+                    adminName: `${firstName} ${lastName}`,
+                    adminPhone: phone,
+                    operatingHours: '6:00 AM - 10:00 PM' // Default
+                });
+            } else {
+                // Update existing branch admin
+                branchDoc.adminName = `${firstName} ${lastName}`;
+                branchDoc.adminPhone = phone;
+                await branchDoc.save();
             }
         }
 

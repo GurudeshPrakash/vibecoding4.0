@@ -1,6 +1,35 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search } from 'lucide-react';
 import '../../style/AdminLocations.css';
+
+const checkStatus = (hours, now) => {
+  if (!hours) return 'Closed';
+
+  try {
+    const [start, end] = hours.split(' - ');
+    if (!start || !end) return 'Closed';
+
+    const parseTime = (timeStr) => {
+      const [time, modifier] = timeStr.split(' ');
+      let [hours, minutes] = time.split(':');
+      if (hours === '12') {
+        hours = '00';
+      }
+      if (modifier === 'PM') {
+        hours = parseInt(hours, 10) + 12;
+      }
+      return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+    };
+
+    const startMinutes = parseTime(start);
+    const endMinutes = parseTime(end);
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    return currentMinutes >= startMinutes && currentMinutes <= endMinutes ? 'Open' : 'Closed';
+  } catch (e) {
+    return 'Closed';
+  }
+};
 
 const Locations = () => {
   const [selectedGym, setSelectedGym] = useState(null);
@@ -40,105 +69,43 @@ const Locations = () => {
     }
   };
 
-  const [managers, setManagers] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch real managers from backend to sync with Locations
+  // Fetch branches from database
   useEffect(() => {
-    const fetchManagers = async () => {
+    const fetchBranches = async () => {
       try {
         const token = localStorage.getItem('admin_token');
-        const response = await fetch('http://localhost:5000/api/admin/staff', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetch('http://localhost:5000/api/admin/branches', {
+          headers: { 'Authorization': `Bearer ${token} ` }
         });
         if (response.ok) {
           const data = await response.json();
-          setManagers(data);
+          // Transform if necessary or use directly if schema matches
+          // Schema matches: name, photo, phone, location, adminName, adminPhone, runningSince, operatingHours, inventorySummary
+          // Ensure we map '_id' to 'id' for the frontend key
+          const mappedBranches = data.map(b => ({
+            ...b,
+            id: b._id,
+            inventory: b.inventorySummary || []
+          }));
+          setBranches(mappedBranches);
+        } else {
+          // Handle empty or error
+          setBranches([]);
         }
       } catch (error) {
-        console.error('Failed to load manager data:', error);
+        console.error('Failed to load branch data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchManagers();
+    fetchBranches();
   }, []);
 
-  // 24 Sri Lankan Locations
-  const lankanLocations = [
-    "Wellawatte", "Bambalapitiya", "Kollupitiya", "Kandy", "Galle",
-    "Matara", "Jaffna", "Negombo", "Wattala", "Dehiwala",
-    "Mount Lavinia", "Ratnapura", "Anuradhapura", "Polonnaruwa", "Kurunegala",
-    "Gampaha", "Kalutara", "Panadura", "Batticaloa", "Trincomalee",
-    "Nuwara Eliya", "Badulla", "Avissawella", "Maharagama"
-  ];
-
-  // Helper to determine status based on hours
-  const checkStatus = (hours, now) => {
-    if (hours === "24 Hours") return "Open";
-
-    const currentHour = now.getHours();
-    const [openStr, closeStr] = hours.split(' - ');
-
-    const parseTime = (str) => {
-      const [time, period] = str.split(' ');
-      let [h] = time.split(':').map(Number);
-      if (period === 'PM' && h !== 12) h += 12;
-      if (period === 'AM' && h === 12) h = 0;
-      return h;
-    };
-
-    const openHour = parseTime(openStr);
-    const closeHour = parseTime(closeStr);
-
-    if (closeHour > openHour) {
-      return (currentHour >= openHour && currentHour < closeHour) ? "Open" : "Closed";
-    } else {
-      // Over-night case (e.g. 6 PM - 6 AM)
-      return (currentHour >= openHour || currentHour < closeHour) ? "Open" : "Closed";
-    }
-  };
-
-  // Predefined Real Names for Managers (Gym Owners)
-  const realManagerNames = [
-    "Viyas Karunaratne", "Shana Perera", "Guru Nanayakkara", "Shayani Mendis", "Kasun Jayawardena",
-    "Dinuka Silva", "Amara Fernando", "Rohan Wickramasinghe", "Janaka Gunawardena", "Lina Abeywickrama",
-    "Tharindu Ratnayake", "Mahesh Senanayake", "Dilani Wijetunga", "Asanka Bandara", "Nimali Herath",
-    "Saman Kumara", "Priyanka De Silva", "Chaminda Lokuge", "Isuru Rajapaksa", "Dinesh Koddithuwakku",
-    "Sanjeewa Gamage", "Ruvini Fonseka", "Malith Weerasinghe", "Nilanthi Premaratne"
-  ];
-
-  // Generate 24 mock gyms with Sri Lankan locations and diverse hours
-  const allGyms = useMemo(() => Array.from({ length: 24 }, (_, i) => {
-    let hours;
-    if (i % 5 === 0) hours = "24 Hours";
-    else if (i % 3 === 0) hours = "6:00 AM - 10:00 PM";
-    else if (i % 2 === 0) hours = "5:00 AM - 11:00 PM";
-    else hours = "8:00 AM - 8:00 PM";
-
-    // Check if a real manager is assigned to this branch
-    const assignedManager = managers.find(m => m.branch === lankanLocations[i]);
-
-    return {
-      id: i + 1,
-      name: `${lankanLocations[i]} Fitness Elite`,
-      photo: `https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800&h=600&gym=${i + 1}`,
-      phone: `+94 11 234 ${5000 + i}`,
-      location: `${lankanLocations[i]}, Sri Lanka`,
-      // Use fetched manager if exists, otherwise fallback to placeholder name
-      adminName: assignedManager ? `${assignedManager.firstName} ${assignedManager.lastName}` : realManagerNames[i],
-      adminPhone: assignedManager ? assignedManager.phone : `+94 77 123 ${4000 + i}`,
-      runningSince: `${2 + (i % 5)} years`,
-      operatingHours: hours,
-      inventory: [
-        { item: 'Treadmills', count: 12, condition: 'Excellent' },
-        { item: 'Dumbbell Sets', count: 24, condition: 'Good' },
-        { item: 'Power Racks', count: 5, condition: 'Excellent' },
-        { item: 'Bench Press', count: 8, condition: 'Fair' },
-        { item: 'Leg Press', count: 3, condition: 'Good' },
-      ]
-    };
-  }), [managers]);
-
   // Filter gyms based on search query
-  const filteredGyms = allGyms.filter(gym =>
+  const filteredGyms = branches.filter(gym =>
     gym.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     gym.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -170,7 +137,7 @@ const Locations = () => {
           <div className="detail-main-content">
             <header className="gym-header">
               <div className="gym-title-area">
-                <div className={`status-badge-compact ${currentStatus.toLowerCase()}`}>
+                <div className={`status - badge - compact ${currentStatus.toLowerCase()} `}>
                   <span className="status-light live-pulse"></span> {currentStatus}
                 </div>
                 <h1 className="gym-detail-name">{selectedGym.name}</h1>
@@ -250,8 +217,8 @@ const Locations = () => {
                       className="inv-status-pill"
                       style={{
                         color: getConditionColor(inv.condition),
-                        borderColor: `${getConditionColor(inv.condition)}44`,
-                        backgroundColor: `${getConditionColor(inv.condition)}11`
+                        borderColor: `${getConditionColor(inv.condition)} 44`,
+                        backgroundColor: `${getConditionColor(inv.condition)} 11`
                       }}
                     >
                       {inv.condition}
@@ -296,7 +263,7 @@ const Locations = () => {
                 <img src={gym.photo} alt={gym.name} className="gym-preview-img" />
                 <div className="gym-status-corner">
                   <div
-                    className={`status-glow-orb ${gymStatus.toLowerCase()}`}
+                    className={`status - glow - orb ${gymStatus.toLowerCase()} `}
                     title={`${gymStatus} (Hours: ${gym.operatingHours})`}
                   >
                     <span className="orb-inner-dot"></span>

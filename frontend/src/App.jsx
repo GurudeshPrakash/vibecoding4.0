@@ -19,77 +19,7 @@ import ActivityDetailModal from './components/shared/ActivityDetailModal';
 import ForgotPassword from './components/admin/ForgotPassword';
 import ResetPassword from './components/admin/ResetPassword';
 
-const initialInventoryData = [
-  {
-    id: 'TM-204-01',
-    name: 'Pro-Series Treadmill G7',
-    type: 'Treadmill',
-    category: 'Cardio',
-    status: 'Good',
-    area: 'Cardio Zone',
-    branch: 'Power World - Colombo 07',
-    photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800',
-    serial: 'SN-TM-2024-001X',
-    brand: 'Life Fitness',
-    model: '95T Elevation',
-    mfgYear: '2024',
-    origin: 'USA',
-    power: '4.0 HP AC Motor',
-    voltage: '220V / 50Hz',
-    usageType: 'Heavy Commercial',
-    lastMaintenance: '2026-01-15',
-    nextMaintenance: '2026-04-15',
-    totalUsageHours: '1,245 Hours',
-    vendor: 'Global Fitness Solutions',
-    warranty: '3 Years Comprehensive',
-  },
-  {
-    id: 'EB-102-05',
-    name: 'Matrix Upright Bike U50',
-    type: 'Exercise Bike',
-    category: 'Cardio',
-    status: 'Maintenance',
-    area: 'Cardio Zone',
-    branch: 'Power World - Colombo 07',
-    photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800',
-    serial: 'SN-EB-2023-112B',
-    brand: 'Matrix',
-    model: 'U50 V2',
-    mfgYear: '2023',
-    origin: 'Taiwan',
-    power: 'Self-Generating',
-    voltage: 'N/A',
-    usageType: 'Commercial',
-    lastMaintenance: '2025-12-01',
-    nextMaintenance: '2026-02-28',
-    totalUsageHours: '890 Hours',
-    vendor: 'SportTech Imports',
-    warranty: '1 Year Remaining',
-  },
-  {
-    id: 'LP-305-12',
-    name: 'Plate-Loaded Leg Press',
-    type: 'Leg Press Machine',
-    category: 'Weight Machine',
-    status: 'Good',
-    area: 'Leg Zone',
-    branch: 'Power World - Colombo 07',
-    photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800',
-    serial: 'SN-LP-2022-998C',
-    brand: 'Hammer Strength',
-    model: 'MTS Leg Press',
-    mfgYear: '2022',
-    origin: 'USA',
-    power: 'Mechanical',
-    voltage: 'N/A',
-    usageType: 'Commercial',
-    lastMaintenance: '2026-02-01',
-    nextMaintenance: '2026-08-01',
-    totalUsageHours: '12,000+ Sets',
-    vendor: 'Life Fitness Direct',
-    warranty: '5 Years Frame',
-  }
-];
+
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
@@ -100,8 +30,8 @@ function App() {
   const [loginRole, setLoginRole] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [staffTab, setStaffTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(window.history.state?.tab || 'dashboard');
+  const [staffTab, setStaffTab] = useState(window.history.state?.tab || 'dashboard');
   const [userName, setUserName] = useState('Vibe Master');
   const [userEmail, setUserEmail] = useState('master@vibecoding.com');
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
@@ -131,6 +61,32 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  // Restore session on refresh
+  useEffect(() => {
+    const adminToken = localStorage.getItem('admin_token');
+    const staffToken = localStorage.getItem('staff_token');
+
+    if (adminToken) {
+      setLoginRole('admin');
+      setIsAuthenticated(true);
+      setCurrentView('dashboard');
+      const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
+      if (savedAdmin) {
+        setUserName(savedAdmin.firstName || 'Admin');
+        setUserEmail(savedAdmin.email || 'admin@gymsys.com');
+      }
+    } else if (staffToken) {
+      setLoginRole('staff');
+      setIsAuthenticated(true);
+      setCurrentView('dashboard');
+      const savedStaff = JSON.parse(localStorage.getItem('staff_user_info'));
+      if (savedStaff) {
+        setUserName(savedStaff.firstName);
+        setUserEmail(savedStaff.email);
+      }
+    }
+  }, []);
 
   // Handle Reset Password URL check
   useEffect(() => {

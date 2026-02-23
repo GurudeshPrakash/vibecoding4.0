@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Phone, Mail, MapPin, ExternalLink, Calendar, Search,
-    UserPlus, Edit2, Trash2, Shield, Loader2, X, Plus, Users
+    UserPlus, Edit2, Trash2, Shield, Loader2, X, Plus, Users, Eye, EyeOff
 } from 'lucide-react';
 import '../../style/AdminGymOwners.css';
 
@@ -14,14 +14,49 @@ const GymManagers = () => {
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', email: '', password: '', phone: '', branch: '', assignedArea: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
 
-    const branches = [
-        "Wellawatte", "Bambalapitiya", "Kollupitiya", "Kandy", "Galle",
-        "Matara", "Jaffna", "Negombo", "Wattala", "Dehiwala",
-        "Mount Lavinia", "Ratnapura", "Anuradhapura", "Polonnaruwa", "Kurunegala",
-        "Gampaha", "Kalutara", "Panadura", "Batticaloa", "Trincomalee",
-        "Nuwara Eliya", "Badulla", "Avissawella", "Maharagama"
-    ];
+    const [knownBranches, setKnownBranches] = useState([]);
+    const [branchError, setBranchError] = useState(null);
+    const [isBranchesLoading, setIsBranchesLoading] = useState(true);
+
+    // Fetch existing branches for suggestions
+    useEffect(() => {
+        const fetchBranches = async () => {
+            setIsBranchesLoading(true);
+            try {
+                const token = localStorage.getItem('admin_token');
+                if (!token) {
+                    console.error('No admin_token found for fetching branches');
+                    setBranchError('No auth token');
+                    setIsBranchesLoading(false);
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5000/api/admin/branches', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        setKnownBranches(data.map(b => b.name).sort());
+                    } else {
+                        console.error('API returned non-array for branches:', data);
+                    }
+                } else {
+                    console.error('Failed to fetch branches:', response.status, response.statusText);
+                    setBranchError('Failed to load branches');
+                }
+            } catch (error) {
+                console.error('Fetch branches error:', error);
+                setBranchError('Network error loading branches');
+            } finally {
+                setIsBranchesLoading(false);
+            }
+        };
+        fetchBranches();
+    }, []);
 
     const fetchManagers = async () => {
         setIsLoading(true);
@@ -80,10 +115,13 @@ const GymManagers = () => {
             if (response.ok) {
                 setShowModal(false);
                 setEditingManager(null);
+                setShowPassword(false);
                 setFormData({
                     firstName: '', lastName: '', email: '', password: '', phone: '', branch: '', assignedArea: ''
                 });
                 fetchManagers();
+                // Refresh branches list too
+                // fetchBranches(); // optimize later
             } else {
                 const errorData = await response.json();
                 alert(errorData.message || 'Failed to save manager');
@@ -109,6 +147,7 @@ const GymManagers = () => {
 
     const openEdit = (m) => {
         setEditingManager(m);
+        setShowPassword(false);
         setFormData({
             firstName: m.firstName || '',
             lastName: m.lastName || '',
@@ -120,17 +159,6 @@ const GymManagers = () => {
         });
         setShowModal(true);
     };
-
-    const sortedBranches = useMemo(() => {
-        // Calculate assigned branches based on current managers
-        const assignedBranches = new Set(managers.map(m => m.branch).filter(Boolean));
-
-        const unassigned = branches.filter(b => !assignedBranches.has(b)).sort();
-        const assigned = branches.filter(b => assignedBranches.has(b)).sort();
-
-        // Unassigned at top, Assigned at bottom
-        return [...unassigned, ...assigned];
-    }, [managers, branches]);
 
     const filteredManagers = managers.filter(m =>
         `${m.firstName} ${m.lastName} ${m.branch}`.toLowerCase().includes(searchQuery.toLowerCase())
@@ -241,7 +269,42 @@ const GymManagers = () => {
                                 </div>
                                 <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem' }}>Password</label>
-                                    <input type="password" name="password" value={formData.password} onChange={handleChange} required={!editingManager} placeholder={editingManager ? "Leave blank to keep current" : ""} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)', color: 'white' }} />
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            required={!editingManager}
+                                            placeholder={editingManager ? "Leave blank to keep current" : ""}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 40px 10px 10px', // Extra padding right for icon
+                                                borderRadius: '8px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'rgba(255,255,255,0.05)',
+                                                color: 'white'
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            style={{
+                                                position: 'absolute',
+                                                right: '10px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                background: 'none',
+                                                border: 'none',
+                                                color: 'var(--color-text-dim)',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem' }}>Phone Number</label>
@@ -267,27 +330,34 @@ const GymManagers = () => {
                                         }}
                                     >
                                         <option value="" style={{ background: '#1a1a1a', color: 'white' }}>Select Branch</option>
-                                        {sortedBranches.map(b => {
-                                            const isOccupied = managers.some(m => m.branch === b);
-                                            // Allow selection if it's the branch currently assigned to the manager being edited
-                                            const isCurrentManagerBranch = editingManager && editingManager.branch === b;
-                                            const isDisabled = isOccupied && !isCurrentManagerBranch;
+                                        {!isBranchesLoading && knownBranches.length > 0 ? (
+                                            knownBranches.map(b => {
+                                                const isOccupied = managers.some(m => m.branch === b);
+                                                const isCurrentManagerBranch = editingManager && editingManager.branch === b;
+                                                const isDisabled = isOccupied && !isCurrentManagerBranch;
 
-                                            return (
-                                                <option
-                                                    key={b}
-                                                    value={b}
-                                                    disabled={isDisabled}
-                                                    style={{
-                                                        background: '#1a1a1a',
-                                                        color: isDisabled ? 'gray' : 'white',
-                                                        fontStyle: isDisabled ? 'italic' : 'normal'
-                                                    }}
-                                                >
-                                                    {b} {isOccupied && !isCurrentManagerBranch ? '(Assigned)' : ''}
-                                                </option>
-                                            );
-                                        })}
+                                                return (
+                                                    <option
+                                                        key={b}
+                                                        value={b}
+                                                        disabled={isDisabled}
+                                                        style={{
+                                                            background: '#1a1a1a',
+                                                            color: isDisabled ? 'gray' : 'white',
+                                                            fontStyle: isDisabled ? 'italic' : 'normal'
+                                                        }}
+                                                    >
+                                                        {b} {isOccupied && !isCurrentManagerBranch ? '(Assigned)' : ''}
+                                                    </option>
+                                                );
+                                            })
+                                        ) : (
+                                            <option disabled style={{ fontStyle: 'italic', color: 'gray' }}>
+                                                {isBranchesLoading
+                                                    ? "Loading branches..."
+                                                    : (branchError ? branchError : "No branches found in database")}
+                                            </option>
+                                        )}
                                     </select>
                                 </div>
                             </div>

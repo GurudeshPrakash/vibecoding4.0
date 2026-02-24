@@ -3,9 +3,15 @@ const router = express.Router();
 const {
     registerAdmin,
     loginAdmin,
+    logoutAdmin,
     getAdminProfile,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    getAllAdmins,
+    createAdmin,
+    updateAdmin,
+    deleteAdmin,
+    getAdminLogs
 } = require('../controllers/adminController');
 const { getAllOwners, addOwner, updateOwner, deleteOwner } = require('../controllers/gymOwnerController');
 const { getAllBranches, addBranch, updateBranch, deleteBranch } = require('../controllers/branchController');
@@ -19,11 +25,20 @@ const {
     getNotifications,
     markNotificationRead
 } = require('../controllers/staffManagementController');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
+
+// Admins Management (Super Admin only)
+router.get('/admins', protect, superAdminOnly, getAllAdmins);
+router.post('/admins', protect, superAdminOnly, createAdmin);
+router.put('/admins/:id', protect, superAdminOnly, updateAdmin);
+router.delete('/admins/:id', protect, superAdminOnly, deleteAdmin);
+router.get('/admin-logs', protect, superAdminOnly, getAdminLogs);
 
 // Auth
 router.post('/signup', registerAdmin);
 router.post('/login', loginAdmin);
+router.post('/logout', logoutAdmin);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
 router.get('/profile', protect, adminOnly, getAdminProfile);
@@ -36,8 +51,8 @@ router.delete('/owners/:id', protect, adminOnly, deleteOwner);
 
 // Branch Management
 router.get('/branches', protect, adminOnly, getAllBranches);
-router.post('/branches', protect, adminOnly, addBranch);
-router.put('/branches/:id', protect, adminOnly, updateBranch);
+router.post('/branches', protect, adminOnly, upload.single('photoFile'), addBranch);
+router.put('/branches/:id', protect, adminOnly, upload.single('photoFile'), updateBranch);
 router.delete('/branches/:id', protect, adminOnly, deleteBranch);
 
 // Staff Management (Admin only)

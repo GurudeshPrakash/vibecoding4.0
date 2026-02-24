@@ -3,9 +3,10 @@ import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, Clipboar
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
     const adminMenu = [
         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} /> },
         { id: 'owners', label: 'Managers', icon: <Users size={20} /> },
         { id: 'locations', label: 'Locations', icon: <MapPin size={20} /> },
         { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} /> },
@@ -21,16 +22,21 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger }) => {
             </div>
 
             <nav className="sidebar-nav">
-                {menuItems.map((item) => (
-                    <button
-                        key={item.id}
-                        className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-                        onClick={() => setActiveTab(item.id)}
-                    >
-                        {item.icon}
-                        <span>{item.label}</span>
-                    </button>
-                ))}
+                {menuItems.map((item) => {
+                    const isBlocked = adminRole !== 'super_admin' && (item.id === 'admins');
+                    return (
+                        <button
+                            key={item.id}
+                            className={`nav-item ${activeTab === item.id ? 'active' : ''} ${isBlocked ? 'blocked' : ''}`}
+                            onClick={() => {
+                                if (!isBlocked) setActiveTab(item.id);
+                            }}
+                        >
+                            {item.icon}
+                            <span>{item.label}</span>
+                        </button>
+                    );
+                })}
             </nav>
 
             <div className="sidebar-footer">

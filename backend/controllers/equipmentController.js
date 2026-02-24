@@ -232,6 +232,35 @@ exports.handleDismantleRequest = async (req, res) => {
         } else {
             dismantleRequest.status = 'Rejected';
             dismantleRequest.adminComment = req.body.comment || 'Rejected by Admin';
+
+            const equipment = await Equipment.findById(dismantleRequest.equipmentId);
+            if (equipment) {
+                equipment.status = 'Maintenance';
+
+                // Decrease usage
+                if (equipment.totalUsageHours && !isNaN(parseInt(equipment.totalUsageHours))) {
+                    const currentUsage = parseInt(equipment.totalUsageHours);
+                    equipment.totalUsageHours = Math.max(0, currentUsage - 50).toString();
+                }
+
+                // Increase time span (next maintenance)
+                if (equipment.nextMaintenance) {
+                    const nextMaint = new Date(equipment.nextMaintenance);
+                    nextMaint.setMonth(nextMaint.getMonth() + 3);
+                    equipment.nextMaintenance = nextMaint;
+                } else {
+                    const nextMaint = new Date();
+                    nextMaint.setMonth(nextMaint.getMonth() + 3);
+                    equipment.nextMaintenance = nextMaint;
+                }
+
+                if (!equipment.maintenanceHistory) equipment.maintenanceHistory = [];
+                equipment.maintenanceHistory.push({
+                    description: 'Dismantle Rejected - Forced Maintenance',
+                    date: new Date()
+                });
+                await equipment.save();
+            }
         }
 
         dismantleRequest.updatedAt = new Date();

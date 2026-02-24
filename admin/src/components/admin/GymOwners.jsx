@@ -103,13 +103,14 @@ const GymManagers = () => {
         const method = editingManager ? 'PUT' : 'POST';
 
         try {
+            const formDataWithRole = { ...formData, role: 'manager' };
             const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formDataWithRole)
             });
 
             if (response.ok) {

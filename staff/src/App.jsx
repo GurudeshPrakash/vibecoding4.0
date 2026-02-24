@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import TopNav from './components/shared/TopNav';
 import Landing from './components/shared/Landing';
 import StaffLogin from './components/staff/Login';
@@ -13,11 +14,15 @@ import { useNotifications } from './hooks/useNotifications';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentView, setCurrentView] = useState('landing');
   const loginRole = 'staff'; // Hardcoded for Staff app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const [staffTab, setStaffTab] = useState(window.history.state?.tab || 'dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Extract active path section for sidebar
+  const staffTab = location.pathname.split('/')[2] || 'dashboard';
+
   const [userName, setUserName] = useState('Staff member');
   const [userEmail, setUserEmail] = useState('');
   const [adminPhone, setAdminPhone] = useState('');
@@ -40,17 +45,32 @@ function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Restore session on refresh
   useEffect(() => {
-    const staffToken = localStorage.getItem('staff_token');
-    if (staffToken) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    if (urlToken) {
+      const urlUser = JSON.parse(decodeURIComponent(urlParams.get('user') || '{}'));
+      const urlLogId = urlParams.get('logId');
+
+      localStorage.setItem('staff_token', urlToken);
+      if (urlLogId) localStorage.setItem('staff_current_log', urlLogId);
+      localStorage.setItem('staff_user_info', JSON.stringify(urlUser));
+
       setIsAuthenticated(true);
-      // We no longer auto-set currentView to 'dashboard' here 
-      // so users always see the landing page first as requested.
-      const savedStaff = JSON.parse(localStorage.getItem('staff_user_info'));
-      if (savedStaff) {
-        setUserName(savedStaff.firstName);
-        setUserEmail(savedStaff.email);
+      setUserName(urlUser.firstName || 'Staff');
+      setUserEmail(urlUser.email || '');
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const staffToken = localStorage.getItem('staff_token');
+      if (staffToken) {
+        setIsAuthenticated(true);
+        const savedStaff = JSON.parse(localStorage.getItem('staff_user_info'));
+        if (savedStaff) {
+          setUserName(savedStaff.firstName || 'Staff');
+          setUserEmail(savedStaff.email || '');
+        }
       }
     }
   }, []);
@@ -86,9 +106,9 @@ function App() {
   const handleSelectRole = (role) => {
     if (role === 'staff') {
       if (isAuthenticated) {
-        setCurrentView('dashboard');
+        navigate('/staff/dashboard');
       } else {
-        setCurrentView('login');
+        navigate('/staff/login');
       }
     } else {
       alert("This is the Staff portal. Please use the Admin portal for admin access.");
@@ -99,7 +119,7 @@ function App() {
     setUserName(data.firstName);
     setUserEmail(data.email);
     setIsAuthenticated(true);
-    setCurrentView('dashboard');
+    navigate('/staff/dashboard');
   };
 
   const handleLogout = async () => {
@@ -121,31 +141,12 @@ function App() {
 
     setIsAuthenticated(false);
     setShowLogoutModal(false);
-    setCurrentView('landing');
+    navigate('/');
   };
 
-  if (!isAuthenticated || currentView !== 'dashboard') {
-    if (currentView === 'landing') return <Landing onSelectRole={handleSelectRole} />;
-
-    // If not authenticated, force routing to auth views
-    if (!isAuthenticated) {
-      if (currentView === 'login') {
-        return (
-          <StaffLogin onLogin={handleLogin} onBack={() => setCurrentView('landing')} />
-        );
-      }
-      return <Landing onSelectRole={handleSelectRole} />;
-    }
-
-    // If authenticated but currentView is login, redirect back to dashboard
-    if (isAuthenticated && currentView === 'login') {
-      setCurrentView('dashboard');
-    }
-  }
-
-  return (
+  const Layout = ({ children }) => (
     <div className="app-layout">
-      <StaffSidebar activeTab={staffTab} setActiveTab={setStaffTab} onLogoutTrigger={() => setShowLogoutModal(true)} />
+      <StaffSidebar activeTab={staffTab} setActiveTab={(tab) => navigate(`/staff/${tab}`)} onLogoutTrigger={() => setShowLogoutModal(true)} />
 
       <main className="main-container">
         <TopNav
@@ -155,7 +156,7 @@ function App() {
           toggleTheme={toggleTheme}
           profileImage={profileImage}
           setProfileImage={setProfileImage}
-          setActiveTab={setStaffTab}
+          setActiveTab={(tab) => navigate(`/staff/${tab}`)}
           onLogoutTrigger={() => setShowLogoutModal(true)}
           role="Manager"
           notifications={notifications}
@@ -164,29 +165,26 @@ function App() {
         />
 
         <div className="content-area">
-          {staffTab === 'dashboard' && (
-            <StaffDashboard
-              staffName={userName}
-              stats={stats}
-              allInventory={inventoryData}
-              dismantledHistory={dismantledHistory}
-              onFinalizeDismantle={finalizeDismantle}
-            />
-          )}
-          {staffTab === 'inventory' && (
-            <StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} />
-          )}
-          {staffTab === 'profile' && (
-            <StaffProfile
-              staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }}
-              setProfileImage={setProfileImage}
-            />
-          )}
+          {children}
         </div>
       </main>
 
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
     </div>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
+      <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
+
+      {/* Protected Routes */}
+      <Route path="/staff/dashboard" element={isAuthenticated ? <Layout><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></Layout> : <Navigate to="/staff/login" />} />
+      <Route path="/staff/inventory" element={isAuthenticated ? <Layout><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></Layout> : <Navigate to="/staff/login" />} />
+      <Route path="/staff/profile" element={isAuthenticated ? <Layout><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></Layout> : <Navigate to="/staff/login" />} />
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 

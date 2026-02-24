@@ -86,6 +86,16 @@
     box-shadow: 0 4px 15px rgba(230, 57, 70, 0.2);
 }
 
+.nav-item.blocked {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.nav-item.blocked:hover {
+    background: transparent;
+    color: var(--color-text-dim);
+}
+
 .sidebar-footer {
     padding: 24px 16px;
     border-top: 1px solid var(--border-color);

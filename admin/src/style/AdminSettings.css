@@ -1,14 +1,15 @@
 /* AdminSettings.css */
 
 .settings-page {
-    padding: 24px;
+    padding: 32px;
     height: 100%;
     overflow-y: auto;
     background: var(--color-bg);
+    animation: fadeIn 0.4s ease;
 }
 
 .content-header {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
 
 .page-title {

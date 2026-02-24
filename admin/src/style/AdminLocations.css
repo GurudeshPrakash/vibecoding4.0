@@ -1,17 +1,18 @@
 /* AdminLocations.css */
 
 .locations-view {
-    padding: 24px;
+    padding: 32px;
     height: 100%;
     overflow-y: auto;
     background: var(--color-bg);
+    animation: fadeIn 0.4s ease;
 }
 
 .content-header-search {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
+    align-items: flex-end;
+    margin-bottom: 40px;
     flex-wrap: wrap;
     gap: 20px;
 }
@@ -62,7 +63,7 @@
 /* Gym Grid */
 .gym-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
     padding-bottom: 40px;
 }

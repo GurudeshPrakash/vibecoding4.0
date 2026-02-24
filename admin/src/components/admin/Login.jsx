@@ -41,9 +41,11 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
         }
 
         localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_current_log', data.logId);
         localStorage.setItem('admin_user', JSON.stringify({
           firstName: data.firstName,
-          email: data.email
+          email: data.email,
+          role: data.role
         }));
 
         onLogin(data);
@@ -140,8 +142,9 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
         </form>
 
         <div className="login-footer">
-          <span>Don't have an admin account?</span>
-          <button className="signup-link" onClick={() => onGoToSignUp('signup')}>Sign Up</button>
+          <p style={{ opacity: 0.7, fontSize: '0.8rem' }}>
+            Protected System. Access restricted to authorized personnel.
+          </p>
         </div>
       </div>
 

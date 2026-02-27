@@ -27,9 +27,15 @@ import {
     AlertCircle,
     Download,
     Edit3,
-    QrCode
+    QrCode,
+    FileDown,
+    Loader2
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { jsPDF } from 'jspdf';
+import { Toaster, toast } from 'sonner';
+import 'jspdf-autotable';
+import logo from '../../assets/logo1.png';
 import '../../style/Inventory.css';
 
 const StaffInventory = ({ inventoryData, setInventoryData, addNotification, selectedEquipmentId, setSelectedEquipmentId }) => {
@@ -44,6 +50,38 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
     const [editItem, setEditItem] = useState(null);
     const [isScanned, setIsScanned] = useState(false);
     const qrRef = useRef(null);
+
+    const [dismantleReason, setDismantleReason] = useState('');
+    const [dismantlePhoto, setDismantlePhoto] = useState('');
+    const [showDismantlePopup, setShowDismantlePopup] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [dismantleErrors, setDismantleErrors] = useState({ reason: '', photo: '' });
+    const [dismantleRequests, setDismantleRequests] = useState([]);
+    const [isFetchingRequests, setIsFetchingRequests] = useState(false);
+
+    const fetchDismantleRequests = async () => {
+        try {
+            setIsFetchingRequests(true);
+            const token = localStorage.getItem('staff_token');
+            const response = await fetch('http://localhost:5000/api/equipment/dismantled-history', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setDismantleRequests(data);
+            }
+        } catch (error) {
+            console.error('Error fetching dismantle requests:', error);
+        } finally {
+            setIsFetchingRequests(false);
+        }
+    };
+
+    useEffect(() => {
+        if (viewMode === 'dismantle') {
+            fetchDismantleRequests();
+        }
+    }, [viewMode]);
 
     // Deep Linking: Auto-select from notification
     useEffect(() => {
@@ -201,6 +239,23 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
         document.body.removeChild(downloadLink);
     };
 
+    const handleDismantlePhotoSelect = (file) => {
+        if (!file) return;
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            toast.error('Invalid file type. Please upload JPG or PNG.');
+            setDismantleErrors(prev => ({ ...prev, photo: 'Invalid file type. Please upload JPG or PNG.' }));
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('File too large. Maximum size is 5MB.');
+            setDismantleErrors(prev => ({ ...prev, photo: 'File too large. Maximum size is 5MB.' }));
+            return;
+        }
+        setDismantlePhoto(file);
+        setDismantleErrors(prev => ({ ...prev, photo: '' }));
+    };
+
     const handleEditClick = (item) => {
         setEditItem({
             ...item,
@@ -220,26 +275,51 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
 
     const handleUpdateInventory = async (itemToUpdate = editItem) => {
         try {
+            setIsSubmitting(true);
             const token = localStorage.getItem('staff_token');
+            const isDismantled = (itemToUpdate.status === 'Dismantled');
+
+            if (isDismantled && (dismantleReason.length < 20 || !dismantlePhoto)) {
+                toast.error('Please provide a valid reason (min 20 chars) and photo.');
+                setShowDismantlePopup(true);
+                setIsSubmitting(false);
+                return;
+            }
+
+            let body, headers;
+
+            if (isDismantled) {
+                const formData = new FormData();
+                for (const key in itemToUpdate) {
+                    if (itemToUpdate[key] !== undefined && itemToUpdate[key] !== null) {
+                        formData.append(key, itemToUpdate[key]);
+                    }
+                }
+                formData.append('reason', dismantleReason);
+                formData.append('photoFile', dismantlePhoto);
+                body = formData;
+                headers = { 'Authorization': `Bearer ${token}` };
+            } else {
+                body = JSON.stringify(itemToUpdate);
+                headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+            }
+
             const response = await fetch(`http://localhost:5000/api/equipment/${itemToUpdate.id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(itemToUpdate)
+                headers,
+                body
             });
 
             if (response.ok) {
                 const result = await response.json();
 
                 if (result.requestPending) {
-                    alert('Dismantle request submitted! Waiting for Admin approval.');
+                    toast.success('Dismantle request submitted for Admin approval!');
+                    closeDismantlePopup();
                     setViewMode('detail');
                     return;
                 }
 
-                // Map back to frontend structure if necessary (specifically ensuring id is ._id if backend returns that)
                 const mappedItem = {
                     ...result,
                     id: result._id
@@ -250,35 +330,61 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                 );
                 setInventoryData(updatedList);
                 setSelectedEquipment(mappedItem);
+                closeDismantlePopup();
                 setViewMode('detail');
-                alert('Equipment updated successfully!');
+                toast.success('Equipment updated successfully!');
             } else {
                 const errorData = await response.json();
-                alert(`Update failed: ${errorData.message}`);
+                toast.error(`Update failed: ${errorData.message}`);
+                setIsSubmitting(false);
             }
         } catch (error) {
             console.error('Update error:', error);
-            alert('Failed to connect to server');
+            toast.error('Failed to connect to server');
+            setIsSubmitting(false);
         }
+    };
+
+    const closeDismantlePopup = () => {
+        setDetailStatus(selectedEquipment?.status || 'Good');
+        if (viewMode === 'edit') {
+            setEditItem({ ...editItem, status: selectedEquipment?.status || 'Good' });
+        } else if (viewMode === 'add') {
+            setNewMachine({ ...newMachine, status: 'Good' });
+        }
+        setDismantleReason('');
+        setDismantlePhoto('');
+        setDismantleErrors({ reason: '', photo: '' });
+        setIsSubmitting(false);
+        setShowDismantlePopup(false);
     };
 
     const handleQuickStatusUpdate = async (newStatus) => {
         try {
+            setIsSubmitting(true);
             const token = localStorage.getItem('staff_token');
+            const formData = new FormData();
+            formData.append('status', newStatus);
+
+            if (newStatus === 'Dismantled') {
+                formData.append('reason', dismantleReason);
+                formData.append('photoFile', dismantlePhoto);
+            }
+
             const response = await fetch(`http://localhost:5000/api/equipment/${selectedEquipment.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ status: newStatus })
+                body: formData
             });
 
             if (response.ok) {
                 const result = await response.json();
 
                 if (result.requestPending) {
-                    alert('Dismantle request submitted! Waiting for Admin approval.');
+                    toast.success('Dismantle request submitted for Admin approval!');
+                    closeDismantlePopup();
                     return;
                 }
 
@@ -290,15 +396,97 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                 const updatedList = inventoryData.map(d => d.id === mappedItem.id ? mappedItem : d);
                 setInventoryData(updatedList);
                 setSelectedEquipment(mappedItem);
-                alert(`Status updated to ${newStatus}`);
+                toast.success(`Status updated to ${newStatus}`);
+                closeDismantlePopup();
             } else {
                 const errorData = await response.json();
-                alert(`Status update failed: ${errorData.message}`);
+                toast.error(`Status update failed: ${errorData.message}`);
+                setIsSubmitting(false);
             }
         } catch (error) {
             console.error('Status update error:', error);
-            alert('Failed to connect to server');
+            toast.error('Failed to connect to server');
+            setIsSubmitting(false);
         }
+    };
+
+    const handleFinalizeDismantle = async (requestId) => {
+        if (!window.confirm('Are you sure you have physically dismantled and removed this equipment? This action will archive the record permanently.')) return;
+
+        try {
+            const token = localStorage.getItem('staff_token');
+            const response = await fetch(`http://localhost:5000/api/equipment/dismantle-finalize/${requestId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                toast.success('Physical dismantling confirmed and record archived.');
+                fetchDismantleRequests();
+            } else {
+                toast.error('Failed to finalize dismantling.');
+            }
+        } catch (error) {
+            console.error('Finalize error:', error);
+            toast.error('Connection error.');
+        }
+    };
+
+    const generateDismantleReport = (request) => {
+        const doc = new jsPDF();
+        
+        // Add Header
+        doc.setFillColor(33, 33, 33);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text("ASSET DISMANTLE REPORT", 105, 25, { align: 'center' });
+        
+        doc.setFontSize(10);
+        doc.text(`Official Document ID: DIS-${request._id.substring(0, 8).toUpperCase()}`, 105, 32, { align: 'center' });
+
+        // Content
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("EQUIPMENT IDENTIFICATION", 15, 60);
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+        doc.text(`Name: ${request.equipmentName}`, 15, 70);
+        doc.text(`Internal ID: ${request.equipmentCustomId || 'N/A'}`, 15, 76);
+        doc.text(`Branch: ${request.branch}`, 15, 82);
+        doc.text(`Type: ${request.equipmentType || 'N/A'}`, 15, 88);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("DISMANTLE DETAILS", 15, 105);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Requested By: ${request.staffName}`, 15, 115);
+        doc.text(`Request Date: ${new Date(request.createdAt).toLocaleDateString()}`, 15, 121);
+        doc.text(`Approval Date: ${new Date(request.updatedAt).toLocaleDateString()}`, 15, 127);
+        doc.text(`Reason: ${request.reason}`, 15, 133, { maxWidth: 180 });
+
+        doc.setFont("helvetica", "bold");
+        doc.text("FINANCIAL & STATUS AT REMOVAL", 15, 155);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Original Price: LKR ${request.price || 0}`, 15, 165);
+        doc.text(`Usage at Removal: ${request.maintenanceCount || 0} services performed`, 15, 171);
+        doc.text(`Last Maintenance: ${request.lastMaintenance || 'N/A'}`, 15, 177);
+
+        // Verification
+        doc.setDrawColor(200, 200, 200);
+        doc.rect(15, 200, 180, 50);
+        doc.text("PHYSICAL VERIFICATION STATEMENT", 105, 210, { align: 'center' });
+        doc.setFontSize(9);
+        doc.text("This document certifies that the above equipment has been physically removed from the branch floor", 105, 220, { align: 'center' });
+        doc.text("and transitioned to the warehouse or disposal unit as per the Power World Asset Management Protocol.", 105, 225, { align: 'center' });
+
+        doc.text("________________________", 50, 240);
+        doc.text("Manager Signature", 50, 245);
+        doc.text("________________________", 160, 240);
+        doc.text("Admin Verification", 160, 245);
+
+        doc.save(`Dismantle_Report_${request.equipmentCustomId || 'Item'}.pdf`);
     };
 
     const handleCancelEdit = () => {
@@ -399,87 +587,294 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
         }
     };
 
+    const handleGeneratePDF = async (item) => {
+        const doc = new jsPDF();
+
+        // Helper to load image properly for PDF
+        const loadImage = (url) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = url;
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null); // Fallback for failing images
+            });
+        };
+
+        // Header Background
+        doc.setFillColor(30, 30, 30);
+        doc.rect(0, 0, 210, 40, 'F');
+
+        // Add Logo
+        const loadedLogo = await loadImage(logo);
+        if (loadedLogo) {
+            doc.addImage(loadedLogo, 'PNG', 15, 10, 45, 20);
+        }
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont("helvetica", "bold");
+        doc.text("ASSET DATA SHEET", 110, 25);
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Inventory ID: ${item.customId || item.id}`, 110, 32);
+
+        // Body Header
+        doc.setTextColor(33, 33, 33);
+        doc.setFontSize(18);
+        doc.text(item.name.toUpperCase(), 15, 50);
+
+        doc.setDrawColor(220, 20, 60);
+        doc.setLineWidth(1);
+        doc.line(15, 55, 195, 55);
+
+        // Equipment Main Image
+        const equipImg = await loadImage(item.photo);
+        if (equipImg) {
+            doc.addImage(equipImg, 'JPEG', 15, 65, 90, 65);
+            doc.setDrawColor(200);
+            doc.rect(15, 65, 90, 65);
+        }
+
+        // technical Info Table (positioned next to image)
+        doc.autoTable({
+            startY: 65,
+            margin: { left: 110 },
+            tableWidth: 85,
+            head: [['General Specification', 'Value']],
+            body: [
+                ['Asset Name', item.name],
+                ['Category', item.category],
+                ['Type', item.type],
+                ['Branch', item.branch],
+                ['Location Area', item.area],
+                ['Current Status', item.status],
+            ],
+            theme: 'striped',
+            headStyles: { fillColor: [220, 20, 60], fontSize: 9 },
+            styles: { fontSize: 8, cellPadding: 2 }
+        });
+
+        // Specs Grid
+        doc.autoTable({
+            startY: 140,
+            head: [['Hardware Details', 'Operational Metrics']],
+            body: [
+                [`Brand: ${item.brand || 'N/A'}`, `Power: ${item.power || 'N/A'}`],
+                [`Model: ${item.model || 'N/A'}`, `Voltage: ${item.voltage || 'N/A'}`],
+                [`Serial: ${item.serial || 'N/A'}`, `Max Load: ${item.maxLoad || 'N/A'}`],
+                [`MFG Year: ${item.mfgYear || 'N/A'}`, `Usage: ${item.usageType || 'N/A'}`],
+                [`Origin: ${item.origin || 'N/A'}`, `Warranty: ${item.warranty || 'N/A'}`],
+            ],
+            theme: 'grid',
+            headStyles: { fillColor: [60, 60, 60], fontSize: 10 },
+            styles: { fontSize: 9 }
+        });
+
+        // QR Code & Identification
+        const qrCanvas = document.getElementById(`qr-gen-${item.id}`);
+        if (qrCanvas) {
+            const qrImg = qrCanvas.toDataURL("image/png");
+            doc.addImage(qrImg, 'PNG', 150, 210, 45, 45);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("SCAN FOR ASSET IDENTITY", 150, 262);
+        }
+
+        // Footer
+        doc.setDrawColor(230);
+        doc.line(15, 275, 195, 275);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text("POWER WORLD GYM MANAGEMENT SYSTEM - CONFIDENTIAL ASSET RECORD", 15, 282);
+        doc.text(`Generated Date: ${new Date().toLocaleString()}`, 150, 282);
+
+        doc.save(`${item.name}_InventoryRecord.pdf`);
+    };
+
+    const getTimeAgo = (dateString) => {
+        if (!dateString) return 'Just now';
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+
+        let interval = Math.floor(seconds / 31536000);
+        if (interval >= 1) return interval + (interval === 1 ? ' yr ago' : ' yrs ago');
+        interval = Math.floor(seconds / 2592000);
+        if (interval >= 1) return interval + (interval === 1 ? ' month ago' : ' months ago');
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) return interval + (interval === 1 ? ' day ago' : ' days ago');
+        interval = Math.floor(seconds / 3600);
+        if (interval >= 1) return interval + (interval === 1 ? ' hr ago' : ' hrs ago');
+        interval = Math.floor(seconds / 60);
+        if (interval >= 1) return interval + (interval === 1 ? ' min ago' : ' mins ago');
+        return seconds <= 5 ? 'Just now' : Math.floor(seconds) + 's ago';
+    };
+
     return (
         <div className="inventory-page">
 
             {/* Conditional Rendering: List View */}
-            {viewMode === 'list' && (
+            {viewMode === 'list' || viewMode === 'dismantle' ? (
                 <>
                     <header className="inventory-header-flex">
                         <div className="header-left">
-                            <h1>Daily Inventory <span className="highlight-red">Work</span></h1>
-                            <p className="subtitle">Select an equipment card to update status or view full documentation.</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '8px' }}>
+                                <Dumbbell className="highlight-red" size={32} />
+                                <h1>Gym <span className="highlight-red">Inventory</span></h1>
+                            </div>
+                            <div className="view-tabs" style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
+                                <button className={`tab-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>Active Assets</button>
+                                <button className={`tab-btn ${viewMode === 'dismantle' ? 'active' : ''}`} onClick={() => setViewMode('dismantle')}>
+                                    Dismantle Approvals
+                                    {dismantleRequests.filter(r => r.status === 'Approved').length > 0 && <span className="notif-dot"></span>}
+                                </button>
+                            </div>
+                            <p className="subtitle">Manage and track equipment lifecycle from acquisition to removal.</p>
                         </div>
                         <div className="header-right-tools">
-                            <button className="add-inventory-btn" onClick={() => navigateToView('add')}>
-                                <Plus size={20} /> Add
-                            </button>
-                            <div className="search-box-v4">
-                                <Search className="search-icon" size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="Search by equipment name or machine ID"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <div className="filter-dropdown-v4">
-                                <select
-                                    className="category-select-v4"
-                                    value={categoryFilter}
-                                    onChange={(e) => setCategoryFilter(e.target.value)}
-                                >
-                                    <option value="All">All Categories</option>
-                                    <option value="Cardio">Cardio</option>
-                                    <option value="Weight Machine">Weight Machine</option>
-                                    <option value="Free Weight">Free Weight</option>
-                                </select>
-                                <ChevronDown className="dropdown-icon" size={18} />
-                            </div>
+                            {viewMode === 'list' && (
+                                <>
+                                    <button className="add-inventory-btn" onClick={() => navigateToView('add')}>
+                                        <Plus size={20} /> Add
+                                    </button>
+                                    <div className="search-box-v4">
+                                        <Search className="search-icon" size={20} />
+                                        <input
+                                            type="text"
+                                            placeholder="Search by equipment name or machine ID"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="filter-dropdown-v4">
+                                        <select
+                                            className="category-select-v4"
+                                            value={categoryFilter}
+                                            onChange={(e) => setCategoryFilter(e.target.value)}
+                                        >
+                                            <option value="All">All Categories</option>
+                                            <option value="Cardio">Cardio</option>
+                                            <option value="Weight Machine">Weight Machine</option>
+                                            <option value="Free Weight">Free Weight</option>
+                                        </select>
+                                        <ChevronDown className="dropdown-icon" size={18} />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </header>
 
-                    <div className="inventory-grid-v4">
-                        {filteredInventory.map(item => (
-                            <div
-                                key={item.id}
-                                className="equipment-card-v4"
-                                onClick={() => handleCardClick(item)}
-                            >
-                                <div className="card-image-wrapper">
-                                    <img src={item.photo} alt={item.name} />
-                                    {/* SMALL QR OVERLAY */}
-                                    <div className="card-qr-overlay" onClick={(e) => { e.stopPropagation(); handleDownloadQR(item.id); }}>
-                                        <QrCode size={16} />
-                                        <div className="hidden-qr-gen" style={{ display: 'none' }}>
-                                            <QRCodeCanvas
-                                                id={`qr-gen-${item.id}`}
-                                                value={`${window.location.origin}${window.location.pathname}?scan=${item.id}`}
-                                                size={128}
-                                            />
+                    {viewMode === 'list' ? (
+                        <div className="inventory-grid-v4">
+                            {filteredInventory.map(item => (
+                                <div
+                                    key={item.id}
+                                    className="equipment-card-v4"
+                                    onClick={() => handleCardClick(item)}
+                                >
+                                    <div className="card-image-wrapper">
+                                        <img src={item.photo} alt={item.name} />
+                                        {/* SMALL QR OVERLAY */}
+                                        <div className="card-qr-overlay" onClick={(e) => { e.stopPropagation(); handleDownloadQR(item.id); }}>
+                                            <QrCode size={16} />
+                                            <div className="hidden-qr-gen" style={{ display: 'none' }}>
+                                                <QRCodeCanvas
+                                                    id={`qr-gen-${item.id}`}
+                                                    value={`--- EQUIPMENT PROFILE ---\nID: ${item.customId || item.id}\nName: ${item.name}\nType: ${item.type}\nArea: ${item.area}\nStatus: ${item.status}\nBranch: ${item.branch}\n\nPOWER WORLD GYMS\nDigital Asset Record`}
+                                                    size={256}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="card-details-basic">
+                                        <div className="card-title-row">
+                                            <span className="machine-id-badge">{item.customId || item.id}</span>
+                                            <h3>{item.name}</h3>
+                                        </div>
+                                        <div className="meta-info-grid">
+                                            <div className="meta-item-v4"><Tag size={14} /> {item.type}</div>
+                                            <div className="meta-item-v4"><MapPin size={14} /> {item.area}</div>
+                                            <div className="meta-item-v4"><Building2 size={14} /> {item.branch}</div>
+                                        </div>
+                                        <div className={`status-indicator-v4 ${(item.status?.toLowerCase() || 'good')}`}>
+                                            <div className="glow-dot-v4"></div>
+                                            <span className="status-text-v4">{item.status || 'Good'} Condition</span>
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748B', display: 'flex', alignItems: 'center', marginTop: '12px' }}>
+                                            <Clock size={12} style={{ marginRight: '4px' }} /> Added {getTimeAgo(item.createdAt)}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="card-details-basic">
-                                    <div className="card-title-row">
-                                        <span className="machine-id-badge">{item.customId || item.id}</span>
-                                        <h3>{item.name}</h3>
-                                    </div>
-                                    <div className="meta-info-grid">
-                                        <div className="meta-item-v4"><Tag size={14} /> {item.type}</div>
-                                        <div className="meta-item-v4"><MapPin size={14} /> {item.area}</div>
-                                        <div className="meta-item-v4"><Building2 size={14} /> {item.branch}</div>
-                                    </div>
-                                    <div className={`status-indicator-v4 ${(item.status?.toLowerCase() || 'good')}`}>
-                                        <div className="glow-dot-v4"></div>
-                                        <span className="status-text-v4">{item.status || 'Good'} Condition</span>
-                                    </div>
-                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="dismantle-requests-view">
+                            <div className="dismantle-table-container">
+                                <table className="dismantle-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset Info</th>
+                                            <th>Requested Date</th>
+                                            <th>Reason</th>
+                                            <th>Admin Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dismantleRequests.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="empty-table">No dismantle requests found.</td>
+                                            </tr>
+                                        ) : (
+                                            dismantleRequests.map(req => (
+                                                <tr key={req._id}>
+                                                    <td>
+                                                        <div className="asset-info-cell">
+                                                            <strong>{req.equipmentName}</strong>
+                                                            <span>{req.equipmentCustomId || 'No ID'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+                                                    <td className="reason-cell" title={req.reason}>{req.reason}</td>
+                                                    <td>
+                                                        <span className={`status-pill ${req.status.toLowerCase()}`}>
+                                                            {req.status === 'Pending' ? <Clock size={14} /> : (req.status === 'Approved' ? <CheckCircle size={14} /> : <X size={14} />)}
+                                                            {req.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div className="action-btns-flex">
+                                                            {req.status === 'Approved' && (
+                                                                <>
+                                                                    <button className="finalize-btn" onClick={() => handleFinalizeDismantle(req._id)} title="Physical Dismantle Complete">
+                                                                        <Package size={16} /> Finalize
+                                                                    </button>
+                                                                    <button className="report-btn" onClick={() => generateDismantleReport(req)}>
+                                                                        <Download size={16} /> Report
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                            {req.status === 'Rejected' && (
+                                                                <span className="comment-hint" title={req.adminComment}>Recheck Admin Comment</span>
+                                                            )}
+                                                            {req.status === 'Pending' && (
+                                                                <span className="pending-hint">Waiting for Admin</span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    )}
                 </>
-            )}
+            ) : null}
 
             {/* RESTORED OLD LAYOUT WITH QR & EDIT INTEGRATION */}
             {viewMode === 'detail' && selectedEquipment && (
@@ -513,8 +908,8 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                                 <div className="detail-qr-wrapper">
                                     <QRCodeCanvas
                                         id={`qr-gen-${selectedEquipment.id}`}
-                                        value={`${window.location.origin}${window.location.pathname}?scan=${selectedEquipment.id}`}
-                                        size={160}
+                                        value={`--- EQUIPMENT IDENTITY PROFILE ---\nID: ${selectedEquipment.customId || selectedEquipment.id}\nNAME: ${selectedEquipment.name}\nTYPE: ${selectedEquipment.type}\nAREA: ${selectedEquipment.area}\nSTATUS: ${selectedEquipment.status}\nBRAND: ${selectedEquipment.brand || 'N/A'}\nMODEL: ${selectedEquipment.model || 'N/A'}\nSERIAL: ${selectedEquipment.serial || 'N/A'}\nBRANCH: ${selectedEquipment.branch}\n\nVERIFIED ASSET RECORD\nPOWER WORLD GYM MANAGEMENT`}
+                                        size={256}
                                         level={"H"}
                                         includeMargin={true}
                                         style={{ background: '#fff', padding: '8px', borderRadius: '12px' }}
@@ -536,15 +931,33 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                                     <select
                                         className="status-select"
                                         value={detailStatus}
-                                        onChange={(e) => setDetailStatus(e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === 'Dismantled') {
+                                                setDetailStatus('Dismantled');
+                                                setShowDismantlePopup(true);
+                                            } else {
+                                                setDetailStatus(val);
+                                            }
+                                        }}
                                     >
                                         <option value="Good">Good</option>
                                         <option value="Maintenance">Maintenance</option>
                                         <option value="Dismantled">Dismantled</option>
                                     </select>
                                 </div>
-                                <button className="confirm-btn" onClick={() => handleQuickStatusUpdate(detailStatus)}>
+                                <button className="confirm-btn" onClick={() => {
+                                    if (detailStatus === 'Dismantled') {
+                                        setShowDismantlePopup(true);
+                                    } else {
+                                        handleQuickStatusUpdate(detailStatus);
+                                    }
+                                }}>
                                     <CheckCircle size={18} /> Confirm Quick Status
+                                </button>
+                                <div className="action-divider"><span>REPORTS</span></div>
+                                <button className="download-qr-btn-v2" style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => handleGeneratePDF(selectedEquipment)}>
+                                    <FileDown size={18} /> Export PDF Profile
                                 </button>
                             </div>
                         </div>
@@ -671,7 +1084,14 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                                             <label>Machine Condition Status*</label>
                                             <select
                                                 value={editItem.status}
-                                                onChange={(e) => setEditItem({ ...editItem, status: e.target.value })}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === 'Dismantled') {
+                                                        setShowDismantlePopup(true);
+                                                    } else {
+                                                        setEditItem({ ...editItem, status: val });
+                                                    }
+                                                }}
                                                 className="dashboard-select"
                                             >
                                                 <option value="Good">Good</option>
@@ -885,10 +1305,15 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                                         </div>
                                         <div className="form-group">
                                             <label>Status *</label>
-                                            <select name="status" value={newMachine.status} onChange={handleInputChange}>
+                                            <select name="status" value={newMachine.status} onChange={(e) => {
+                                                handleInputChange(e);
+                                                if (e.target.value === 'Dismantled') {
+                                                    setShowDismantlePopup(true);
+                                                }
+                                            }}>
                                                 <option value="Good">Good</option>
                                                 <option value="Maintenance">Maintenance</option>
-                                                <option value="Dismantled">Dismantled</option>
+                                                {viewMode === 'edit' && <option value="Dismantled">Dismantled</option>}
                                             </select>
                                         </div>
                                     </div>
@@ -968,6 +1393,111 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                     </div>
                 )
             }
+
+            {/* Dismantle Request Popup Modal */}
+            {showDismantlePopup && (
+                <div className="dismantle-modal-overlay">
+                    <div className="dismantle-modal-container">
+                        <div className="dismantle-modal-header">
+                            <div className="title-section">
+                                <h2>Request Asset Dismantle</h2>
+                                <p>Approval from Administrator is mandatory for asset removal.</p>
+                            </div>
+                            <button className="modal-close-icon" onClick={closeDismantlePopup}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="asset-preview-strip">
+                            <img src={selectedEquipment?.photo || editItem?.photo} alt="Asset" className="strip-img" />
+                            <div className="strip-info">
+                                <strong>{selectedEquipment?.name || editItem?.name}</strong>
+                                <span>{selectedEquipment?.customId || editItem?.customId || (selectedEquipment?.id || editItem?.id)}</span>
+                            </div>
+                        </div>
+
+                        <div className="dismantle-modal-body">
+                            <div className="form-field">
+                                <label className="field-label">Reason for Dismantling <span className="req">*</span></label>
+                                <textarea
+                                    className={`reason-textarea ${dismantleReason.length > 0 && dismantleReason.length < 20 ? 'error' : dismantleReason.length >= 20 ? 'valid' : ''}`}
+                                    placeholder="Please provide a detailed explanation (minimum 20 characters)..."
+                                    value={dismantleReason}
+                                    onChange={(e) => {
+                                        setDismantleReason(e.target.value);
+                                        if (e.target.value.length >= 20) setDismantleErrors(prev => ({ ...prev, reason: '' }));
+                                    }}
+                                    rows="4"
+                                />
+                                {dismantleReason.length > 0 && dismantleReason.length < 20 && (
+                                    <span className="error-hint">Reason must be at least 20 characters (currently {dismantleReason.length}).</span>
+                                )}
+                            </div>
+
+                            <div className="form-field">
+                                <label className="field-label">Equipment Condition Photo <span className="req">*</span></label>
+                                <div 
+                                    className={`dismantle-dropzone ${dismantlePhoto ? 'has-file' : ''}`}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        const file = e.dataTransfer.files[0];
+                                        if (file) handleDismantlePhotoSelect(file);
+                                    }}
+                                >
+                                    {dismantlePhoto ? (
+                                        <div className="photo-preview-container">
+                                            <img src={URL.createObjectURL(dismantlePhoto)} alt="Preview" />
+                                            <button className="remove-photo-overlay" onClick={() => setDismantlePhoto(null)}>
+                                                <X size={16} /> Change Photo
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="dropzone-inner">
+                                            <Upload className="upload-icon" size={32} />
+                                            <div className="upload-text">
+                                                <strong>Click to upload</strong> or drag and drop
+                                                <span>JPG, PNG or JPEG (Max 5MB)</span>
+                                            </div>
+                                            <input 
+                                                type="file" 
+                                                hidden 
+                                                accept=".jpg,.jpeg,.png"
+                                                onChange={(e) => handleDismantlePhotoSelect(e.target.files[0])} 
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                                {dismantleErrors.photo && <span className="error-hint">{dismantleErrors.photo}</span>}
+                            </div>
+                        </div>
+
+                        <div className="dismantle-modal-footer">
+                            <button className="modal-cancel-btn" onClick={closeDismantlePopup} disabled={isSubmitting}>
+                                Cancel
+                            </button>
+                            <button
+                                className="modal-submit-btn"
+                                disabled={dismantleReason.length < 20 || !dismantlePhoto || isSubmitting}
+                                onClick={() => {
+                                    if (viewMode === 'edit') {
+                                        handleUpdateInventory(editItem);
+                                    } else {
+                                        handleQuickStatusUpdate('Dismantled');
+                                    }
+                                }}
+                            >
+                                {isSubmitting ? (
+                                    <><Loader2 className="spinner" size={18} /> Submitting...</>
+                                ) : (
+                                    'Submit Request'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <Toaster position="top-right" richColors />
         </div >
     );
 };

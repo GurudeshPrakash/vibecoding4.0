@@ -130,7 +130,6 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
               type="button"
               className="forgot-pass"
               onClick={() => onGoToSignUp('forgot-password')}
-              style={{ background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '0.85rem' }}
             >
               Forgot Password?
             </button>

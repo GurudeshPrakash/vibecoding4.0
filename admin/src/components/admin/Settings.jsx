@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Bell, Monitor, Palette, Camera, Save, BellRing, Settings as SettingsIcon } from 'lucide-react';
+import { User, Bell, Monitor, Camera, Save, BellRing, Settings as SettingsIcon } from 'lucide-react';
 import '../../style/AdminSettings.css';
 
 const Settings = ({
@@ -7,8 +7,6 @@ const Settings = ({
   setAdminName,
   profileImage,
   setProfileImage,
-  theme,
-  toggleTheme,
   realTimeUpdates,
   setRealTimeUpdates
 }) => {
@@ -157,39 +155,6 @@ const Settings = ({
           </div>
         </section>
 
-        {/* Theme & Display Settings */}
-        <section className="settings-section card">
-          <div className="section-header-top">
-            <Palette size={20} color="var(--color-red)" />
-            <h3>Theme & Appearance</h3>
-          </div>
-
-          <div className="theme-selector-group">
-            <div className="settings-option">
-              <div className="option-info">
-                <h4>Dark Mode</h4>
-                <p>Use the sleek dark interface (Black & Ash)</p>
-              </div>
-              <label className="toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={theme === 'dark'}
-                  onChange={toggleTheme}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-
-            <div className="theme-color-preview">
-              <label>Theme Colors</label>
-              <div className="color-dots">
-                <div className="color-dot" style={{ background: 'var(--color-red)' }} title="Primary Red"></div>
-                <div className="color-dot" style={{ background: 'var(--color-bg)' }} title="Background"></div>
-                <div className="color-dot" style={{ background: 'var(--color-surface)' }} title="Surface"></div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* System Preferences */}
         <section className="settings-section card">

@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
     CheckCircle2,
@@ -14,324 +15,371 @@ import {
     Trophy,
     Plus,
     AlertTriangle,
-    MoreHorizontal
+    MoreHorizontal,
+    Zap,
+    Cpu,
+    Users,
+    DollarSign,
+    CreditCard
 } from 'lucide-react';
 import {
-    LineChart,
+    ComposedChart,
+    Bar,
     Line,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
-    Legend,
-    ResponsiveContainer
+    ResponsiveContainer,
+    Cell,
+    ReferenceLine
 } from 'recharts';
 
+import heroImage from '../../assets/gym_man_hero.png';
 import '../../style/AdminDashboard.css';
 
-const AdminDashboard = ({ stats, adminName, realTimeEnabled, recentInventory = [], allInventory = [], dismantleRequests = [], setDismantleRequests, refreshInventory, dismantledHistory = [] }) => {
-    const [visibleLines, setVisibleLines] = useState({
-        good: true,
-        maintenance: true,
-        dismantled: true
-    });
+const MiniCalendar = () => {
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    const today = now.getDate();
+
+    const monthName = now.toLocaleString('default', { month: 'long' });
+    const year = now.getFullYear();
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+    return (
+        <div className="mini-calendar">
+            <div className="cal-header">
+                <span className="cal-month">{monthName} {year}</span>
+                <Calendar size={18} color="var(--color-red)" />
+            </div>
+            <div className="cal-grid">
+                {days.map(d => <div key={d} className="cal-day-label">{d}</div>)}
+                {[...Array(firstDay)].map((_, i) => <div key={`empty-${i}`} />)}
+                {[...Array(daysInMonth)].map((_, i) => {
+                    const d = i + 1;
+                    return (
+                        <div
+                            key={d}
+                            className={`cal-date ${d === today ? 'active' : ''}`}
+                        >
+                            {d}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleRequests = [], setDismantleRequests, refreshInventory }) => {
+    const navigate = useNavigate();
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [adminComment, setAdminComment] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleAction = async (requestId, action) => {
         try {
+            setIsProcessing(true);
             const token = localStorage.getItem('admin_token');
             const response = await fetch(`http://localhost:5000/api/equipment/requests/${requestId}/${action}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ comment: action === 'approve' ? 'Approved by Admin' : 'Rejected by Admin' })
+                body: JSON.stringify({ comment: adminComment || (action === 'approve' ? 'Approved by Admin' : 'Rejected by Admin') })
             });
 
             if (response.ok) {
                 alert(`Successfully ${action}d dismantle request.`);
                 setDismantleRequests(prev => prev.filter(r => r._id !== requestId));
+                setSelectedRequest(null);
+                setAdminComment('');
                 if (action === 'approve' && refreshInventory) {
                     refreshInventory();
                 }
-            } else {
-                const error = await response.json();
-                alert(`Error: ${error.message}`);
             }
         } catch (error) {
             console.error('Action error:', error);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
-    // ... (monthlyData, getStatusColor, CustomTooltip remain the same) ...
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const peakHoursData = [
+        { hour: '6am', count: 45 },
+        { hour: '9am', count: 120 },
+        { hour: '12pm', count: 85 },
+        { hour: '3pm', count: 95 },
+        { hour: '6pm', count: 180 },
+        { hour: '9pm', count: 110 },
+    ];
 
-    // Generate historical data based on real inventory createdAt
-    const monthlyData = useMemo(() => {
-        const combinedInventory = [
-            ...allInventory,
-            ...dismantledHistory.map(h => ({ ...h, status: 'Dismantled', createdAt: h.createdAt }))
-        ];
+    const revenueTrend = [
+        { month: 'Jan', amount: 450000 },
+        { month: 'Feb', amount: 520000 },
+        { month: 'Mar', amount: 490000 },
+        { month: 'Apr', amount: 580000 },
+        { month: 'May', amount: 610000 },
+    ];
 
-        if (combinedInventory.length === 0) {
-            return months.map(m => ({ name: m, good: 0, maintenance: 0, dismantled: 0 }));
-        }
-
-        const currentYear = new Date().getFullYear();
-        return months.map((month, index) => {
-            const monthEnd = new Date(currentYear, index + 1, 0, 23, 59, 59);
-            const itemsUntilMonth = combinedInventory.filter(item => {
-                const createdDate = item.createdAt ? new Date(item.createdAt) : new Date(0);
-                return createdDate <= monthEnd;
-            });
-            return {
-                name: month,
-                good: itemsUntilMonth.filter(i => i.status === 'Good').length,
-                maintenance: itemsUntilMonth.filter(i => i.status === 'Maintenance').length,
-                dismantled: itemsUntilMonth.filter(i => i.status === 'Dismantled').length
-            };
-        });
-    }, [allInventory, dismantledHistory, stats]);
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Good': return '#4caf50';
-            case 'Maintenance': return '#ffeb3b';
-            case 'Dismantled': return '#FF0000';
-            default: return '#fff';
-        }
-    };
-
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="custom-tooltip">
-                    <p className="label">{`${label}`}</p>
-                    {payload.map((entry, index) => (
-                        <p key={index} style={{ color: entry.color }}>
-                            {`${entry.name}: ${entry.value}`}
-                        </p>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
+    const assetDistribution = [
+        { name: 'Operational', value: stats.good || 85, color: '#10B981' },
+        { name: 'Repair', value: stats.maintenance || 12, color: '#F59E0B' },
+        { name: 'Retired', value: stats.dismantled || 5, color: '#EF4444' },
+    ];
 
     return (
         <div className="admin-dashboard">
-            <header className="dashboard-header-flex">
-                <div className="header-left">
-                    <h1 className="welcome-admin">Admin <span className="highlight-red">Dashboard</span></h1>
-                    <div className="date-time-display">
-                        <Calendar size={16} />
-                        <span>Running Since</span>
-                        <div className="time-divider"></div>
-                        <Clock size={16} />
-                        <span>Oct 2024</span>
-                    </div>
+            <header className="sa-header" style={{ marginBottom: '32px' }}>
+                <div className="sa-welcome">
+                    <h1>Branch Terminal</h1>
+                    <p>Facility operations and asset monitoring live</p>
                 </div>
-                <div className="header-right-actions">
-                    <div className="user-badge-mini card">
-                        <Trophy size={18} color="#FF0000" />
-                        <span>{adminName}</span>
+                <div className="sa-actions">
+                    <div className="date-time-display">
+                        <Calendar size={18} />
+                        <span>{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                 </div>
             </header>
 
-            {/* 4 Cards in a Single Row */}
-            <div className="live-stats-row">
-                <div className="live-card card total">
-                    <div className="card-inner">
-                        <div className="icon-box"><Package size={24} /></div>
-                        <div className="card-data">
-                            <span className="label">Total Inventory</span>
-                            <h2 className="value">{stats.total}</h2>
-                        </div>
+            <section className="sa-summary-grid" style={{ marginBottom: '32px' }}>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users /></div>
+                    <div className="card-data">
+                        <span className="label">Branch Members</span>
+                        <h2 className="value">1,240</h2>
                     </div>
                 </div>
-
-                <div className="live-card card good">
-                    <div className="card-inner">
-                        <div className="icon-box"><CheckCircle2 size={24} /></div>
-                        <div className="card-data">
-                            <span className="label">Good Condition</span>
-                            <h2 className="value">{stats.good}</h2>
-                        </div>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Activity /></div>
+                    <div className="card-data">
+                        <span className="label">Active on Floor</span>
+                        <h2 className="value">42</h2>
                     </div>
                 </div>
-
-                <div className="live-card card maintenance">
-                    <div className="card-inner">
-                        <div className="icon-box"><Wrench size={24} /></div>
-                        <div className="card-data">
-                            <span className="label">Under Maintenance</span>
-                            <h2 className="value">{stats.maintenance}</h2>
-                        </div>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><Zap /></div>
+                    <div className="card-data">
+                        <span className="label">Staff on Duty</span>
+                        <h2 className="value">08</h2>
                     </div>
                 </div>
-
-                <div className="live-card card dismantled">
-                    <div className="card-inner">
-                        <div className="icon-box"><ShieldAlert size={24} /></div>
-                        <div className="card-data">
-                            <span className="label">Dismantled</span>
-                            <h2 className="value">{stats.dismantled}</h2>
-                        </div>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Package /></div>
+                    <div className="card-data">
+                        <span className="label">Facility Health</span>
+                        <h2 className="value">{((stats.good / stats.total) * 100 || 92).toFixed(0)}%</h2>
                     </div>
                 </div>
-            </div>
-
-            {/* Dismantle Requests Banner */}
-            {dismantleRequests.length > 0 && (
-                <div className="card" style={{ marginBottom: '32px', border: '1px solid var(--color-red)', background: 'rgba(230, 57, 70, 0.05)' }}>
-                    <div className="card-header-v2" style={{ padding: '20px 24px', borderBottom: '1px solid rgba(230, 57, 70, 0.2)' }}>
-                        <div className="header-tag">
-                            <AlertTriangle size={20} color="var(--color-red)" />
-                            <h3>Approval Required: Dismantle Requests</h3>
-                        </div>
-                        <span className="count-badge-v2" style={{ background: 'var(--color-red)', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>{dismantleRequests.length} Pending</span>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6' }}><DollarSign /></div>
+                    <div className="card-data">
+                        <span className="label">MTD Revenue</span>
+                        <h2 className="value">LKR 5.2M</h2>
                     </div>
-                    <div className="requests-stack" style={{ padding: '16px 24px' }}>
-                        {dismantleRequests.map(req => (
-                            <div key={req._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: req !== dismantleRequests[dismantleRequests.length - 1] ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                                <div>
-                                    <h4 style={{ color: 'var(--color-text)', marginBottom: '4px' }}>{req.equipmentName} <span style={{ color: 'var(--color-text-dim)', fontWeight: 'normal', fontSize: '0.9rem' }}>({req.equipmentCustomId})</span></h4>
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--color-text-dim)' }}>Branch: <strong>{req.branch}</strong> • Manager: {req.staffName}</p>
-                                </div>
-                                <div style={{ display: 'flex', gap: '12px' }}>
-                                    <button
-                                        onClick={() => handleAction(req._id, 'reject')}
-                                        className="btn-minimal"
-                                        style={{ color: 'var(--color-text-dim)', fontSize: '0.85rem' }}
-                                    >Reject</button>
-                                    <button
-                                        onClick={() => handleAction(req._id, 'approve')}
-                                        className="btn-primary"
-                                        style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '6px' }}
-                                    >Approve Dismantle</button>
-                                </div>
+                </div>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><CreditCard /></div>
+                    <div className="card-data">
+                        <span className="label">Pending Fees</span>
+                        <h2 className="value">14</h2>
+                    </div>
+                </div>
+            </section>
+
+            <div className="branch-grid">
+                <main className="sa-analytics-col">
+                    <div className="sa-card" style={{ minHeight: '350px' }}>
+                        <div className="sa-card-header">
+                            <h3>Branch Performance Dynamics</h3>
+                            <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', fontWeight: 700 }}>
+                                <span style={{ color: '#3B82F6' }}>● Peak Hours</span>
+                                <span style={{ color: '#10B981' }}>● Revenue</span>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <div className="dashboard-main-area">
-                <div className="graph-container-v2 card">
-                    <div className="graph-header-top">
-                        <div>
-                            <h3>Inventory Overview</h3>
-                            <p className="subtitle">Cumulative equipment status throughout the year</p>
                         </div>
-                        <div className="time-range-selector">
-                            <select className="dashboard-select">
-                                {months.map(month => (
-                                    <option key={month} value={month}>{month} 2024</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="graph-viewport-container">
-                        <div style={{ width: '100%', height: '400px', position: 'relative' }}>
+                        <div style={{ height: '240px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={monthlyData}
-                                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="var(--color-ash)"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="var(--color-ash)"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        label={{ value: 'Gym Equipment Inventory', angle: -90, position: 'insideLeft', style: { fill: 'var(--color-ash)', fontWeight: 700, fontSize: 13 } }}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend
-                                        layout="vertical"
-                                        align="right"
-                                        verticalAlign="middle"
-                                        iconType="circle"
-                                        wrapperStyle={{ paddingLeft: '20px' }}
-                                    />
-                                    {visibleLines.good && (
-                                        <Line
-                                            type="monotone"
-                                            dataKey="good"
-                                            stroke="#4caf50"
-                                            strokeWidth={3}
-                                            dot={{ r: 4, fill: '#4caf50' }}
-                                            activeDot={{ r: 8 }}
-                                            name="Good Condition"
-                                            animationDuration={1500}
-                                        />
-                                    )}
-                                    {visibleLines.maintenance && (
-                                        <Line
-                                            type="monotone"
-                                            dataKey="maintenance"
-                                            stroke="#ffeb3b"
-                                            strokeWidth={3}
-                                            dot={{ r: 4, fill: '#ffeb3b' }}
-                                            activeDot={{ r: 8 }}
-                                            name="Maintenance"
-                                            animationDuration={1500}
-                                        />
-                                    )}
-                                    {visibleLines.dismantled && (
-                                        <Line
-                                            type="monotone"
-                                            dataKey="dismantled"
-                                            stroke="#FF0000"
-                                            strokeWidth={3}
-                                            dot={{ r: 4, fill: '#FF0000' }}
-                                            activeDot={{ r: 8 }}
-                                            name="Dismantled"
-                                            animationDuration={1500}
-                                        />
-                                    )}
-                                </LineChart>
+                                <ComposedChart data={peakHoursData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                    <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
+                                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 16px rgba(0,0,0,0.05)' }} />
+                                    <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                                    <Line type="monotone" dataKey="count" stroke="#10B981" strokeWidth={3} dot={{ r: 4, fill: '#10B981' }} />
+                                </ComposedChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
-                </div>
 
-                <div className="recent-inventory-v2 card">
-                    <div className="card-header-v2">
-                        <div className="header-tag">
-                            <Activity size={18} color="#FF0000" />
-                            <h3>Recent Inventory</h3>
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Recent Branch Events</h3>
                         </div>
-                        <button className="icon-btn-minimal"><MoreHorizontal size={20} /></button>
+                        <div className="sa-activity-feed">
+                            {recentInventory.slice(0, 5).map(item => (
+                                <div key={item.id} className="sa-activity-item" style={{ borderBottom: '1px solid #F1F5F9', padding: '16px 0' }}>
+                                    <div className="sa-activity-icon" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
+                                        <Package size={18} color="#EF4444" />
+                                    </div>
+                                    <div className="sa-activity-info">
+                                        <p style={{ color: '#1E293B' }}><strong>{item.name}</strong> status updated to <strong>{item.status}</strong></p>
+                                        <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>{item.area} Center</span>
+                                    </div>
+                                    <ChevronRight size={16} color="#CBD5E1" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Pending Dismantle Requests</h3>
+                        </div>
+                        <div className="sa-activity-feed" style={{ padding: '0 16px' }}>
+                            {dismantleRequests.length === 0 ? (
+                                <p style={{ color: '#64748B', fontSize: '0.9rem', padding: '16px 0' }}>No pending dismantle requests.</p>
+                            ) : (
+                                dismantleRequests.map(req => (
+                                    <div key={req._id} className="request-card-v2">
+                                        <div className="request-header-v2">
+                                            <div className="asset-meta">
+                                                <h4>{req.equipmentName}</h4>
+                                                <span className="asset-id">{req.equipmentCustomId || 'No ID'}</span>
+                                            </div>
+                                            <button className="review-btn-v2" onClick={() => setSelectedRequest(req)}>
+                                                Review Request <ArrowUpRight size={14} />
+                                            </button>
+                                        </div>
+                                        <div className="request-body-v2">
+                                            <div className="staff-info">
+                                                <Clock size={14} />
+                                                <span>Requested by <strong>{req.staffName}</strong> • {new Date(req.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <p className="reason-preview">{req.reason}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </main>
+
+                <aside className="sa-sidebar-col">
+                    <MiniCalendar />
+
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Quick Terminal</h3>
+                        </div>
+                        <div className="branch-quick-actions">
+                            <button className="action-btn-light" onClick={() => navigate('/admin/owners')}><Users size={20} /> Staff</button>
+                            <button className="action-btn-light"><Wrench size={20} /> Log Fault</button>
+                            <button className="action-btn-light"><Calendar size={20} /> Check-in</button>
+                            <button className="action-btn-light"><Zap size={20} /> Notify</button>
+                        </div>
                     </div>
 
-                    <div className="equipment-stack">
-                        {recentInventory.length === 0 ? (
-                            <div className="empty-recent-notif">No recent activity recorded</div>
-                        ) : (
-                            recentInventory.map((item) => (
-                                <div key={item.id} className="inventory-row-v2">
-                                    <div className="item-meta">
-                                        <span className="name">{item.name}</span>
-                                        <span className="loc">{item.area}</span>
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Branch Alerts</h3>
+                        </div>
+                        <div className="alerts-stack">
+                            <div className="alert-item-branch">
+                                <AlertTriangle size={20} color="#EF4444" />
+                                <div>
+                                    <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>3 Assets Need Repair</span>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B' }}>Dismantle requests pending</p>
+                                </div>
+                            </div>
+                            <div className="alert-item-branch warning">
+                                <Clock size={20} color="#F59E0B" />
+                                <div>
+                                    <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>14 Fees Overdue</span>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B' }}>Follow up required</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="branch-info-pill">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                            <div style={{ width: 40, height: 40, borderRadius: '12px', background: '#334155', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>{adminName.charAt(0)}</div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '0.95rem' }}>{adminName}</h4>
+                                <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Administrator</span>
+                            </div>
+                        </div>
+                        <div style={{ padding: '12px 14px', background: '#FFFFFF', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                            <span style={{ color: '#94A3B8' }}>Logic Engine:</span>
+                            <span style={{ color: '#10B981' }}>Synchronized</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            {/* Review Modal */}
+            {selectedRequest && (
+                <div className="admin-modal-overlay">
+                    <div className="admin-modal-container dismantle-review-modal">
+                        <div className="admin-modal-header">
+                            <div>
+                                <h2>Review Dismantle Request</h2>
+                                <p>Requested on {new Date(selectedRequest.createdAt).toLocaleDateString()} by {selectedRequest.staffName}</p>
+                            </div>
+                            <button className="close-modal-btn" onClick={() => setSelectedRequest(null)}>&times;</button>
+                        </div>
+
+                        <div className="admin-modal-body">
+                            <div className="review-grid">
+                                <div className="review-details">
+                                    <div className="detail-item">
+                                        <label>Equipment Details</label>
+                                        <div className="asset-box">
+                                            <strong>{selectedRequest.equipmentName}</strong>
+                                            <span>ID: {selectedRequest.equipmentCustomId}</span>
+                                            <span>Branch: {selectedRequest.branch}</span>
+                                        </div>
                                     </div>
-                                    <div className="status-badge-v2" style={{ color: getStatusColor(item.status) }}>
-                                        <div className="dot" style={{ background: getStatusColor(item.status) }} />
-                                        {item.status}
+
+                                    <div className="detail-item">
+                                        <label>Manager's Reason</label>
+                                        <p className="reason-text-full">{selectedRequest.reason}</p>
+                                    </div>
+
+                                    <div className="detail-item">
+                                        <label>Admin Decision Comment</label>
+                                        <textarea 
+                                            placeholder="Add a comment for the branch manager..."
+                                            value={adminComment}
+                                            onChange={(e) => setAdminComment(e.target.value)}
+                                            rows="3"
+                                        />
                                     </div>
                                 </div>
-                            ))
-                        )}
+
+                                <div className="review-media">
+                                    <label>Evidence / Condition Photo</label>
+                                    <div className="evidence-photo-box">
+                                        <img src={selectedRequest.photo} alt="Condition Evidence" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="admin-modal-footer">
+                            <button className="btn-secondary" onClick={() => setSelectedRequest(null)} disabled={isProcessing}>Close</button>
+                            <div className="action-btns">
+                                <button className="btn-reject" onClick={() => handleAction(selectedRequest._id, 'reject')} disabled={isProcessing}>
+                                    Reject Request
+                                </button>
+                                <button className="btn-approve" onClick={() => handleAction(selectedRequest._id, 'approve')} disabled={isProcessing}>
+                                    {isProcessing ? 'Processing...' : 'Approve Dismantle'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button className="view-all-link">View All Network Inventory</button>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

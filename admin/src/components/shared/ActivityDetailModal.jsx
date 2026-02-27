@@ -12,11 +12,13 @@ const ActivityDetailModal = ({ isOpen, onClose, log }) => {
                 maxWidth: '500px',
                 padding: '0',
                 overflow: 'hidden',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                backgroundColor: 'var(--color-surface)',
+                color: 'var(--color-text)'
             }}>
                 <div style={{
                     padding: '20px',
-                    background: 'var(--bg-card)',
+                    background: 'var(--color-surface)',
                     borderBottom: '1px solid var(--border-color)',
                     display: 'flex',
                     justifyContent: 'space-between',

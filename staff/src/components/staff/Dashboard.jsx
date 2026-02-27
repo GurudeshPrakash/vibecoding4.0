@@ -1,394 +1,331 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-    Package,
-    CheckCircle,
-    Wrench,
-    Trash2,
-    Calendar,
+    Users,
     Activity,
-    ChevronDown,
+    CreditCard,
+    DollarSign,
+    Package,
+    Calendar,
     ChevronRight,
-    TrendingUp,
-    FileText,
-    Download
+    Wrench,
+    AlertTriangle,
+    Clock,
+    UserPlus,
+    Bell,
+    CheckCircle2,
+    Zap
 } from 'lucide-react';
 import {
-    LineChart,
+    ComposedChart,
+    Bar,
     Line,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer,
-    Area,
-    AreaChart
+    ResponsiveContainer
 } from 'recharts';
-import { generateDismantleReport } from '../../utils/reportGenerator';
-import '../../style/AdminDashboard.css';
+import { useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import logo from '../../assets/logo1.png';
+import '../../style/StaffDashboard.css';
 
-const StaffDashboard = ({ staffName, stats, allInventory = [], dismantledHistory = [], onFinalizeDismantle }) => {
-    const [visibleLines, setVisibleLines] = useState({
-        Good: true,
-        Maintenance: true,
-        Dismantled: true
-    });
+const MiniCalendar = () => {
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    const today = now.getDate();
 
-    const [selectedMonth, setSelectedMonth] = useState('October');
-    const [showDailyView, setShowDailyView] = useState(false);
-
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    // Generate monthly data based on real inventory createdAt
-    const monthlyData = useMemo(() => {
-        const combinedInventory = [
-            ...allInventory,
-            ...dismantledHistory.map(h => ({ ...h, status: 'Dismantled', createdAt: h.createdAt }))
-        ];
-
-        if (combinedInventory.length === 0) {
-            return months.map(m => ({ name: m, Good: 0, Maintenance: 0, Dismantled: 0 }));
-        }
-
-        const currentYear = new Date().getFullYear();
-
-        return months.map((month, index) => {
-            const monthEnd = new Date(currentYear, index + 1, 0, 23, 59, 59);
-
-            const itemsUntilMonth = combinedInventory.filter(item => {
-                const createdDate = item.createdAt ? new Date(item.createdAt) : new Date(0);
-                return createdDate <= monthEnd;
-            });
-
-            return {
-                name: month,
-                Good: itemsUntilMonth.filter(i => i.status === 'Good').length,
-                Maintenance: itemsUntilMonth.filter(i => i.status === 'Maintenance').length,
-                Dismantled: itemsUntilMonth.filter(i => i.status === 'Dismantled').length
-            };
-        });
-    }, [allInventory, dismantledHistory, stats]);
-
-    // Simple daily data for the selected month based on real inventory
-    const dailyData = useMemo(() => {
-        if (!allInventory) return [];
-        const monthIndex = months.indexOf(selectedMonth);
-        const currentYear = new Date().getFullYear();
-
-        const itemsInMonth = allInventory.filter(item => {
-            if (!item.createdAt) return false;
-            const d = new Date(item.createdAt);
-            return d.getMonth() === monthIndex && d.getFullYear() === currentYear;
-        });
-
-        if (itemsInMonth.length === 0) return [];
-
-        return itemsInMonth.map(item => ({
-            day: new Date(item.createdAt).getDate(),
-            changes: 1,
-            type: 'New Equipment Added', // We can only track creation for now
-            details: item.name
-        })).sort((a, b) => b.day - a.day);
-    }, [selectedMonth, allInventory]);
-
-    const toggleLine = (line) => {
-        setVisibleLines(prev => ({ ...prev, [line]: !prev[line] }));
-    };
-
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="custom-tooltip">
-                    <p style={{ color: 'var(--color-text)', fontWeight: 'bold', marginBottom: '8px' }}>{label}</p>
-                    {payload.map((entry, index) => (
-                        <p key={index} style={{ color: entry.color, fontSize: '0.9rem', margin: '4px 0' }}>
-                            {entry.name}: {entry.value}
-                        </p>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
+    const monthName = now.toLocaleString('default', { month: 'long' });
+    const year = now.getFullYear();
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
     return (
-        <div className="admin-dashboard">
+        <div className="mini-calendar">
+            <div className="cal-header">
+                <span className="cal-month">{monthName} {year}</span>
+                <Calendar size={18} color="var(--color-red)" />
+            </div>
+            <div className="cal-grid">
+                {days.map(d => <div key={d} className="cal-day-label">{d}</div>)}
+                {[...Array(firstDay)].map((_, i) => <div key={`empty-${i}`} />)}
+                {[...Array(daysInMonth)].map((_, i) => {
+                    const d = i + 1;
+                    return (
+                        <div
+                            key={d}
+                            className={`cal-date ${d === today ? 'active' : ''}`}
+                        >
+                            {d}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+const StaffDashboard = ({ staffName, stats, allInventory = [], dismantledHistory = [], onFinalizeDismantle }) => {
+    const navigate = useNavigate();
+
+    const peakHoursData = [
+        { hour: '6am', attendance: 45, revenue: 15000 },
+        { hour: '9am', attendance: 120, revenue: 25000 },
+        { hour: '12pm', attendance: 85, revenue: 18000 },
+        { hour: '3pm', attendance: 95, revenue: 22000 },
+        { hour: '6pm', attendance: 180, revenue: 45000 },
+        { hour: '9pm', attendance: 110, revenue: 28000 },
+    ];
+
+    const handleGenerateReportAndFinalize = async (req) => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFillColor(30, 30, 30);
+        doc.rect(0, 0, 210, 40, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text("ASSET DISMANTLE REPORT", 105, 25, { align: "center" });
+
+        doc.setTextColor(33, 33, 33);
+        doc.setFontSize(14);
+        doc.text(`Equipment: ${req.equipmentName} (${req.equipmentCustomId || 'N/A'})`, 15, 60);
+        doc.text(`Requested By: ${req.staffName}`, 15, 70);
+        doc.text(`Branch: ${req.branch}`, 15, 80);
+        doc.text(`Status: Physically Removed / Finalized`, 15, 90);
+
+        doc.setFontSize(12);
+        doc.text(`Reason for removal: ${req.reason || 'Not specified'}`, 15, 110);
+        doc.text(`Original Cost: LKR ${req.price || 0}`, 15, 120);
+
+        if (req.photo) {
+            doc.text(`Reference Photo Attached`, 15, 140);
+        }
+
+        doc.save(`Dismantle_Report_${req.equipmentName}.pdf`);
+
+        // Finalize (Delete from History)
+        if (onFinalizeDismantle) {
+            onFinalizeDismantle(req._id);
+        }
+    };
+
+    const recentActivities = [
+        { id: 1, type: 'registration', text: 'New member registered', meta: 'John Doe', time: '10 mins ago', icon: <UserPlus size={18} color="#10B981" /> },
+        { id: 2, type: 'payment', text: 'Payment completed', meta: 'Monthly Renewal', time: '25 mins ago', icon: <DollarSign size={18} color="#3B82F6" /> },
+        { id: 3, type: 'checkin', text: 'Member check-in', meta: 'Sarah Smith', time: '1 hour ago', icon: <CheckCircle2 size={18} color="#8B5CF6" /> },
+        { id: 4, type: 'maintenance', text: 'Support issue logged', meta: 'Treadmill T-04', time: '3 hours ago', icon: <Wrench size={18} color="#F59E0B" /> },
+        { id: 5, type: 'renewal', text: 'Membership renewed', meta: 'Mike Johnson', time: '5 hours ago', icon: <Activity size={18} color="#10B981" /> },
+    ];
+
+    return (
+        <div className="staff-dashboard">
             <header className="dashboard-header-flex">
-                <div className="header-left">
-                    <h1 className="welcome-admin">Staff <span className="highlight-red">Panel</span></h1>
-                    <p className="subtitle">Real-time inventory tracking for Power World gyms</p>
+                <div className="welcome-text">
+                    <h1>Branch <span className="highlight-red">Overview</span></h1>
+                    <p className="subtitle-v5">Manager Control & Facility Monitoring</p>
                 </div>
                 <div className="header-right-actions">
-                    <div className="date-time-display">
-                        <Calendar size={18} />
-                        <span>Today: {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <div className="date-time-display" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748B', fontWeight: 600 }}>
+                        <Clock size={20} />
+                        <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} Live Data</span>
                     </div>
                 </div>
             </header>
 
-            {/* 4 Cards in a Single Row */}
-            <div className="live-stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
-                <div className="live-card card total">
-                    <div className="card-inner">
-                        <div className="icon-box">
-                            <Package size={24} />
-                        </div>
-                        <div className="card-data">
-                            <span className="label">Total Equipment</span>
-                            <h2 className="value">{stats.total}</h2>
-                        </div>
+            {/* Top Summary Cards */}
+            <div className="live-stats-v5">
+                <div className="stat-card-v5" style={{ gridColumn: 'span 1' }}>
+                    <div className="card-icon-v5" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users /></div>
+                    <div className="card-info-v5">
+                        <span className="label">Total Branch Members</span>
+                        <h2 className="value">1,420</h2>
                     </div>
                 </div>
-
-                <div className="live-card card good">
-                    <div className="card-inner">
-                        <div className="icon-box">
-                            <CheckCircle size={24} />
-                        </div>
-                        <div className="card-data">
-                            <span className="label">Good Condition</span>
-                            <h2 className="value">{stats.good}</h2>
-                        </div>
+                <div className="stat-card-v5" style={{ gridColumn: 'span 1' }}>
+                    <div className="card-icon-v5" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><Activity /></div>
+                    <div className="card-info-v5">
+                        <span className="label">Active Branch Members</span>
+                        <h2 className="value">985</h2>
                     </div>
                 </div>
-
-                <div className="live-card card maintenance">
-                    <div className="card-inner">
-                        <div className="icon-box">
-                            <Wrench size={24} />
-                        </div>
-                        <div className="card-data">
-                            <span className="label">Under Maintenance</span>
-                            <h2 className="value">{stats.maintenance}</h2>
-                        </div>
+                <div className="stat-card-v5" style={{ gridColumn: 'span 1' }}>
+                    <div className="card-icon-v5" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6' }}><UserPlus /></div>
+                    <div className="card-info-v5">
+                        <span className="label">New Members (Today)</span>
+                        <h2 className="value">12</h2>
                     </div>
                 </div>
-
-                <div className="live-card card dismantled">
-                    <div className="card-inner">
-                        <div className="icon-box">
-                            <Trash2 size={24} />
-                        </div>
-                        <div className="card-data">
-                            <span className="label">Dismantled</span>
-                            <h2 className="value">{stats.dismantled}</h2>
-                        </div>
+                <div className="stat-card-v5" style={{ gridColumn: 'span 1' }}>
+                    <div className="card-icon-v5" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><CheckCircle2 /></div>
+                    <div className="card-info-v5">
+                        <span className="label">Daily Check-ins</span>
+                        <h2 className="value">345</h2>
+                    </div>
+                </div>
+                <div className="stat-card-v5" style={{ gridColumn: 'span 1' }}>
+                    <div className="card-icon-v5" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><DollarSign /></div>
+                    <div className="card-info-v5">
+                        <span className="label">Monthly Revenue</span>
+                        <h2 className="value">LKR 4.8M</h2>
+                    </div>
+                </div>
+                <div className="stat-card-v5" style={{ gridColumn: 'span 1' }}>
+                    <div className="card-icon-v5" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><CreditCard /></div>
+                    <div className="card-info-v5">
+                        <span className="label">Pending Payments</span>
+                        <h2 className="value">28</h2>
                     </div>
                 </div>
             </div>
 
-            <div className="dashboard-main-area" style={{ gridTemplateColumns: '1fr' }}>
-                <div className="card" style={{ padding: '32px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                        <div>
-                            <h3 style={{ color: 'var(--color-text)', fontSize: '1.25rem' }}>Inventory vs Month</h3>
-                            <p style={{ color: 'var(--color-text-dim)', fontSize: '0.9rem' }}>Comprehensive monitoring of equipment lifespan</p>
-                        </div>
-
-                        {/* Interactive Legend */}
-                        <div style={{ display: 'flex', gap: '20px' }}>
-                            <div
-                                onClick={() => toggleLine('Good')}
-                                className={`legend-btn ${!visibleLines.Good ? 'hidden' : ''}`}
-                            >
-                                <div className="dot" style={{ background: '#4caf50' }}></div>
-                                <span>Good Condition</span>
-                            </div>
-                            <div
-                                onClick={() => toggleLine('Maintenance')}
-                                className={`legend-btn ${!visibleLines.Maintenance ? 'hidden' : ''}`}
-                            >
-                                <div className="dot" style={{ background: '#ffeb3b' }}></div>
-                                <span>Maintenance</span>
-                            </div>
-                            <div
-                                onClick={() => toggleLine('Dismantled')}
-                                className={`legend-btn ${!visibleLines.Dismantled ? 'hidden' : ''}`}
-                            >
-                                <div className="dot" style={{ background: '#e63946' }}></div>
-                                <span>Dismantled</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ width: '100%', height: '400px', position: 'relative' }}>
-                        <ResponsiveContainer width="99.9%" height="100%" minWidth={0} minHeight={0}>
-                            <LineChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                                <XAxis
-                                    dataKey="name"
-                                    stroke="var(--color-text-dim)"
-                                    fontSize={12}
-                                    axisLine={false}
-                                    tickLine={false}
-                                    padding={{ left: 20, right: 20 }}
-                                />
-                                <YAxis
-                                    stroke="var(--color-text-dim)"
-                                    fontSize={12}
-                                    axisLine={false}
-                                    tickLine={false}
-                                />
-                                <Tooltip content={<CustomTooltip />} />
-                                {visibleLines.Good && (
-                                    <Line type="monotone" dataKey="Good" stroke="#4caf50" strokeWidth={3} dot={{ r: 4, fill: '#4caf50' }} activeDot={{ r: 6 }} animationDuration={1000} />
-                                )}
-                                {visibleLines.Maintenance && (
-                                    <Line type="monotone" dataKey="Maintenance" stroke="#ffeb3b" strokeWidth={3} dot={{ r: 4, fill: '#ffeb3b' }} activeDot={{ r: 6 }} animationDuration={1000} />
-                                )}
-                                {visibleLines.Dismantled && (
-                                    <Line type="monotone" dataKey="Dismantled" stroke="#e63946" strokeWidth={3} dot={{ r: 4, fill: '#e63946' }} activeDot={{ r: 6 }} animationDuration={1000} />
-                                )}
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-
-                    {/* Simple Daily View Toggle */}
-                    <div style={{ marginTop: '40px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <TrendingUp size={20} color="var(--color-red)" />
-                                <h4 style={{ color: 'var(--color-text)' }}>Daily Inventory Insights</h4>
-                            </div>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <select
-                                    value={selectedMonth}
-                                    onChange={(e) => setSelectedMonth(e.target.value)}
-                                    className="dashboard-select"
-                                >
-                                    {months.map(m => <option key={m} value={m}>{m} 2024</option>)}
-                                </select>
-                                <button
-                                    onClick={() => setShowDailyView(!showDailyView)}
-                                    className="btn-primary"
-                                    style={{ fontSize: '0.85rem', padding: '8px 16px' }}
-                                >
-                                    {showDailyView ? 'Hide Details' : 'View Daily Data'}
-                                </button>
-                            </div>
-                        </div>
-
-                        {showDailyView && (
-                            <div className="equipment-table" style={{ maxHeight: '300px', overflowY: 'auto', background: 'var(--color-surface-muted)', borderRadius: '12px', padding: '10px', marginBottom: '30px' }}>
-                                <div className="table-header" style={{ gridTemplateColumns: '1fr 2fr 2fr', padding: '12px 20px' }}>
-                                    <span>Day</span>
-                                    <span>Equipment Name</span>
-                                    <span>Action</span>
+            <div className="branch-grid">
+                {/* Main Analytics & Activity */}
+                <main className="sa-analytics-col">
+                    <div className="premium-chart-card">
+                        <div className="chart-header-v5">
+                            <div>
+                                <h3>Attendance vs Revenue Trend</h3>
+                                <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', fontWeight: 700, marginTop: '8px' }}>
+                                    <span style={{ color: '#3B82F6' }}>● Peak Check-ins</span>
+                                    <span style={{ color: '#10B981' }}>● Est. Income</span>
                                 </div>
-                                {dailyData.length === 0 ? (
-                                    <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-dim)' }}>
-                                        No new equipment added this month.
-                                    </div>
-                                ) : (
-                                    dailyData.map((d, i) => (
-                                        <div key={i} className="table-row" style={{ gridTemplateColumns: '1fr 2fr 2fr', padding: '12px 20px' }}>
-                                            <span style={{ color: 'var(--color-text)', fontWeight: 'bold' }}>{selectedMonth} {d.day}</span>
-                                            <span style={{ color: 'var(--color-text-dim)' }}>{d.details}</span>
-                                            <span style={{ color: '#4caf50' }}>{d.type}</span>
+                            </div>
+                        </div>
+                        <div style={{ height: '300px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <ComposedChart data={peakHoursData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                    <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
+                                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
+                                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
+                                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 16px rgba(0,0,0,0.05)' }} />
+                                    <Bar yAxisId="left" dataKey="attendance" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={3} dot={{ r: 4, fill: '#10B981' }} />
+                                </ComposedChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Recent Activity Feed</h3>
+                        </div>
+                        <div className="sa-activity-feed" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {recentActivities.map(item => (
+                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #F1F5F9' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ width: 40, height: 40, borderRadius: '10px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {item.icon}
                                         </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
-
-                        {/* Dismantled History Section */}
-                        <div style={{ marginTop: '30px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-                                <Trash2 size={20} color="var(--color-red)" />
-                                <h4 style={{ color: 'var(--color-text)' }}>Dismantled Equipment History</h4>
-                            </div>
-                            <div className="equipment-table" style={{ background: 'var(--color-surface-muted)', borderRadius: '12px', padding: '10px' }}>
-                                <div className="table-header" style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr', padding: '12px 20px' }}>
-                                    <span>Equipment Name</span>
-                                    <span>ID</span>
-                                    <span>Approved On</span>
-                                    <span style={{ textAlign: 'right' }}>Actions</span>
-                                </div>
-                                {dismantledHistory.length === 0 ? (
-                                    <div style={{ padding: '30px', textAlign: 'center', color: 'var(--color-text-dim)' }}>
-                                        No equipment pending physical dismantling.
+                                        <div>
+                                            <p style={{ margin: 0, fontWeight: 700, color: '#1E293B' }}>{item.text}</p>
+                                            <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>{item.meta}</span>
+                                        </div>
                                     </div>
-                                ) : (
-                                    dismantledHistory.map((item, i) => (
-                                        <div key={i} className="table-row" style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr', padding: '12px 20px', alignItems: 'center' }}>
-                                            <span style={{ color: 'var(--color-text)', fontWeight: 'bold' }}>{item.equipmentName}</span>
-                                            <span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>{item.equipmentCustomId || 'N/A'}</span>
-                                            <span style={{ color: 'var(--color-text-dim)' }}>{new Date(item.updatedAt).toLocaleDateString()}</span>
-                                            <div style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button
-                                                    onClick={() => generateDismantleReport(item)}
-                                                    className="btn-icon-success"
-                                                    title="Download Dismantle Report"
-                                                    style={{
-                                                        background: 'rgba(76, 175, 80, 0.1)',
-                                                        border: '1px solid rgba(76, 175, 80, 0.3)',
-                                                        color: '#4caf50',
-                                                        padding: '8px',
-                                                        borderRadius: '8px',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px',
-                                                        outline: 'none'
-                                                    }}
-                                                    onMouseOver={(e) => {
-                                                        e.currentTarget.style.background = '#4caf50';
-                                                        e.currentTarget.style.color = 'white';
-                                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.2)';
-                                                    }}
-                                                    onMouseOut={(e) => {
-                                                        e.currentTarget.style.background = 'rgba(76, 175, 80, 0.1)';
-                                                        e.currentTarget.style.color = '#4caf50';
-                                                        e.currentTarget.style.transform = 'translateY(0)';
-                                                        e.currentTarget.style.boxShadow = 'none';
-                                                    }}
-                                                    onMouseDown={(e) => {
-                                                        e.currentTarget.style.transform = 'translateY(0) scale(0.95)';
-                                                    }}
-                                                    onMouseUp={(e) => {
-                                                        e.currentTarget.style.transform = 'translateY(-2px) scale(1)';
-                                                    }}
-                                                >
-                                                    <FileText size={16} />
-                                                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Report</span>
-                                                </button>
-                                                <button
-                                                    onClick={() => onFinalizeDismantle(item._id || item.id)}
-                                                    className="btn-icon-danger"
-                                                    title="Finalize Removal"
-                                                    style={{
-                                                        background: 'rgba(230, 57, 70, 0.1)',
-                                                        border: '1px solid rgba(230, 57, 70, 0.3)',
-                                                        color: 'var(--color-red)',
-                                                        padding: '8px',
-                                                        borderRadius: '8px',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.3s ease',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px'
-                                                    }}
-                                                    onMouseOver={(e) => {
-                                                        e.currentTarget.style.background = 'var(--color-red)';
-                                                        e.currentTarget.style.color = 'white';
-                                                    }}
-                                                    onMouseOut={(e) => {
-                                                        e.currentTarget.style.background = 'rgba(230, 57, 70, 0.1)';
-                                                        e.currentTarget.style.color = 'var(--color-red)';
-                                                    }}
-                                                >
-                                                    <Trash2 size={16} />
-                                                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Finalize</span>
-                                                </button>
+                                    <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 600 }}>{item.time}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Ready for Physical Removal</h3>
+                            <p style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 500 }}>Approved by Admin • Action Required</p>
+                        </div>
+                        <div className="sa-activity-feed" style={{ padding: '0 16px' }}>
+                            {dismantledHistory.filter(r => r.status === 'Approved').length === 0 ? (
+                                <p style={{ color: '#64748B', fontSize: '0.9rem', padding: '16px 0' }}>No approved dismantled requests pending finalization.</p>
+                            ) : (
+                                dismantledHistory.filter(r => r.status === 'Approved').map(req => (
+                                    <div key={req._id} style={{ borderBottom: '1px solid #E2E8F0', padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <div>
+                                                <h4 style={{ margin: 0, color: '#1E293B', fontSize: '1rem' }}>{req.equipmentName}</h4>
+                                                <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>{req.equipmentCustomId || 'No ID'}</span>
+                                                <p style={{ margin: '8px 0 0 0', color: '#10B981', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <CheckCircle2 size={14} /> Approved
+                                                </p>
                                             </div>
+                                            <button onClick={() => handleGenerateReportAndFinalize(req)} style={{ background: '#3B82F6', color: '#FFF', padding: '8px 14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Package size={16} /> Finalize
+                                            </button>
                                         </div>
-                                    ))
-                                )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </main>
+
+                {/* Sidebar Operations */}
+                <aside className="sa-sidebar-col">
+                    <MiniCalendar />
+
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div className="branch-quick-actions">
+                            <button className="action-btn-light"><UserPlus size={20} /> Add Member</button>
+                            <button className="action-btn-light"><CreditCard size={20} /> Record Pay</button>
+                            <button className="action-btn-light"><Wrench size={20} /> Log Issue</button>
+                            <button className="action-btn-light"><Bell size={20} /> Broadcast</button>
+                        </div>
+                    </div>
+
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Attention Required</h3>
+                        </div>
+                        <div className="alerts-stack" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {/* Alert 1 */}
+                            <div style={{ padding: '16px', background: '#FFFBEB', borderRadius: '16px', borderLeft: '4px solid #F59E0B', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <Clock size={24} color="#F59E0B" />
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#92400E' }}>24 Expiring Soon</p>
+                                    <span style={{ fontSize: '0.75rem', color: '#B45309', fontWeight: 600 }}>Memberships ending within 7 days</span>
+                                </div>
+                            </div>
+                            {/* Alert 2 */}
+                            <div style={{ padding: '16px', background: '#FEF2F2', borderRadius: '16px', borderLeft: '4px solid #EF4444', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <AlertTriangle size={24} color="#EF4444" />
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#991B1B' }}>3 Asset Faults</p>
+                                    <span style={{ fontSize: '0.75rem', color: '#B91C1C', fontWeight: 600 }}>Equipment maintenance needed</span>
+                                </div>
+                            </div>
+                            <div style={{ padding: '16px', background: '#F1F5F9', borderRadius: '16px', borderLeft: '4px solid #3B82F6', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <CreditCard size={24} color="#3B82F6" />
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1E40AF' }}>12 Overdue Payments</p>
+                                    <span style={{ fontSize: '0.75rem', color: '#1E3A8A', fontWeight: 600 }}>Follow-up required from front desk</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <div className="branch-info-pill">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                            <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'var(--color-red)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem' }}>
+                                {staffName ? staffName.charAt(0) : 'M'}
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '1rem', color: '#1E293B' }}>{staffName || 'Branch Manager'}</h4>
+                                <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>Branch Administrator</span>
+                            </div>
+                        </div>
+                        <div style={{ padding: '12px 14px', background: '#FFFFFF', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, border: '1px solid #E2E8F0' }}>
+                            <span style={{ color: '#64748B' }}>System Sync:</span>
+                            <span style={{ color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <div style={{ width: 6, height: 6, background: '#10B981', borderRadius: '50%' }}></div> Active
+                            </span>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
     );

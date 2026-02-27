@@ -61,9 +61,9 @@
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
     color: var(--color-text-dim);
     background: transparent;
     border: none;
@@ -71,8 +71,8 @@
     transition: var(--transition);
     width: 100%;
     text-align: left;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .nav-item:hover {
@@ -104,16 +104,17 @@
 .logout-btn {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
     color: var(--color-text-dim);
     background: transparent;
     border: 1px solid transparent;
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .logout-btn:hover {

@@ -35,7 +35,10 @@ export const useNotifications = (isAuthenticated, loginRole) => {
     useEffect(() => {
         if (isAuthenticated && loginRole) {
             fetchNotifications();
-            const interval = setInterval(fetchNotifications, 10000);
+            // Slow down background polling to 60s to reduce server load and jitter
+            const interval = setInterval(() => {
+                fetchNotifications().catch(err => console.log('Background sync skipped:', err.message));
+            }, 60000);
             return () => clearInterval(interval);
         }
     }, [isAuthenticated, loginRole, fetchNotifications]);

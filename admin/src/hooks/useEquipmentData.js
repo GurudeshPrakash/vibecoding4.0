@@ -71,13 +71,19 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
     // Polling logic
     useEffect(() => {
         if (isAuthenticated && loginRole) {
-            const poll = () => {
-                fetchInventory(true);
-                fetchPendingRequests();
-                fetchDismantledHistory();
+            const poll = async () => {
+                try {
+                    await Promise.all([
+                        fetchInventory(true),
+                        fetchPendingRequests(),
+                        fetchDismantledHistory()
+                    ]);
+                } catch (err) {
+                    console.log('Equipment background sync skipped:', err.message);
+                }
             };
             poll();
-            const interval = setInterval(poll, 10000);
+            const interval = setInterval(poll, 60000);
             return () => clearInterval(interval);
         }
     }, [isAuthenticated, loginRole, fetchInventory, fetchPendingRequests, fetchDismantledHistory]);

@@ -105,7 +105,17 @@ exports.updateEquipment = async (req, res) => {
                 });
 
                 if (existingRequest) {
-                    return res.status(400).json({ message: 'A dismantle request for this item is already pending admin approval.' });
+                    existingRequest.reason = req.body.reason || existingRequest.reason;
+                    if (req.file) existingRequest.photo = `http://localhost:5000/${req.file.path.replace(/\\/g, '/')}`;
+                    else if (req.body.photo) existingRequest.photo = req.body.photo;
+
+                    await existingRequest.save();
+
+                    return res.status(200).json({
+                        message: 'Dismantle request updated and is pending admin approval.',
+                        requestPending: true,
+                        equipment: equipment
+                    });
                 }
 
                 // Create the request with report snapshot
@@ -117,6 +127,7 @@ exports.updateEquipment = async (req, res) => {
                     staffName: `${staff.firstName} ${staff.lastName}`,
                     branch: staff.branch,
                     reason: req.body.reason || 'Requested for dismantling',
+                    photo: req.file ? `http://localhost:5000/${req.file.path.replace(/\\/g, '/')}` : (req.body.photo || ''),
                     // SNAPSHOTS FOR REPORT
                     equipmentType: equipment.type,
                     boughtDate: equipment.boughtDate,
@@ -288,7 +299,7 @@ exports.handleDismantleRequest = async (req, res) => {
 // @desc    Get Dismantled History
 exports.getDismantledHistory = async (req, res) => {
     try {
-        let query = { status: 'Approved' };
+        let query = { status: { $in: ['Approved', 'Pending', 'Rejected'] } };
 
         // If staff, only show their branch
         if (req.user && req.user.role === 'staff') {

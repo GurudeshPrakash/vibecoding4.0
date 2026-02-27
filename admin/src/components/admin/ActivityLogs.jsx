@@ -53,66 +53,93 @@ const ActivityLogs = ({ onViewLog }) => {
                 </div>
             </header>
 
-            <div className="card" style={{ padding: '0', overflow: 'hidden', marginTop: '24px' }}>
-                <div className="equipment-table">
-                    <div className="table-header" style={{ gridTemplateColumns: '1.5fr 1fr 1.5fr 1.5fr 1fr 1fr' }}>
-                        <span>Manager</span>
-                        <span>Branch</span>
-                        <span>Login Time</span>
-                        <span>Logout Time</span>
-                        <span>Duration</span>
-                        <span>Status</span>
-                    </div>
+            <div className="activity-log-section card">
+                <div className="log-table-container">
+                    <table className="log-table">
+                        <thead>
+                            <tr>
+                                <th>Manager / Identity</th>
+                                <th>Branch</th>
+                                <th>Login Time</th>
+                                <th>Logout Time</th>
+                                <th>Duration</th>
+                                <th style={{ textAlign: 'right' }}>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '100px' }}>
+                                        <div className="loading-spinner"></div>
+                                        <p style={{ marginTop: '16px', color: 'var(--color-text-dim)' }}>Accessing session records...</p>
+                                    </td>
+                                </tr>
+                            ) : filteredLogs.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '80px', color: 'var(--color-text-dim)' }}>
+                                        No activity records found matching your filters.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredLogs.map((log) => {
+                                    const duration = log.logoutTimestamp
+                                        ? Math.floor((new Date(log.logoutTimestamp) - new Date(log.loginTimestamp)) / (1000 * 60))
+                                        : Math.floor((new Date() - new Date(log.loginTimestamp)) / (1000 * 60));
 
-                    {isLoading ? (
-                        <div style={{ padding: '40px', textAlign: 'center' }}>Loading activity logs...</div>
-                    ) : (
-                        <div className="table-body">
-                            {filteredLogs.map((log) => {
-                                const duration = log.logoutTimestamp
-                                    ? Math.floor((new Date(log.logoutTimestamp) - new Date(log.loginTimestamp)) / (1000 * 60))
-                                    : Math.floor((new Date() - new Date(log.loginTimestamp)) / (1000 * 60));
-
-                                return (
-                                    <div
-                                        key={log._id}
-                                        className="table-row"
-                                        style={{ gridTemplateColumns: '1.5fr 1fr 1.5fr 1.5fr 1fr 1fr', cursor: 'pointer' }}
-                                        onClick={() => onViewLog && onViewLog(log._id)}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <User size={16} color="var(--color-red)" />
-                                            </div>
-                                            <div>
-                                                <div style={{ color: 'var(--color-text)', fontWeight: 'bold' }}>{log.staffName}</div>
-                                                <div style={{ color: 'var(--color-text-dim)', fontSize: '0.75rem' }}>{log.staffEmail}</div>
-                                            </div>
-                                        </div>
-                                        <span>{log.branch}</span>
-                                        <span style={{ color: 'var(--color-text-dim)' }}>
-                                            {new Date(log.loginTimestamp).toLocaleString()}
-                                        </span>
-                                        <span style={{ color: 'var(--color-text-dim)' }}>
-                                            {log.logoutTimestamp ? new Date(log.logoutTimestamp).toLocaleString() : '---'}
-                                        </span>
-                                        <span style={{ color: 'var(--color-text-dim)' }}>
-                                            {duration >= 60 ? `${Math.floor(duration / 60)}h ${duration % 60}m` : `${duration}m`}
-                                        </span>
-                                        <div className={`status-badge-v2`} style={{ color: log.status === 'Active' ? '#4caf50' : '#ff4444' }}>
-                                            <div className="dot" style={{ background: log.status === 'Active' ? '#4caf50' : '#ff4444' }} />
-                                            {log.status === 'Active' ? 'Active' : 'Ended'}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            {filteredLogs.length === 0 && (
-                                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-dim)' }}>
-                                    No activity records found.
-                                </div>
+                                    return (
+                                        <tr
+                                            key={log._id}
+                                            onClick={() => onViewLog && onViewLog(log._id)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div className="user-avatar-mini">
+                                                        <User size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="name-bold">{log.staffName}</div>
+                                                        <div style={{ color: 'var(--color-text-dim)', fontSize: '0.75rem' }}>{log.staffEmail}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className="branch-tag">{log.branch}</span>
+                                            </td>
+                                            <td style={{ color: 'var(--color-text-dim)', fontSize: '0.85rem' }}>
+                                                {new Date(log.loginTimestamp).toLocaleString(undefined, {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </td>
+                                            <td style={{ color: 'var(--color-text-dim)', fontSize: '0.85rem' }}>
+                                                {log.logoutTimestamp ? new Date(log.logoutTimestamp).toLocaleString(undefined, {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                }) : <span className="active-pulse-text">In Session</span>}
+                                            </td>
+                                            <td>
+                                                <div className="duration-pill">
+                                                    <Clock size={12} style={{ marginRight: '6px' }} />
+                                                    {duration >= 60 ? `${Math.floor(duration / 60)}h ${duration % 60}m` : `${duration}m`}
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <div className="status-cell" style={{ justifyContent: 'flex-end', color: log.status === 'Active' ? '#10B981' : 'var(--color-text-dim)' }}>
+                                                    <div className="dot" style={{ background: log.status === 'Active' ? '#10B981' : '#666' }} />
+                                                    {log.status === 'Active' ? 'Live Now' : 'Completed'}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
-                        </div>
-                    )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

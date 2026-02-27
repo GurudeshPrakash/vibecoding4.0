@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, User, Sun, Moon, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft } from 'lucide-react';
+import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft } from 'lucide-react';
 import '../../style/TopNav.css';
 
 const TopNav = ({
@@ -7,8 +7,6 @@ const TopNav = ({
     adminEmail = "admin@gymsys.com",
     adminPhone = "+94 77 000 0000",
     adminId = "ID-001",
-    theme,
-    toggleTheme,
     profileImage = null,
     setProfileImage,
     setActiveTab,
@@ -66,7 +64,7 @@ const TopNav = ({
             const unreadNotifs = notifications.filter(n => n.unread && n.isAuthNotif);
             for (const n of unreadNotifs) {
                 try {
-                    await fetch(`http://localhost:5000${apiBase}/notifications/${n.id}`, {
+                    await fetch(`${apiBase}/notifications/${n.id}`, {
                         method: 'PUT',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -88,7 +86,7 @@ const TopNav = ({
             const token = localStorage.getItem(`${loginRole}_token`);
             if (token) {
                 try {
-                    await fetch(`http://localhost:5000${apiBase}/notifications/${notif.id}`, {
+                    await fetch(`${apiBase}/notifications/${notif.id}`, {
                         method: 'PUT',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -135,13 +133,7 @@ const TopNav = ({
             </div>
 
             <div className="top-nav-right">
-                <button
-                    className="icon-btn theme-toggle"
-                    onClick={toggleTheme}
-                    title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                >
-                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                </button>
+
 
                 <div className="notif-wrapper-rel" ref={notifRef}>
                     <button

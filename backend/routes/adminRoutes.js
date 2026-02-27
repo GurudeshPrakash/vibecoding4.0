@@ -11,7 +11,8 @@ const {
     createAdmin,
     updateAdmin,
     deleteAdmin,
-    getAdminLogs
+    getAdminLogs,
+    getDashboardStats
 } = require('../controllers/adminController');
 const { getAllOwners, addOwner, updateOwner, deleteOwner } = require('../controllers/gymOwnerController');
 const { getAllBranches, addBranch, updateBranch, deleteBranch } = require('../controllers/branchController');
@@ -66,5 +67,8 @@ router.get('/staff-logs', protect, adminOnly, getActivityLogs);
 router.get('/staff-logs/:id', protect, adminOnly, getLogById);
 router.get('/notifications', protect, adminOnly, getNotifications);
 router.put('/notifications/:id', protect, adminOnly, markNotificationRead);
+
+// Dashboard Statistics
+router.get('/dashboard-stats', protect, superAdminOnly, getDashboardStats);
 
 module.exports = router;

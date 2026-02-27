@@ -12,8 +12,45 @@ import LogoutModal from './components/shared/LogoutModal';
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
 
+const StaffLayout = ({
+  children,
+  staffTab,
+  navigate,
+  setShowLogoutModal,
+  userName,
+  userEmail,
+  profileImage,
+  setProfileImage,
+  notifications,
+  setNotifications,
+  loginRole
+}) => (
+  <div className="app-layout">
+    <StaffSidebar activeTab={staffTab} setActiveTab={(tab) => navigate(`/staff/${tab}`)} onLogoutTrigger={() => setShowLogoutModal(true)} />
+
+    <main className="main-container">
+      <TopNav
+        adminName={userName}
+        adminEmail={userEmail}
+        profileImage={profileImage}
+        setProfileImage={setProfileImage}
+        setActiveTab={(tab) => navigate(`/staff/${tab}`)}
+        onLogoutTrigger={() => setShowLogoutModal(true)}
+        role="Manager"
+        notifications={notifications}
+        setNotifications={setNotifications}
+        loginRole={loginRole}
+      />
+
+      <div className="content-area">
+        {children}
+      </div>
+    </main>
+  </div>
+);
+
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('staff_token'));
   const loginRole = 'staff'; // Hardcoded for Staff app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -23,27 +60,30 @@ function App() {
   // Extract active path section for sidebar
   const staffTab = location.pathname.split('/')[2] || 'dashboard';
 
-  const [userName, setUserName] = useState('Staff member');
-  const [userEmail, setUserEmail] = useState('');
+  // Pre-load user data from localStorage for synchronous initialization
+  const savedStaffData = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('staff_user_info')) || {};
+    } catch {
+      return {};
+    }
+  }, []);
+
+  const [userName, setUserName] = useState(savedStaffData.firstName || (isAuthenticated ? 'Staff' : 'Staff member'));
+  const [userEmail, setUserEmail] = useState(savedStaffData.email || '');
   const [adminPhone, setAdminPhone] = useState('');
   const [profileImage, setProfileImage] = useState(null);
 
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
   const {
     inventoryData,
     dismantledHistory,
-    isLoading: isInventoryLoading,
     finalizeDismantle,
     setInventoryData,
   } = useEquipmentData(isAuthenticated, loginRole);
 
   const { notifications, setNotifications } = useNotifications(isAuthenticated, loginRole);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -64,7 +104,7 @@ function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       const staffToken = localStorage.getItem('staff_token');
-      if (staffToken) {
+      if (staffToken && !isAuthenticated) {
         setIsAuthenticated(true);
         const savedStaff = JSON.parse(localStorage.getItem('staff_user_info'));
         if (savedStaff) {
@@ -75,16 +115,14 @@ function App() {
     }
   }, []);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
+
 
   const stats = useMemo(() => {
     return {
       total: inventoryData.length,
       good: inventoryData.filter(i => i.status === 'Good').length,
       maintenance: inventoryData.filter(i => i.status === 'Maintenance').length,
-      dismantled: dismantledHistory.length
+      dismantled: dismantledHistory.filter(i => i.status === 'Approved').length
     };
   }, [inventoryData, dismantledHistory]);
 
@@ -105,11 +143,8 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'staff') {
-      if (isAuthenticated) {
-        navigate('/staff/dashboard');
-      } else {
-        navigate('/staff/login');
-      }
+      // Force navigation to login page to ensure security checkpoint
+      navigate('/staff/login');
     } else {
       alert("This is the Staff portal. Please use the Admin portal for admin access.");
     }
@@ -144,49 +179,35 @@ function App() {
     navigate('/');
   };
 
-  const Layout = ({ children }) => (
-    <div className="app-layout">
-      <StaffSidebar activeTab={staffTab} setActiveTab={(tab) => navigate(`/staff/${tab}`)} onLogoutTrigger={() => setShowLogoutModal(true)} />
-
-      <main className="main-container">
-        <TopNav
-          adminName={userName}
-          adminEmail={userEmail}
-          theme={theme}
-          toggleTheme={toggleTheme}
-          profileImage={profileImage}
-          setProfileImage={setProfileImage}
-          setActiveTab={(tab) => navigate(`/staff/${tab}`)}
-          onLogoutTrigger={() => setShowLogoutModal(true)}
-          role="Manager"
-          notifications={notifications}
-          setNotifications={setNotifications}
-          loginRole={loginRole}
-        />
-
-        <div className="content-area">
-          {children}
-        </div>
-      </main>
-
-      <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
-    </div>
-  );
+  const layoutProps = {
+    staffTab,
+    navigate,
+    setShowLogoutModal,
+    userName,
+    userEmail,
+    profileImage,
+    setProfileImage,
+    notifications,
+    setNotifications,
+    loginRole
+  };
 
   return (
-    <Routes>
-      <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
-      <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
+    <>
+      <Routes>
+        <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
 
-      {/* Protected Routes */}
-      <Route path="/staff/dashboard" element={isAuthenticated ? <Layout><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></Layout> : <Navigate to="/staff/login" />} />
-      <Route path="/staff/inventory" element={isAuthenticated ? <Layout><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></Layout> : <Navigate to="/staff/login" />} />
-      <Route path="/staff/profile" element={isAuthenticated ? <Layout><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></Layout> : <Navigate to="/staff/login" />} />
+        {/* Protected Routes */}
+        <Route path="/staff/dashboard" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></StaffLayout> : <Navigate to="/staff/login" />} />
+        <Route path="/staff/inventory" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></StaffLayout> : <Navigate to="/staff/login" />} />
+        <Route path="/staff/profile" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></StaffLayout> : <Navigate to="/staff/login" />} />
 
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+      <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
+    </>
   );
 }
 
 export default App;
-

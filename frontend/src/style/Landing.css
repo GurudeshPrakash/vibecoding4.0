@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+.landing-page {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Darkened & Blurred Background Image with Premium Gradient */
+.landing-page::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)),
+        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px) brightness(0.5);
+    z-index: 0;
+    transition: 0.3s;
+}
+
+[data-theme='light'] .landing-page::before {
+    filter: blur(8px) brightness(1.2) opacity(0.3);
+}
+
+.landing-content-overlay {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+    padding: 20px;
+}
+
+/* Large Hero Logo */
+.brand-logo-hero {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.6));
+    transition: transform 0.4s ease;
+}
+
+.brand-logo-hero:hover {
+    transform: scale(1.02);
+}
+
+.logo-img-main {
+    max-width: 450px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #ffffff 0%, #dddddd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    margin: 0;
+}
+
+/* Messaging Section */
+.landing-messaging-v4 {
+    max-width: 700px;
+}
+
+.main-description {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    text-align: center;
+    text-shadow: 0 4px 15px var(--color-shadow);
+    letter-spacing: 0.02em;
+    margin-bottom: 40px;
+}
+
+[data-theme='light'] .main-description {
+    color: var(--color-text-dim);
+}
+
+/* Button Row Section */
+.landing-button-row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    justify-content: center;
+}
+
+.landing-btn {
+    padding: 18px 45px;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 220px;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-solid {
+    background: linear-gradient(135deg, var(--color-red) 0%, #cc0000 100%);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+}
+
+.admin-solid:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(220, 20, 60, 0.6);
+    filter: brightness(1.1);
+}
+
+.staff-outline {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+[data-theme='light'] .staff-outline {
+    color: var(--color-text);
+    border-color: var(--color-text);
+}
+
+.staff-outline:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='light'] .staff-outline:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-text);
+}
+
+/* Animations */
+.animate-fade-in {
+    animation: fadeInContent 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInContent {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .landing-button-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .landing-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .main-description {
+        font-size: 1rem;
+    }
+
+    .logo-img-main {
+        max-width: 300px;
+    }
+}

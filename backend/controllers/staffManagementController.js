@@ -1,26 +1,55 @@
 const Staff = require('../models/Staff');
 const ActivityLog = require('../models/ActivityLog');
 const Notification = require('../models/Notification');
+const Branch = require('../models/Branch');
 
 // @desc    Admin create staff
 // @route   POST /api/admin/staff
 exports.createStaff = async (req, res) => {
-    const { firstName, lastName, email, password, phone, branch, assignedArea, profilePicture } = req.body;
+    const { firstName, lastName, email, password, phone, branch, assignedArea, profilePicture, role } = req.body;
     try {
         const staffExists = await Staff.findOne({ email });
         if (staffExists) return res.status(400).json({ message: 'Staff email already exists' });
 
-        // Check if branch is already assigned
-        if (branch) {
-            const branchExists = await Staff.findOne({ branch });
-            if (branchExists) {
-                return res.status(400).json({
-                    message: `The branch "${branch}" is already assigned to ${branchExists.firstName} ${branchExists.lastName}.`
-                });
+        const staffRole = role || 'staff';
+
+        if (staffRole === 'manager') {
+            const managerCount = await Staff.countDocuments({ role: 'manager' });
+            if (managerCount >= 24) {
+                return res.status(400).json({ message: 'Maximum limit of 24 Managers reached.' });
             }
         }
 
-        const staff = await Staff.create({ firstName, lastName, email, password, phone, branch, assignedArea, profilePicture });
+        // Check if branch is already assigned (Manager exclusive constraint)
+        if (branch && staffRole === 'manager') {
+            const branchExists = await Staff.findOne({ branch, role: 'manager' });
+            if (branchExists) {
+                return res.status(400).json({
+                    message: `The branch "${branch}" is already assigned to Manager ${branchExists.firstName} ${branchExists.lastName}.`
+                });
+            }
+
+            // Sync with Branch Collection (Auto-create or Update)
+            let branchDoc = await Branch.findOne({ name: branch });
+            if (!branchDoc) {
+                // Create new branch if not exists
+                branchDoc = await Branch.create({
+                    name: branch,
+                    location: `${branch}, Sri Lanka`, // Default format
+                    phone: phone,
+                    adminName: `${firstName} ${lastName}`,
+                    adminPhone: phone,
+                    operatingHours: '6:00 AM - 10:00 PM' // Default
+                });
+            } else {
+                // Update existing branch admin
+                branchDoc.adminName = `${firstName} ${lastName}`;
+                branchDoc.adminPhone = phone;
+                await branchDoc.save();
+            }
+        }
+
+        const staff = await Staff.create({ firstName, lastName, email, password, phone, branch, assignedArea, profilePicture, role: staffRole });
         res.status(201).json(staff);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -42,12 +71,14 @@ exports.updateStaff = async (req, res) => {
     try {
         const staff = await Staff.findById(req.params.id);
         if (staff) {
+            const staffRole = req.body.role || staff.role || 'staff';
+
             // Check if new branch is already assigned to ANOTHER manager
-            if (req.body.branch && req.body.branch !== staff.branch) {
-                const branchExists = await Staff.findOne({ branch: req.body.branch });
-                if (branchExists) {
+            if (req.body.branch && req.body.branch !== staff.branch && staffRole === 'manager') {
+                const branchExists = await Staff.findOne({ branch: req.body.branch, role: 'manager' });
+                if (branchExists && branchExists._id.toString() !== staff._id.toString()) {
                     return res.status(400).json({
-                        message: `The branch "${req.body.branch}" is already assigned to ${branchExists.firstName} ${branchExists.lastName}.`
+                        message: `The branch "${req.body.branch}" is already assigned to Manager ${branchExists.firstName} ${branchExists.lastName}.`
                     });
                 }
             }
@@ -57,10 +88,9 @@ exports.updateStaff = async (req, res) => {
             staff.email = req.body.email || staff.email;
             staff.phone = req.body.phone || staff.phone;
             staff.branch = req.body.branch || staff.branch;
-            staff.phone = req.body.phone || staff.phone;
-            staff.branch = req.body.branch || staff.branch;
             staff.assignedArea = req.body.assignedArea || staff.assignedArea;
             staff.profilePicture = req.body.profilePicture || staff.profilePicture;
+            staff.role = staffRole;
             if (req.body.password) {
                 staff.password = req.body.password;
             }

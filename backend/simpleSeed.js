@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const uri = 'mongodb://localhost:27017/power_gym';
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+    console.error('ERROR: MONGODB_URI not found in .env');
+    process.exit(1);
+}
 
 const BranchSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -45,7 +51,7 @@ const branches = [
 
 const seed = async () => {
     try {
-        console.log('Connecting to Mongo (no dotenv)...');
+        console.log('Connecting to Mongo (from .env)...');
         await mongoose.connect(uri);
         console.log('Connected.');
 

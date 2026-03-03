@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'; // v1.0.1 force fresh reload
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Users,
     UserPlus,
@@ -21,20 +21,7 @@ import {
     Loader2,
     Calendar
 } from 'lucide-react';
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    PieChart,
-    Pie,
-    Cell
-} from 'recharts';
+import * as Recharts from 'recharts';
 
 import '../../style/SuperAdminDashboard.css';
 
@@ -75,7 +62,8 @@ const MiniCalendar = () => {
 
 const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
     const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
+    const location = useLocation();
+    const [searchQuery, setSearchQuery] = useState(location.state?.initialSearch || '');
     const [stats, setStats] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -154,6 +142,15 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         }
     };
 
+    const filteredActivities = useMemo(() => {
+        if (!searchQuery.trim()) return recentActivities;
+        const q = searchQuery.toLowerCase();
+        return recentActivities.filter(act =>
+            act.user.toLowerCase().includes(q) ||
+            act.action.toLowerCase().includes(q)
+        );
+    }, [recentActivities, searchQuery]);
+
     if (isLoading && !stats) {
         return (
             <div style={{ height: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
@@ -167,37 +164,36 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         <div className="super-admin-dashboard">
             <header className="sa-header">
                 <div className="sa-welcome">
-                    <h1>Command Center</h1>
-                    <p>Real-time system synchronization operational</p>
+                    <h1><span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>Admin</span> Dashboard</h1>
+                    <p>Hello, <span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>{adminName}</span></p>
                 </div>
 
                 <div className="sa-actions">
-                    <form className="sa-search-bar" onSubmit={handleSearch}>
+                    <div className="sa-header-btns">
+                        <button className="sa-primary-red-btn" onClick={() => navigate('/super-admin/owners', { state: { openModal: true } })}>
+                            <UserPlus size={24} />
+                            <div className="sa-btn-text-stack">
+                                <span className="sa-btn-sub">Add New</span>
+                                <span className="sa-btn-main">Manager</span>
+                            </div>
+                        </button>
+                        <button className="sa-secondary-btn" onClick={() => navigate('/super-admin/locations', { state: { openModal: true } })}>
+                            <Building2 size={24} color="var(--color-red)" />
+                            <div className="sa-btn-text-stack">
+                                <span className="sa-btn-sub" style={{ color: 'var(--color-text-dim)' }}>Add New</span>
+                                <span className="sa-btn-main" style={{ color: 'var(--color-text)' }}>Branch</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div className="sa-search-bar">
                         <Search className="sa-search-icon" size={20} />
                         <input
                             type="text"
-                            placeholder="Search Members or Gyms..."
+                            placeholder="Search Members, Managers, Branches..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                    </form>
-
-                    <div className="sa-admin-panel" onClick={() => navigate('/super-admin/settings')}>
-                        <div className="sa-admin-avatar">
-                            {adminName.charAt(0)}
-                        </div>
-                        <div className="sa-admin-meta">
-                            <span className="sa-admin-name">{adminName}</span>
-                            <span className="sa-admin-role">Super Admin</span>
-                        </div>
                     </div>
-
-                    <button className="icon-btn" title="View Logs" onClick={() => navigate('/super-admin/activity-logs')}>
-                        <Activity size={20} />
-                    </button>
-                    <button className="icon-btn" title="Notifications">
-                        <Bell size={20} />
-                    </button>
                 </div>
             </header>
 
@@ -282,24 +278,24 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                             </div>
                         </div>
                         <div style={{ height: '300px', width: '100%' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={memberGrowthData}>
+                            <Recharts.ResponsiveContainer width="100%" height="100%">
+                                <Recharts.AreaChart data={memberGrowthData}>
                                     <defs>
                                         <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#FF0000" stopOpacity={0.15} />
                                             <stop offset="95%" stopColor="#FF0000" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} dx={-10} />
-                                    <Tooltip
+                                    <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                                    <Recharts.XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} dy={10} />
+                                    <Recharts.YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} dx={-10} />
+                                    <Recharts.Tooltip
                                         contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
                                         itemStyle={{ color: '#FF0000', fontWeight: 800 }}
                                     />
-                                    <Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                                    <Recharts.Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
+                                </Recharts.AreaChart>
+                            </Recharts.ResponsiveContainer>
                         </div>
                     </div>
 
@@ -309,14 +305,14 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                 <h3>Revenue Stream</h3>
                             </div>
                             <div style={{ height: '200px', width: '100%' }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={revenueData}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
-                                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.02)' }} contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px' }} />
-                                        <Bar dataKey="revenue" fill="#FF0000" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                <Recharts.ResponsiveContainer width="100%" height="100%">
+                                    <Recharts.BarChart data={revenueData}>
+                                        <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                                        <Recharts.XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
+                                        <Recharts.Tooltip cursor={{ fill: 'rgba(0,0,0,0.02)' }} contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px' }} />
+                                        <Recharts.Bar dataKey="revenue" fill="#FF0000" radius={[4, 4, 0, 0]} />
+                                    </Recharts.BarChart>
+                                </Recharts.ResponsiveContainer>
                             </div>
                         </div>
 
@@ -325,9 +321,9 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                 <h3>Gym Distribution</h3>
                             </div>
                             <div style={{ height: '200px', width: '100%' }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
+                                <Recharts.ResponsiveContainer width="100%" height="100%">
+                                    <Recharts.PieChart>
+                                        <Recharts.Pie
                                             data={gymRatioData}
                                             cx="50%"
                                             cy="50%"
@@ -337,12 +333,12 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                             dataKey="value"
                                         >
                                             {gymRatioData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                <Recharts.Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
-                                        </Pie>
-                                        <Tooltip contentStyle={{ borderRadius: '12px', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                        </Recharts.Pie>
+                                        <Recharts.Tooltip contentStyle={{ borderRadius: '12px', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }} />
+                                    </Recharts.PieChart>
+                                </Recharts.ResponsiveContainer>
                             </div>
                         </div>
                     </div>
@@ -400,20 +396,26 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                 </div>
 
                 <div className="sa-activity-feed">
-                    {recentActivities.map(activity => (
-                        <div key={activity.id} className="sa-activity-item">
-                            <div className="sa-activity-icon">
-                                {activity.icon}
+                    {filteredActivities.length > 0 ? (
+                        filteredActivities.map(activity => (
+                            <div key={activity.id} className="sa-activity-item">
+                                <div className="sa-activity-icon">
+                                    {activity.icon}
+                                </div>
+                                <div className="sa-activity-info">
+                                    <p><strong>{activity.user}</strong> {activity.action}</p>
+                                    <span>{activity.time}</span>
+                                </div>
+                                <div className="activity-status-chip">
+                                    <ChevronRight size={16} />
+                                </div>
                             </div>
-                            <div className="sa-activity-info">
-                                <p><strong>{activity.user}</strong> {activity.action}</p>
-                                <span>{activity.time}</span>
-                            </div>
-                            <div className="activity-status-chip">
-                                <ChevronRight size={16} />
-                            </div>
+                        ))
+                    ) : (
+                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-dim)', fontWeight: 600 }}>
+                            No events found matching "{searchQuery}"
                         </div>
-                    ))}
+                    )}
                 </div>
             </section>
         </div>

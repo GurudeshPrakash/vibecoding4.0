@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search, Plus, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera } from 'lucide-react';
 import '../../style/SuperAdminDashboard.css';
 
@@ -44,6 +45,15 @@ const Locations = () => {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [selectedGym]);
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.openModal) {
+      setEditingBranch(null);
+      setFormData({ name: '', photo: null, phone: '', location: '', adminName: '', adminPhone: '', runningSince: '', operatingHours: '6:00 AM - 10:00 PM' });
+      setShowModal(true);
+    }
+  }, [location.state]);
 
   const fetchBranches = async () => {
     setIsLoading(true);

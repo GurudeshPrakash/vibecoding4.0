@@ -12,6 +12,14 @@ const GymManagers = () => {
     const [managers, setManagers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.openModal) {
+            setEditingManager(null);
+            setShowModal(true);
+        }
+    }, [location.state]);
+
     const [editingManager, setEditingManager] = useState(null);
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', email: '', password: '', phone: '', branch: '', assignedArea: ''

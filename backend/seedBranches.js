@@ -33,8 +33,8 @@ const branches = [
 
 const seedBranches = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/gym-inventory');
-        console.log('MongoDB Connected');
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('MongoDB Connected to: ' + process.env.MONGODB_URI.split('@')[1]);
 
         // Upsert branches (update if exists, insert if not)
         for (const branch of branches) {

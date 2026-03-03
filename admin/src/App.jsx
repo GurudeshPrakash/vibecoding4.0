@@ -39,7 +39,7 @@ const AdminLayout = ({
   handleViewActivityLog,
   onToggleRole
 }) => (
-  <div className="app-layout">
+  <div className={`app-layout ${adminRole === 'super_admin' ? 'is-super-admin' : ''}`}>
     <Sidebar activeTab={activeTab} setActiveTab={(tab) => {
       const prefix = adminRole === 'super_admin' ? '/super-admin' : '/admin';
       navigate(`${prefix}/${tab}`);
@@ -70,6 +70,32 @@ const AdminLayout = ({
       <div className="content-area">
         {children}
       </div>
+
+      {onToggleRole && (
+        <button
+          onClick={onToggleRole}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            background: 'var(--color-red, #ff0000)',
+            color: '#fff',
+            border: '3px solid #ffaa00',
+            borderRadius: '24px',
+            padding: '10px 24px',
+            fontSize: '0.9rem',
+            fontWeight: '800',
+            cursor: 'pointer',
+            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+            zIndex: 9999,
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.4)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)'; }}
+        >
+          Switch to {adminRole === 'super_admin' ? 'Admin View' : 'Super Admin View'}
+        </button>
+      )}
     </main>
   </div>
 );
@@ -97,7 +123,7 @@ function App() {
     }
   }, []);
 
-  const [userName, setUserName] = useState(savedAdminData.firstName || (isAuthenticated ? 'Admin' : 'Vibe Master'));
+  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'Vibe Master'));
   const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
@@ -123,7 +149,7 @@ function App() {
       setIsAuthenticated(true);
       const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
       if (savedAdmin) {
-        setUserName(savedAdmin.firstName || 'Admin');
+        setUserName(savedAdmin.firstName || 'Shahana Kuganesan');
         setUserEmail(savedAdmin.email || 'admin@gymsys.com');
         setAdminRole(savedAdmin.role || 'admin');
       }

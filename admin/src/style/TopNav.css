@@ -24,7 +24,7 @@
 .admin-greeting-left {
     display: flex;
     align-items: center;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .hello-text-red {
@@ -188,14 +188,14 @@
 }
 
 .user-full-name {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: var(--color-text);
     margin: 0;
 }
 
 .user-role {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: var(--color-red);
     text-transform: uppercase;
@@ -215,7 +215,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: var(--color-ash);
     font-weight: 600;
 }
@@ -241,7 +241,7 @@
     background: transparent;
     color: var(--color-text);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     border-radius: 10px;
     cursor: pointer;
     transition: 0.2s;

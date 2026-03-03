@@ -31,7 +31,7 @@
 }
 
 .sa-welcome h1 {
-    font-size: 2.4rem;
+    font-size: 2.1rem;
     font-weight: 900;
     margin: 0;
     color: var(--color-text);
@@ -42,7 +42,7 @@
     color: var(--color-text-dim);
     margin: 6px 0 0 0;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 .sa-actions {
@@ -58,13 +58,13 @@
 
 .sa-search-bar input {
     width: 100%;
-    padding: 14px 16px 14px 52px;
+    padding: 12px 16px 12px 52px;
     background: var(--color-surface);
     border: 1px solid var(--border-color);
     border-radius: 14px;
     color: var(--color-text);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     transition: all 0.3s ease;
 }
 
@@ -87,61 +87,42 @@
 /* Summary Grid */
 .sa-summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
 }
 
 .sa-stat-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 24px;
+    border-radius: 16px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    gap: 4px;
+    transition: all 0.2s ease;
+    box-shadow: none;
 }
 
-.sa-stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--color-red);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+/* Removed side bar glow */
 
 .sa-stat-card:hover {
-    transform: translateY(-5px);
-    background: #FFFFFF;
     border-color: var(--color-red);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-.sa-stat-card:hover::before {
-    opacity: 1;
 }
 
 .sa-stat-card .icon-circle {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 4px;
-    font-size: 1.4rem;
+    margin-bottom: 0;
+    font-size: 1rem;
 }
 
 .sa-stat-card .label {
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -149,7 +130,7 @@
 }
 
 .sa-stat-card .value {
-    font-size: 2rem;
+    font-size: 1.35rem;
     font-weight: 900;
     margin: 0;
     color: var(--color-text);
@@ -157,7 +138,7 @@
 }
 
 .sa-stat-card .trend {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -176,9 +157,9 @@
 /* Main Dashboard Content Layout */
 .sa-dashboard-layout {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 32px;
-    margin-bottom: 40px;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 24px;
+    margin-bottom: 30px;
 }
 
 .sa-analytics-col {
@@ -190,10 +171,10 @@
 .sa-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 28px;
+    border-radius: 20px;
+    padding: 20px;
     height: 100%;
-    min-height: 250px;
+    min-height: 200px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
@@ -201,11 +182,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .sa-card-header h3 {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 800;
     margin: 0;
     color: var(--color-text);
@@ -231,7 +212,7 @@
     border-radius: 20px;
     color: var(--color-text);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -258,8 +239,8 @@
 .sa-activity-item {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 20px 0;
+    gap: 12px;
+    padding: 12px 0;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -269,9 +250,9 @@
 }
 
 .sa-activity-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     background: rgba(255, 0, 0, 0.05);
     color: var(--color-red);
     display: flex;
@@ -286,7 +267,7 @@
 
 .sa-activity-info p {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 600;
     line-height: 1.4;
 }
@@ -299,7 +280,7 @@
 .sa-activity-info span {
     display: block;
     margin-top: 4px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: var(--color-text-dim);
     font-weight: 600;
 }
@@ -339,7 +320,7 @@
 
 .sa-alert-text {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: var(--color-text);
     margin-bottom: 2px;
@@ -358,7 +339,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--color-text);
 }
@@ -423,14 +404,14 @@
 
 .sa-admin-name {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: var(--color-text);
 }
 
 .sa-admin-role {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--color-red);
     font-weight: 700;
     text-transform: uppercase;
@@ -466,22 +447,33 @@
     border-radius: 10px;
     color: var(--color-text-dim);
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.view-all-link-top:hover {
-    border-color: var(--color-red);
-    color: var(--color-red);
+.sa-view-more-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
+}
+
+.sa-view-more-btn:active {
+    transform: translateY(0);
 }
 
 /* Mini Calendar */
 .mini-calendar {
-    padding: 20px;
-    background: #F9FAFB;
-    border-radius: 16px;
+    padding: 18px;
+    background: #FFFFFF;
+    border-radius: 20px;
     border: 1px solid var(--border-color);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 .cal-header {
@@ -489,42 +481,42 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-}
-
-.cal-month {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--color-red);
+    width: 100%;
 }
 
 .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 4px;
     text-align: center;
+    flex: 1;
+    align-content: space-between;
 }
 
 .cal-day-label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: var(--color-text-dim);
-    padding-bottom: 8px;
+    padding-bottom: 12px;
 }
 
 .cal-date {
     font-size: 0.85rem;
     font-weight: 600;
-    padding: 8px 0;
-    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
     transition: all 0.2s ease;
     color: var(--color-text-dim);
+    aspect-ratio: 1 / 1;
 }
 
 .cal-date.active {
-    background: var(--color-red);
-    color: white;
-    font-weight: 900;
-    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+    background: var(--color-red) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.25);
 }
 
 .cal-date:hover:not(.active) {

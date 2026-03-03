@@ -18,7 +18,7 @@ const protect = (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
+    if (req.user && req.user.role === 'admin') {
         next();
     } else {
         res.status(403).json({ message: 'Access denied: Admin only' });
@@ -26,19 +26,11 @@ const adminOnly = (req, res, next) => {
 };
 
 const staffOnly = (req, res, next) => {
-    if (req.user && (req.user.role === 'staff' || req.user.role === 'manager' || req.user.role === 'admin' || req.user.role === 'super_admin')) {
+    if (req.user && (req.user.role === 'staff' || req.user.role === 'admin')) {
         next();
     } else {
-        res.status(403).json({ message: 'Access denied: Staff/Manager/Admin only' });
+        res.status(403).json({ message: 'Access denied: Staff/Admin only' });
     }
 };
 
-const superAdminOnly = (req, res, next) => {
-    if (req.user && req.user.role === 'super_admin') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Access denied: Super Admin only' });
-    }
-};
-
-module.exports = { protect, adminOnly, staffOnly, superAdminOnly };
+module.exports = { protect, adminOnly, staffOnly };

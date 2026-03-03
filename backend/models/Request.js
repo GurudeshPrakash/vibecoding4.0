@@ -9,7 +9,6 @@ const requestSchema = new mongoose.Schema({
     staffName: { type: String, required: true },
     branch: { type: String, required: true },
     reason: { type: String },
-    photo: { type: String },
     // Report Snapshot Fields
     equipmentType: { type: String },
     boughtDate: { type: Date },

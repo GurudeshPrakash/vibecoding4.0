@@ -55,7 +55,7 @@ const MiniCalendar = () => {
                 <Calendar size={18} color="var(--color-red)" />
             </div>
             <div className="cal-grid">
-                {days.map(d => <div key={d} className="cal-day-label">{d}</div>)}
+                {days.map((d, i) => <div key={`day-${i}`} className="cal-day-label">{d}</div>)}
                 {[...Array(firstDay)].map((_, i) => <div key={`empty-${i}`} />)}
                 {[...Array(daysInMonth)].map((_, i) => {
                     const d = i + 1;

@@ -95,9 +95,9 @@ import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentView, setCurrentView] = useState('landing');
-  const [loginRole, setLoginRole] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [loginRole, setLoginRole] = useState('admin');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState('dashboard');

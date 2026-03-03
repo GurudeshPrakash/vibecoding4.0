@@ -36,7 +36,8 @@ const AdminLayout = ({
   notifications,
   setNotifications,
   loginRole,
-  handleViewActivityLog
+  handleViewActivityLog,
+  onToggleRole
 }) => (
   <div className="app-layout">
     <Sidebar activeTab={activeTab} setActiveTab={(tab) => {
@@ -62,6 +63,8 @@ const AdminLayout = ({
         setNotifications={setNotifications}
         loginRole={loginRole}
         onViewLog={handleViewActivityLog}
+        onToggleRole={onToggleRole}
+        adminRole={adminRole}
       />
 
       <div className="content-area">
@@ -72,7 +75,8 @@ const AdminLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('admin_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [adminRole, setAdminRole] = useState('super_admin'); // Start as super_admin by default for testing
   const loginRole = 'admin'; // Hardcoded for Admin app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
@@ -95,7 +99,6 @@ function App() {
 
   const [userName, setUserName] = useState(savedAdminData.firstName || (isAuthenticated ? 'Admin' : 'Vibe Master'));
   const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
-  const [adminRole, setAdminRole] = useState(savedAdminData.role || 'admin');
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
@@ -174,8 +177,10 @@ function App() {
     setIsAuthenticated(true);
 
     if (data.role === 'super_admin') {
+      setAdminRole('super_admin');
       navigate('/super-admin/dashboard');
     } else if (data.role === 'admin') {
+      setAdminRole('admin');
       navigate('/admin/dashboard');
     } else {
       const userParam = encodeURIComponent(JSON.stringify({ firstName: data.firstName, email: data.email, role: data.role }));
@@ -204,6 +209,16 @@ function App() {
     navigate('/');
   };
 
+  const handleToggleRole = () => {
+    const newRole = adminRole === 'super_admin' ? 'admin' : 'super_admin';
+    setAdminRole(newRole);
+    if (newRole === 'super_admin') {
+      navigate('/super-admin/dashboard');
+    } else {
+      navigate('/admin/dashboard');
+    }
+  };
+
   const layoutProps = {
     activeTab,
     navigate,
@@ -218,16 +233,17 @@ function App() {
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog
+    handleViewActivityLog,
+    onToggleRole: handleToggleRole
   };
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
-        <Route path="/login" element={<AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} onGoToSignUp={(view) => navigate(`/admin/${view}`)} />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} onGoToSignUp={(view) => navigate(`/admin/${view}`)} />} />
         <Route path="/admin/login" element={<Navigate to="/login" />} />
-        <Route path="/super-admin/login" element={<SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
+        <Route path="/super-admin/login" element={isAuthenticated ? <Navigate to="/super-admin/dashboard" /> : <SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
         <Route path="/admin/signup" element={<Navigate to="/login" />} />
         <Route path="/admin/forgot-password" element={<ForgotPassword onBack={() => navigate('/login')} />} />
         <Route path="/reset-password/:token" element={<ResetPassword onComplete={() => navigate('/login')} />} />
@@ -240,14 +256,14 @@ function App() {
         <Route path="/admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/admin/login" />} />
 
         {/* Super Admin Routes */}
-        <Route path="/super-admin/dashboard" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/owners" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/locations" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/activity-logs" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/settings" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/admins" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
+        <Route path="/super-admin/dashboard" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/admins" element={isAuthenticated ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
 
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} />} />
       </Routes>
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
       <ActivityDetailModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} log={selectedLog} />

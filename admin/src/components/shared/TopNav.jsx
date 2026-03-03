@@ -18,14 +18,16 @@ const TopNav = ({
     loginRole,
     setSelectedEquipmentId,
     onViewLog,
-    currentTab
+    currentTab,
+    onToggleRole,
+    adminRole
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
     const notifRef = useRef(null);
 
-    const roleLabel = role;
+    const roleLabel = adminRole === 'super_admin' ? 'Super Admin' : 'Administrator';
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -133,6 +135,25 @@ const TopNav = ({
             </div>
 
             <div className="top-nav-right">
+                {onToggleRole && (
+                    <button
+                        onClick={onToggleRole}
+                        className="mode-toggle-btn"
+                        style={{
+                            marginRight: '15px',
+                            padding: '8px 16px',
+                            backgroundColor: adminRole === 'super_admin' ? 'var(--color-red)' : 'transparent',
+                            color: adminRole === 'super_admin' ? 'white' : 'var(--color-text)',
+                            border: `1px solid ${adminRole === 'super_admin' ? 'var(--color-red)' : 'var(--color-border)'}`,
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: '600',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        {adminRole === 'super_admin' ? 'Switch to Admin' : 'Switch to Super Admin'}
+                    </button>
+                )}
 
 
                 <div className="notif-wrapper-rel" ref={notifRef}>

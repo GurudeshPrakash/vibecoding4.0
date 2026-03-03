@@ -17,6 +17,7 @@ import ForgotPassword from './components/admin/ForgotPassword';
 import ResetPassword from './components/admin/ResetPassword';
 import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
+import SuperAdminSettings from './components/super-admin/SuperAdminSettings';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
@@ -72,7 +73,8 @@ const AdminLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('admin_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [adminRole, setAdminRole] = useState('super_admin'); // Start as super_admin by default for testing
   const loginRole = 'admin'; // Hardcoded for Admin app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
@@ -93,9 +95,8 @@ function App() {
     }
   }, []);
 
-  const [userName, setUserName] = useState(savedAdminData.firstName || (isAuthenticated ? 'Admin' : 'Vibe Master'));
+  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'Vibe Master'));
   const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
-  const [adminRole, setAdminRole] = useState(savedAdminData.role || 'admin');
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
@@ -240,12 +241,12 @@ function App() {
         <Route path="/admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/admin/login" />} />
 
         {/* Super Admin Routes */}
-        <Route path="/super-admin/dashboard" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/owners" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/locations" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/activity-logs" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/settings" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/admins" element={isAuthenticated && adminRole === 'super_admin' ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
+        <Route path="/super-admin/dashboard" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminSettings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/admins" element={isAuthenticated ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

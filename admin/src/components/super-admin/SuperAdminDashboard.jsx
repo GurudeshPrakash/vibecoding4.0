@@ -129,6 +129,15 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         }));
     }, [stats]);
 
+    const filteredActivities = useMemo(() => {
+        if (!searchQuery.trim()) return recentActivities;
+        const q = searchQuery.toLowerCase();
+        return recentActivities.filter(act =>
+            act.user.toLowerCase().includes(q) ||
+            act.action.toLowerCase().includes(q)
+        );
+    }, [recentActivities, searchQuery]);
+
     const alerts = [
         { id: 1, title: '12 Memberships Expiring', type: 'warning', desc: 'Action required within 48 hours' },
         { id: 2, title: 'Failed Payment (Gym #08)', type: 'error', desc: 'Automatic retry in progress' },
@@ -142,15 +151,6 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         }
     };
 
-    const filteredActivities = useMemo(() => {
-        if (!searchQuery.trim()) return recentActivities;
-        const q = searchQuery.toLowerCase();
-        return recentActivities.filter(act =>
-            act.user.toLowerCase().includes(q) ||
-            act.action.toLowerCase().includes(q)
-        );
-    }, [recentActivities, searchQuery]);
-
     if (isLoading && !stats) {
         return (
             <div style={{ height: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
@@ -162,38 +162,55 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
 
     return (
         <div className="super-admin-dashboard">
-            <header className="sa-header">
-                <div className="sa-welcome">
-                    <h1><span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>Admin</span> Dashboard</h1>
-                    <p>Hello, <span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>{adminName}</span></p>
+            <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="admin-greeting-inline" style={{ marginBottom: '6px' }}>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 600, color: '#ef4444' }}>Hello, </span>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1a1a1a' }}>{adminName}</span>
+                    </div>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Admin Dashboard</h1>
                 </div>
 
-                <div className="sa-actions">
-                    <div className="sa-header-btns">
-                        <button className="sa-primary-red-btn" onClick={() => navigate('/super-admin/owners', { state: { openModal: true } })}>
-                            <UserPlus size={24} />
-                            <div className="sa-btn-text-stack">
-                                <span className="sa-btn-sub">Add New</span>
-                                <span className="sa-btn-main">Manager</span>
-                            </div>
-                        </button>
-                        <button className="sa-secondary-btn" onClick={() => navigate('/super-admin/locations', { state: { openModal: true } })}>
-                            <Building2 size={24} color="var(--color-red)" />
-                            <div className="sa-btn-text-stack">
-                                <span className="sa-btn-sub" style={{ color: 'var(--color-text-dim)' }}>Add New</span>
-                                <span className="sa-btn-main" style={{ color: 'var(--color-text)' }}>Branch</span>
-                            </div>
-                        </button>
-                    </div>
-                    <div className="sa-search-bar">
-                        <Search className="sa-search-icon" size={20} />
+                <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <button
+                        className="add-admin-btn"
+                        onClick={() => navigate('/super-admin/owners', { state: { openModal: true } })}
+                        style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(255,0,0,0.25)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(255,0,0,0.35)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(255,0,0,0.25)'; }}
+                    >
+                        <UserPlus size={24} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <span style={{ opacity: 0.85 }}>Add New</span>
+                            <span>Manager</span>
+                        </div>
+                    </button>
+
+                    <button
+                        className="add-branch-btn"
+                        onClick={() => navigate('/super-admin/locations', { state: { openModal: true } })}
+                        style={{ background: '#fff', color: '#ff0000', border: '2px solid #ff0000', padding: '10px 28px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(0,0,0,0.12)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.06)'; }}
+                    >
+                        <Building2 size={24} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <span style={{ color: '#666', opacity: 0.7 }}>Add New</span>
+                            <span>Branch</span>
+                        </div>
+                    </button>
+
+                    <form className="sa-search-bar" onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: '#F3F4F6', borderRadius: '16px', padding: '0 20px', border: '1px solid #E5E7EB', height: '54px', width: '340px', transition: 'all 0.3s ease' }}>
+                        <Search className="sa-search-icon" size={22} color="#9CA3AF" style={{ marginRight: '14px' }} />
+                        <div style={{ height: '28px', width: '1px', background: '#D1D5DB', marginRight: '18px' }}></div>
                         <input
                             type="text"
                             placeholder="Search Members, Managers, Branches..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '1rem', fontWeight: 700, color: '#111827' }}
                         />
-                    </div>
+                    </form>
                 </div>
             </header>
 

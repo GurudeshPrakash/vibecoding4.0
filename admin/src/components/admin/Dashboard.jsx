@@ -11,6 +11,7 @@ import {
     Package,
     ShieldAlert,
     ChevronDown,
+    ChevronLeft,
     ChevronRight,
     Trophy,
     Plus,

@@ -31,8 +31,8 @@
 }
 
 .sa-welcome h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
+    font-size: 2.4rem;
+    font-weight: 900;
     margin: 0;
     color: #000000;
     letter-spacing: -0.03em;
@@ -87,25 +87,23 @@
 /* Summary Grid */
 .sa-summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, auto);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
 
 .sa-stat-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    height: 100%;
 }
 
 .sa-stat-card::before {
@@ -132,18 +130,18 @@
 }
 
 .sa-stat-card .icon-circle {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 2px;
-    font-size: 1.2rem;
+    margin-bottom: 4px;
+    font-size: 1.4rem;
 }
 
 .sa-stat-card .label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -151,15 +149,15 @@
 }
 
 .sa-stat-card .value {
-    font-size: 1.6rem;
-    font-weight: 800;
+    font-size: 2rem;
+    font-weight: 900;
     margin: 0;
     color: var(--color-text);
     letter-spacing: -0.01em;
 }
 
 .sa-stat-card .trend {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
     display: flex;
     align-items: center;

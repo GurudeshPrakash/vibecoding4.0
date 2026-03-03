@@ -13,6 +13,8 @@ node_modules/
 # Production Build Objects
 dist/
 build/
+.vite/
+.vite-temp/
 
 # Logs
 logs

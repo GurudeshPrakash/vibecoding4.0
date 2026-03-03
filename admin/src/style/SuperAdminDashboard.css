@@ -422,7 +422,7 @@
 .icon-btn {
     width: 46px;
     height: 46px;
-    border-radius: 14px;
+    border-radius: 50%;
     background: var(--color-surface);
     border: 1px solid var(--border-color);
     color: var(--color-text-dim);

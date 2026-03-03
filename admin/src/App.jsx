@@ -17,6 +17,7 @@ import ForgotPassword from './components/admin/ForgotPassword';
 import ResetPassword from './components/admin/ResetPassword';
 import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
+import SuperAdminSettings from './components/super-admin/SuperAdminSettings';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
@@ -286,7 +287,7 @@ function App() {
         <Route path="/super-admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
         <Route path="/super-admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
         <Route path="/super-admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
+        <Route path="/super-admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminSettings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
         <Route path="/super-admin/admins" element={isAuthenticated ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
 
         <Route path="*" element={<Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} />} />

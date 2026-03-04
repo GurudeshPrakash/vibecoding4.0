@@ -235,16 +235,18 @@ const MiniCalendar = () => {
     );
 };
 
-const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
+const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState(location.state?.initialSearch || '');
-    const [statsState, setStatsState] = useState(() => {
+    const [stats, setStats] = useState(() => {
         const raw = localStorage.getItem('sa_live_mock_database');
         if (raw) {
             try {
                 return JSON.parse(raw);
-            } catch (e) { }
+            } catch (e) {
+                // Ignore
+            }
         }
         return {
             totalMembers: 0,
@@ -290,22 +292,26 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     const parsed = JSON.parse(raw);
                     // Ensure we always have 12-month revenue-based format as requested
                     if (parsed.memberGrowth && parsed.memberGrowth.length !== 12) {
-                        parsed.memberGrowth = statsState.memberGrowth;
+                        parsed.memberGrowth = stats.memberGrowth;
                     }
-                    setStatsState(parsed);
+                    setStats(parsed);
                 } catch (e) { }
             } else {
-                localStorage.setItem('sa_live_mock_database', JSON.stringify(statsState));
+                localStorage.setItem('sa_live_mock_database', JSON.stringify(stats));
             }
         };
         fetchLiveStats();
 
+        // Fast polling for instant true "LIVE" graph reflection across windows
         const LIVE_INTERVAL = setInterval(fetchLiveStats, 300);
+
+        // Fluctuation effect for the "LIVE" look
         const FLUCTUATION_INTERVAL = setInterval(() => {
-            setStatsState(prev => {
+            setStats(prev => {
                 if (!prev.memberGrowth) return prev;
                 const newGrowth = [...prev.memberGrowth];
                 const lastIdx = newGrowth.length - 1;
+                // Add/subtract a small random amount (max 0.5%) to the last data point
                 const currentVal = newGrowth[lastIdx].members;
                 const fluctuation = currentVal * (0.005 * (Math.random() - 0.5));
                 newGrowth[lastIdx] = { ...newGrowth[lastIdx], members: Math.max(0, currentVal + fluctuation) };
@@ -319,19 +325,33 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         };
     }, []);
 
-    const memberGrowthData = statsState.memberGrowth;
-    const revenueData = statsState.revenueTrend;
+    const memberGrowthData = stats.memberGrowth;
+    const revenueData = stats.revenueTrend;
     const gymRatioData = [
-        { name: 'AC Gyms', value: statsState.acGyms },
-        { name: 'Non-AC Gyms', value: statsState.nonAcGyms },
+        { name: 'AC Gyms', value: stats.acGyms },
+        { name: 'Non-AC Gyms', value: stats.nonAcGyms },
     ];
     const COLORS = ['#FF0000', '#374151'];
 
-    const recentActivities = statsState.recentActivities.map((act, idx) => ({
+    const recentActivities = stats.recentActivities.map((act, idx) => ({
         ...act,
         icon: act.action && act.action.includes('session') ? <Activity size={18} /> : <Zap size={18} />,
         time: act.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }));
+
+    const alerts = [
+        { id: 1, title: '12 Memberships Expiring', type: 'warning', desc: 'Action required within 48 hours' },
+        { id: 2, title: 'Failed Payment (Gym #08)', type: 'error', desc: 'Automatic retry in progress' },
+        { id: 3, title: 'Inactive Gym: Rathnapura', type: 'warning', desc: 'No activity for 5 consecutive days' },
+    ];
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            setActiveTab('managers');
+            navigate('/dashboard', { state: { initialSearch: searchQuery } });
+        }
+    };
 
     const filteredActivities = useMemo(() => {
         if (!searchQuery.trim()) return recentActivities;
@@ -342,14 +362,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         );
     }, [recentActivities, searchQuery]);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            navigate('/super-admin/owners', { state: { initialSearch: searchQuery } });
-        }
-    };
-
-    if (isLoading && !statsState) {
+    if (isLoading && !stats) {
         return (
             <div style={{ height: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
                 <Loader2 className="animate-spin" size={48} color="var(--color-red)" />
@@ -360,84 +373,69 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
 
     return (
         <div className="super-admin-dashboard">
-            <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div className="admin-greeting-inline" style={{ marginBottom: '6px' }}>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 600, color: '#ef4444' }}>Hello, </span>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1a1a1a' }}>{adminName}</span>
-                    </div>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Admin Dashboard</h1>
+            <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+                    <h1 style={{ margin: 0, padding: 0 }}>Admin Dashboard</h1>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>Monitor and manage your entire gym system.</p>
                 </div>
 
-                <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <button
-                        className="add-admin-btn"
-                        onClick={() => navigate('/super-admin/owners', { state: { openModal: true } })}
-                        style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(255,0,0,0.25)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(255,0,0,0.35)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(255,0,0,0.25)'; }}
-                    >
-                        <UserPlus size={24} />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span style={{ opacity: 0.85 }}>Add New</span>
-                            <span>Manager</span>
+                <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100%' }}>
+                    <button className="add-admin-btn" style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(255,0,0,0.2)' }} onClick={() => { setActiveTab('admins'); navigate('/dashboard', { state: { openModal: true } }); }}>
+                        <UserPlus size={20} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.85rem', fontWeight: 800, lineHeight: 1.2 }}>
+                            <span>Add</span>
+                            <span>Admin</span>
                         </div>
                     </button>
 
-                    <button
-                        className="add-branch-btn"
-                        onClick={() => navigate('/super-admin/locations', { state: { openModal: true } })}
-                        style={{ background: '#fff', color: '#ff0000', border: '2px solid #ff0000', padding: '10px 28px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(0,0,0,0.12)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.06)'; }}
-                    >
-                        <Building2 size={24} />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span style={{ color: '#666', opacity: 0.7 }}>Add New</span>
+                    <button className="add-branch-btn" style={{ background: '#f8f9fa', color: '#000', border: '1px solid #e0e0e0', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }} onClick={() => { setActiveTab('locations'); navigate('/dashboard', { state: { openModal: true } }); }}>
+                        <Building2 size={20} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.85rem', fontWeight: 800, lineHeight: 1.2 }}>
+                            <span>Add</span>
                             <span>Branch</span>
                         </div>
                     </button>
 
-                    <form className="sa-search-bar" onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: '#F3F4F6', borderRadius: '16px', padding: '0 20px', border: '1px solid #E5E7EB', height: '54px', width: '340px', transition: 'all 0.3s ease' }}>
-                        <Search className="sa-search-icon" size={22} color="#9CA3AF" style={{ marginRight: '14px' }} />
-                        <div style={{ height: '28px', width: '1px', background: '#D1D5DB', marginRight: '18px' }}></div>
+                    <form className="sa-search-bar" onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', borderRadius: '12px', padding: '0 16px', border: '1px solid #e0e0e0', height: '44px', width: '280px' }}>
+                        <Search className="sa-search-icon" size={18} color="#888" style={{ marginRight: '12px' }} />
+                        <div style={{ height: '22px', width: '1px', background: '#d1d5db', marginRight: '12px' }}></div>
                         <input
                             type="text"
                             placeholder="Search Members, Managers, Branches..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '1rem', fontWeight: 700, color: '#111827' }}
+                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.9rem', fontWeight: 500, color: '#333' }}
                         />
                     </form>
                 </div>
             </header>
 
             <section className="sa-summary-grid">
-                <div className="sa-stat-card primary" onClick={() => navigate('/super-admin/owners')} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card primary" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
                             <Users />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>Total Members</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalMembers?.toLocaleString() || '1,240'}</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{stats?.totalMembers?.toLocaleString() || '1,240'}</h2>
                         </div>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => navigate('/super-admin/owners')} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
                             <ShieldCheck />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>Active Members</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMembers?.toLocaleString() || '1,192'}</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{stats?.activeMembers?.toLocaleString() || '1,192'}</h2>
                         </div>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => navigate('/super-admin/admins')} style={{ cursor: 'pointer', borderLeft: '3px solid var(--color-red)' }}>
+                <div className="sa-stat-card" onClick={() => { setActiveTab('admins'); navigate('/dashboard'); }} style={{ cursor: 'pointer', borderLeft: '3px solid var(--color-red)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
                             <ShieldCheck />
@@ -449,14 +447,14 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => navigate('/super-admin/locations')} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { setActiveTab('locations'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
                             <Building2 />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>Active Branches</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeGyms || '12'}</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{stats?.activeGyms || '12'}</h2>
                         </div>
                     </div>
                 </div>
@@ -468,7 +466,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>Monthly Revenue</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.monthlyRevenue / 1000000).toFixed(1)}M</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(stats?.monthlyRevenue / 1000000).toFixed(1)}M</h2>
                         </div>
                     </div>
                 </div>
@@ -480,7 +478,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>Pending Payments</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.pendingPayments / 1000).toFixed(0)}K</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(stats?.pendingPayments / 1000).toFixed(0)}K</h2>
                         </div>
                     </div>
                 </div>
@@ -534,87 +532,45 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                         itemStyle={{ color: '#FF0000', fontWeight: 800 }}
                                     />
                                     <Recharts.Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
-                                </Recharts.AreaChart>
-                            </Recharts.ResponsiveContainer>
-                        </div>
-                    </div>
+                                </Recharts.AreaChart >
+                            </Recharts.ResponsiveContainer >
+                        </div >
+                    </div >
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                        <div className="sa-card">
-                            <div className="sa-card-header">
-                                <h3>Revenue Stream</h3>
-                            </div>
-                            <div style={{ height: '200px', width: '100%' }}>
-                                <Recharts.ResponsiveContainer width="100%" height="100%">
-                                    <Recharts.BarChart data={revenueData}>
-                                        <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                                        <Recharts.XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
-                                        <Recharts.Tooltip cursor={{ fill: 'rgba(0,0,0,0.02)' }} contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px' }} />
-                                        <Recharts.Bar dataKey="revenue" fill="#FF0000" radius={[4, 4, 0, 0]} />
-                                    </Recharts.BarChart>
-                                </Recharts.ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        <div className="sa-card">
-                            <div className="sa-card-header">
-                                <h3>Gym Distribution</h3>
-                            </div>
-                            <div style={{ height: '200px', width: '100%' }}>
-                                <Recharts.ResponsiveContainer width="100%" height="100%">
-                                    <Recharts.PieChart>
-                                        <Recharts.Pie
-                                            data={gymRatioData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={8}
-                                            dataKey="value"
-                                        >
-                                            {gymRatioData.map((entry, index) => (
-                                                <Recharts.Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Recharts.Pie>
-                                        <Recharts.Tooltip contentStyle={{ borderRadius: '12px', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }} />
-                                    </Recharts.PieChart>
-                                </Recharts.ResponsiveContainer>
-                            </div>
-                        </div>
-                    </div>
-                </main>
+                    {/* Removed Revenue Stream and Gym Distribution */}
+                </main >
 
                 <aside className="sa-sidebar-col">
                     <MiniCalendar />
 
-                    <div className="sa-card" style={{ height: 'auto', minHeight: 'unset' }}>
-                        <div className="sa-card-header" style={{ marginBottom: '16px' }}>
+                    <div className="sa-card" style={{ background: '#111827', color: '#fff', padding: '0', overflow: 'hidden' }}>
+                        <div className="sa-card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Zap size={20} color="#FF0000" />
                                 <h3 style={{ fontSize: '1rem' }}>Quick Terminal</h3>
                             </div>
                         </div>
                         <div className="sa-quick-actions">
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/admins')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('admins'); navigate('/dashboard'); }}>
                                 <ShieldCheck />
                                 <span>Admins</span>
                             </button>
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/owners')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }}>
                                 <Users />
                                 <span>Managers</span>
                             </button>
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/locations')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('locations'); navigate('/dashboard'); }}>
                                 <Building2 />
                                 <span>Locations</span>
                             </button>
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/activity-logs')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>
                                 <ClipboardList />
                                 <span>Logs</span>
                             </button>
                         </div>
                     </div>
                 </aside>
-            </div>
+            </div >
 
             <section className="sa-card" style={{ marginTop: '32px' }}>
                 <div className="sa-card-header">
@@ -622,7 +578,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                         <Activity size={24} color="#FF0000" />
                         <h3>Real-time Event Log</h3>
                     </div>
-                    <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => navigate('/super-admin/activity-logs')}>View More</button>
+                    <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>View More</button>
                 </div>
 
                 <div className="sa-activity-feed" style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '8px' }}>

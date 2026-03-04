@@ -6,10 +6,16 @@ const Payments = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const paymentsList = [
-        { id: 'PAY-1001', memberId: 'M-001', name: 'John Doe', amount: 'LKR 5,000', date: '2026-03-04', status: 'Completed', type: 'Monthly Fee' },
-        { id: 'PAY-1002', memberId: 'M-015', name: 'Sarah Connor', amount: 'LKR 15,000', date: '2026-03-04', status: 'Pending', type: 'Annual Renewal' },
-        { id: 'PAY-1003', memberId: 'M-042', name: 'Bruce Wayne', amount: 'LKR 2,500', date: '2026-03-03', status: 'Completed', type: 'Personal Training ' },
-        { id: 'PAY-1004', memberId: 'M-008', name: 'Clark Kent', amount: 'LKR 5,000', date: '2026-03-02', status: 'Overdue', type: 'Monthly Fee' },
+        { id: 'PAY-8001', memberId: 'M-1024', name: 'Arjun Perera', amount: 'LKR 4,500', date: '2026-03-04', status: 'Completed', type: 'Monthly', method: 'Cash' },
+        { id: 'PAY-8002', memberId: 'M-1056', name: 'Sarah Mendis', amount: 'LKR 45,000', date: '2026-03-04', status: 'Completed', type: 'Annual', method: 'Card' },
+        { id: 'PAY-8003', memberId: 'M-1089', name: 'Dilshan Silva', amount: 'LKR 12,000', date: '2026-03-03', status: 'Pending', type: 'Quarterly', method: 'Online' },
+        { id: 'PAY-8004', memberId: 'M-1102', name: 'Anjali Gunawardena', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Card' },
+        { id: 'PAY-8005', memberId: 'M-1128', name: 'Nirosha Fernando', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Cash' },
+        { id: 'PAY-8006', memberId: 'M-1142', name: 'Damith Perera', amount: 'LKR 12,000', date: '2026-03-01', status: 'Pending', type: 'Quarterly', method: 'Online' },
+        { id: 'PAY-8007', memberId: 'M-1156', name: 'Priyanka Jayasuriya', amount: 'LKR 45,000', date: '2026-02-28', status: 'Completed', type: 'Annual', method: 'Card' },
+        { id: 'PAY-8008', memberId: 'M-1170', name: 'Ruwan Kumara', amount: 'LKR 4,500', date: '2026-02-28', status: 'Completed', type: 'Monthly', method: 'Cash' },
+        { id: 'PAY-8009', memberId: 'M-1201', name: 'Ishara Madushanka', amount: 'LKR 12,000', date: '2026-02-27', status: 'Completed', type: 'Quarterly', method: 'Online' },
+        { id: 'PAY-8010', memberId: 'M-1230', name: 'Sanduni Perera', amount: 'LKR 4,500', date: '2026-02-26', status: 'Completed', type: 'Monthly', method: 'Card' },
     ];
 
     return (

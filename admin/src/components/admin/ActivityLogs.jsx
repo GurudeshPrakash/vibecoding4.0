@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { Clock, Download, Filter, Search, Shield, MapPin, Activity, User, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../../style/AdminDashboard.css';
 
@@ -16,25 +15,12 @@ const ActivityLogs = ({ onViewLog }) => {
     useEffect(() => {
         const fetchLogs = async () => {
             if (logs.length === 0) setIsLoading(true);
-=======
-import { Clock, Download, Filter, Search, Shield, MapPin, Activity, User, ExternalLink } from 'lucide-react';
-import '../../style/AdminDashboard.css';
-
-const ActivityLogs = ({ onViewLog }) => {
-    const [logs, setLogs] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-
-    useEffect(() => {
-        const fetchLogs = async () => {
->>>>>>> main
             try {
                 const token = localStorage.getItem('admin_token');
                 const response = await fetch('http://localhost:5000/api/admin/staff-logs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
-<<<<<<< HEAD
                 if (response.ok) {
                     setLogs(data);
                     localStorage.setItem('mock_activity_logs_db', JSON.stringify(data));
@@ -57,11 +43,6 @@ const ActivityLogs = ({ onViewLog }) => {
                     setLogs(defaultMocks);
                     localStorage.setItem('mock_activity_logs_db', JSON.stringify(defaultMocks));
                 }
-=======
-                if (response.ok) setLogs(data);
-            } catch (error) {
-                console.error('Fetch logs error:', error);
->>>>>>> main
             } finally {
                 setIsLoading(false);
             }
@@ -74,7 +55,6 @@ const ActivityLogs = ({ onViewLog }) => {
         l.branch.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-<<<<<<< HEAD
     const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
     const paginatedLogs = filteredLogs.slice(
         (currentPage - 1) * itemsPerPage,
@@ -108,32 +88,11 @@ const ActivityLogs = ({ onViewLog }) => {
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
-=======
-    return (
-        <div className="admin-dashboard">
-            <header className="dashboard-header-flex">
-                <div className="header-left">
-                    <h1>Session <span className="highlight-red">History</span></h1>
-                    <p className="subtitle">Real-time attendance tracking and manager presence records</p>
-                </div>
-
-                <div className="header-right-actions">
-                    <div className="search-box-container" style={{ minWidth: '300px' }}>
-                        <Search className="search-icon-inside" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Filter by Name or Branch"
-                            className="dynamic-search-input"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ padding: '10px 15px 10px 40px' }}
->>>>>>> main
                         />
                     </div>
                 </div>
             </header>
 
-<<<<<<< HEAD
             <div className="sa-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                 <div className="sa-table-container">
                     <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -146,19 +105,6 @@ const ActivityLogs = ({ onViewLog }) => {
                                 <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Logout Time</th>
                                 <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Duration</th>
                                 <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Status</th>
-=======
-            <div className="activity-log-section card">
-                <div className="log-table-container">
-                    <table className="log-table">
-                        <thead>
-                            <tr>
-                                <th>Manager / Identity</th>
-                                <th>Branch</th>
-                                <th>Login Time</th>
-                                <th>Logout Time</th>
-                                <th>Duration</th>
-                                <th style={{ textAlign: 'right' }}>Status</th>
->>>>>>> main
                             </tr>
                         </thead>
                         <tbody>
@@ -176,12 +122,8 @@ const ActivityLogs = ({ onViewLog }) => {
                                     </td>
                                 </tr>
                             ) : (
-<<<<<<< HEAD
                                 paginatedLogs.map((log, index) => {
                                     const serialNo = (currentPage - 1) * itemsPerPage + index + 1;
-=======
-                                filteredLogs.map((log) => {
->>>>>>> main
                                     const duration = log.logoutTimestamp
                                         ? Math.floor((new Date(log.logoutTimestamp) - new Date(log.loginTimestamp)) / (1000 * 60))
                                         : Math.floor((new Date() - new Date(log.loginTimestamp)) / (1000 * 60));
@@ -190,7 +132,6 @@ const ActivityLogs = ({ onViewLog }) => {
                                         <tr
                                             key={log._id}
                                             onClick={() => onViewLog && onViewLog(log._id)}
-<<<<<<< HEAD
                                             style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s', cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.01)'}
                                             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
@@ -213,25 +154,6 @@ const ActivityLogs = ({ onViewLog }) => {
                                                 <span style={{ background: 'rgba(0,0,0,0.05)', padding: '4px 10px', borderRadius: '6px' }}>{log.branch}</span>
                                             </td>
                                             <td style={{ padding: '16px 24px', color: 'var(--color-text-dim)', fontSize: '0.85rem', fontWeight: 600 }}>
-=======
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                    <div className="user-avatar-mini">
-                                                        <User size={16} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="name-bold">{log.staffName}</div>
-                                                        <div style={{ color: 'var(--color-text-dim)', fontSize: '0.75rem' }}>{log.staffEmail}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span className="branch-tag">{log.branch}</span>
-                                            </td>
-                                            <td style={{ color: 'var(--color-text-dim)', fontSize: '0.85rem' }}>
->>>>>>> main
                                                 {new Date(log.loginTimestamp).toLocaleString(undefined, {
                                                     month: 'short',
                                                     day: 'numeric',
@@ -239,17 +161,12 @@ const ActivityLogs = ({ onViewLog }) => {
                                                     minute: '2-digit'
                                                 })}
                                             </td>
-<<<<<<< HEAD
                                             <td style={{ padding: '16px 24px', color: 'var(--color-text-dim)', fontSize: '0.85rem', fontWeight: 600 }}>
-=======
-                                            <td style={{ color: 'var(--color-text-dim)', fontSize: '0.85rem' }}>
->>>>>>> main
                                                 {log.logoutTimestamp ? new Date(log.logoutTimestamp).toLocaleString(undefined, {
                                                     month: 'short',
                                                     day: 'numeric',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
-<<<<<<< HEAD
                                                 }) : <span style={{ color: 'var(--color-red)', fontWeight: 800, fontSize: '0.7rem' }}>● IN SESSION</span>}
                                             </td>
                                             <td style={{ padding: '16px 24px' }}>
@@ -264,20 +181,6 @@ const ActivityLogs = ({ onViewLog }) => {
                                                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: log.status === 'Active' ? '#10B981' : 'var(--color-text-dim)' }}>
                                                         {log.status === 'Active' ? 'Live Now' : 'Completed'}
                                                     </span>
-=======
-                                                }) : <span className="active-pulse-text">In Session</span>}
-                                            </td>
-                                            <td>
-                                                <div className="duration-pill">
-                                                    <Clock size={12} style={{ marginRight: '6px' }} />
-                                                    {duration >= 60 ? `${Math.floor(duration / 60)}h ${duration % 60}m` : `${duration}m`}
-                                                </div>
-                                            </td>
-                                            <td style={{ textAlign: 'right' }}>
-                                                <div className="status-cell" style={{ justifyContent: 'flex-end', color: log.status === 'Active' ? '#10B981' : 'var(--color-text-dim)' }}>
-                                                    <div className="dot" style={{ background: log.status === 'Active' ? '#10B981' : '#666' }} />
-                                                    {log.status === 'Active' ? 'Live Now' : 'Completed'}
->>>>>>> main
                                                 </div>
                                             </td>
                                         </tr>
@@ -287,7 +190,6 @@ const ActivityLogs = ({ onViewLog }) => {
                         </tbody>
                     </table>
                 </div>
-<<<<<<< HEAD
 
                 {totalPages > 1 && (
                     <div className="pagination-container">
@@ -308,8 +210,6 @@ const ActivityLogs = ({ onViewLog }) => {
                         </button>
                     </div>
                 )}
-=======
->>>>>>> main
             </div>
         </div>
     );

@@ -24,11 +24,7 @@
 .admin-greeting-left {
     display: flex;
     align-items: center;
-<<<<<<< HEAD
     font-size: 0.95rem;
-=======
-    font-size: 1.1rem;
->>>>>>> main
 }
 
 .hello-text-red {
@@ -48,17 +44,10 @@
     gap: 24px;
 }
 
-<<<<<<< HEAD
 .top-nav .icon-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-=======
-.icon-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
->>>>>>> main
     background: var(--color-surface-muted);
     border: 1px solid var(--border-color);
     color: var(--color-ash);
@@ -90,22 +79,14 @@
     position: relative;
 }
 
-<<<<<<< HEAD
 .top-nav .profile-section-new {
-=======
-.profile-section-new {
->>>>>>> main
     display: flex;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
     background: var(--color-surface-muted);
-<<<<<<< HEAD
     border-radius: 50%;
-=======
-    border-radius: 12px;
->>>>>>> main
     cursor: pointer;
     transition: var(--transition);
     border: 1px solid var(--border-color);
@@ -136,19 +117,11 @@
     position: absolute;
     top: calc(100% + 15px);
     right: 0;
-<<<<<<< HEAD
     width: 320px;
     background: #f2f2f2;
     border: 1px solid var(--border-color);
     border-radius: 20px;
     box-shadow: 0 15px 35px var(--color-shadow);
-=======
-    width: 300px;
-    background: var(--color-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    box-shadow: 0 20px 40px var(--color-shadow);
->>>>>>> main
     z-index: 1000;
     overflow: hidden;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -167,7 +140,6 @@
 }
 
 .dropdown-header-main {
-<<<<<<< HEAD
     padding: 24px 20px;
     display: flex;
     flex-direction: row;
@@ -185,24 +157,6 @@
     border: 2px solid var(--color-red);
     position: relative;
     flex-shrink: 0;
-=======
-    padding: 30px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(to bottom, rgba(255, 0, 0, 0.05), transparent);
-}
-
-.avatar-circle-large {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: var(--color-bg);
-    border: 3px solid var(--color-red);
-    position: relative;
-    margin-bottom: 12px;
-    overflow: hidden;
->>>>>>> main
     display: flex;
     align-items: center;
     justify-content: center;
@@ -234,7 +188,6 @@
     opacity: 1;
 }
 
-<<<<<<< HEAD
 .user-details-stack {
     display: flex;
     flex-direction: column;
@@ -245,16 +198,10 @@
 .user-full-name {
     font-size: 1.1rem;
     font-weight: 700;
-=======
-.user-full-name {
-    font-size: 1.2rem;
-    font-weight: 800;
->>>>>>> main
     color: var(--color-text);
     margin: 0;
 }
 
-<<<<<<< HEAD
 .user-info-text {
     font-size: 0.8rem;
     color: var(--color-ash);
@@ -300,76 +247,6 @@
 .remove-btn:hover {
     background: rgba(255, 0, 0, 0.1);
     transform: translateY(-1px);
-=======
-.user-role {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--color-red);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 4px;
-}
-
-.dropdown-info-section {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.info-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.8rem;
-    color: var(--color-ash);
-    font-weight: 600;
-}
-
-.info-icon-dim {
-    color: var(--color-red);
-    opacity: 0.6;
-}
-
-.dropdown-actions-section {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.dropdown-btn-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px;
-    border: none;
-    background: transparent;
-    color: var(--color-text);
-    font-weight: 600;
-    font-size: 0.9rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-    text-align: left;
-}
-
-.dropdown-btn-item:hover {
-    background: var(--color-surface-hover);
-    transform: translateX(4px);
-}
-
-.btn-icon-box {
-    width: 28px;
-    height: 28px;
-    background: var(--color-surface-muted);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-ash);
->>>>>>> main
 }
 
 .dropdown-footer-logout {

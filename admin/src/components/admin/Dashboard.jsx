@@ -11,10 +11,7 @@ import {
     Package,
     ShieldAlert,
     ChevronDown,
-<<<<<<< HEAD
     ChevronLeft,
-=======
->>>>>>> main
     ChevronRight,
     Trophy,
     Plus,
@@ -43,7 +40,6 @@ import heroImage from '../../assets/gym_man_hero.png';
 import '../../style/AdminDashboard.css';
 
 const MiniCalendar = () => {
-<<<<<<< HEAD
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
     const [isYearEditable, setIsYearEditable] = useState(false);
@@ -173,38 +169,15 @@ const MiniCalendar = () => {
             </div>
             <div className="cal-grid">
                 {days.map((d, i) => <div key={`day-${i}`} className="cal-day-label">{d}</div>)}
-=======
-    const now = new Date();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-    const today = now.getDate();
-
-    const monthName = now.toLocaleString('default', { month: 'long' });
-    const year = now.getFullYear();
-    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-    return (
-        <div className="mini-calendar">
-            <div className="cal-header">
-                <span className="cal-month">{monthName} {year}</span>
-                <Calendar size={18} color="var(--color-red)" />
-            </div>
-            <div className="cal-grid">
-                {days.map(d => <div key={d} className="cal-day-label">{d}</div>)}
->>>>>>> main
                 {[...Array(firstDay)].map((_, i) => <div key={`empty-${i}`} />)}
                 {[...Array(daysInMonth)].map((_, i) => {
                     const d = i + 1;
                     return (
                         <div
                             key={d}
-<<<<<<< HEAD
                             className="cal-date"
                             onDoubleClick={() => handleDateDoubleClick(d)}
                             style={{ cursor: 'pointer' }}
-=======
-                            className={`cal-date ${d === today ? 'active' : ''}`}
->>>>>>> main
                         >
                             {d}
                         </div>
@@ -340,13 +313,8 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                                 <span style={{ color: '#10B981' }}>● Revenue</span>
                             </div>
                         </div>
-<<<<<<< HEAD
                         <div style={{ height: '240px', width: '100%', minHeight: '0' }}>
                             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-=======
-                        <div style={{ height: '240px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
->>>>>>> main
                                 <ComposedChart data={peakHoursData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                                     <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
@@ -495,11 +463,7 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
 
                                     <div className="detail-item">
                                         <label>Admin Decision Comment</label>
-<<<<<<< HEAD
                                         <textarea
-=======
-                                        <textarea 
->>>>>>> main
                                             placeholder="Add a comment for the branch manager..."
                                             value={adminComment}
                                             onChange={(e) => setAdminComment(e.target.value)}

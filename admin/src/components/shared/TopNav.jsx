@@ -18,24 +18,16 @@ const TopNav = ({
     loginRole,
     setSelectedEquipmentId,
     onViewLog,
-<<<<<<< HEAD
     currentTab,
     onToggleRole,
     adminRole
-=======
-    currentTab
->>>>>>> main
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
     const notifRef = useRef(null);
 
-<<<<<<< HEAD
     const roleLabel = adminRole === 'super_admin' ? 'Super Admin' : 'Administrator';
-=======
-    const roleLabel = role;
->>>>>>> main
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -144,10 +136,6 @@ const TopNav = ({
 
             <div className="top-nav-right">
 
-<<<<<<< HEAD
-=======
-
->>>>>>> main
                 <div className="notif-wrapper-rel" ref={notifRef}>
                     <button
                         className={`icon-btn ${unreadCount > 0 ? 'has-notifs' : ''}`}
@@ -238,17 +226,10 @@ const TopNav = ({
                                         {profileImage ? (
                                             <img src={profileImage} alt="Large" />
                                         ) : (
-<<<<<<< HEAD
                                             <User size={30} />
                                         )}
                                         <label className="update-photo-overlay" title="Update Photo">
                                             <Camera size={14} />
-=======
-                                            <User size={40} />
-                                        )}
-                                        <label className="update-photo-overlay" title="Update Photo">
-                                            <Camera size={16} />
->>>>>>> main
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -258,7 +239,6 @@ const TopNav = ({
                                         </label>
                                     </div>
                                 </div>
-<<<<<<< HEAD
                                 <div className="user-details-stack">
                                     <h3 className="user-full-name">{adminName}</h3>
                                     <span className="user-info-text">{adminEmail}</span>
@@ -284,35 +264,6 @@ const TopNav = ({
                                     }}
                                 >
                                     Remove Profile
-=======
-                                <h3 className="user-full-name">{adminName}</h3>
-                                <span className="user-role">{roleLabel}</span>
-                            </div>
-
-                            <div className="dropdown-info-section">
-                                <div className="info-row">
-                                    <User size={14} className="info-icon-dim" />
-                                    <span>{adminId}</span>
-                                </div>
-                                <div className="info-row">
-                                    <Mail size={14} className="info-icon-dim" />
-                                    <span>{adminEmail}</span>
-                                </div>
-                                <div className="info-row">
-                                    <Phone size={14} className="info-icon-dim" />
-                                    <span>{adminPhone}</span>
-                                </div>
-                            </div>
-
-                            <div className="dropdown-actions-section">
-                                <button className="dropdown-btn-item" onClick={() => { setActiveTab(loginRole === 'admin' ? 'settings' : 'profile'); setShowProfileDropdown(false); }}>
-                                    <div className="btn-icon-box"><User size={16} /></div>
-                                    <span>Edit Profile</span>
-                                </button>
-                                <button className="dropdown-btn-item" onClick={() => { setActiveTab(loginRole === 'admin' ? 'settings' : 'profile'); setShowProfileDropdown(false); }}>
-                                    <div className="btn-icon-box"><Settings size={16} /></div>
-                                    <span>Settings</span>
->>>>>>> main
                                 </button>
                             </div>
 

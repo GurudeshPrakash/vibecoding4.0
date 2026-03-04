@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search, Plus, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
-=======
-import { useLocation } from 'react-router-dom';
-import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search, Plus, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera } from 'lucide-react';
->>>>>>> main
 import '../../style/SuperAdminDashboard.css';
 
 const checkStatus = (hours, now) => {
@@ -37,7 +32,6 @@ const Locations = () => {
   const [selectedGym, setSelectedGym] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTime] = useState(new Date());
-<<<<<<< HEAD
   const [branches, setBranches] = useState(() => {
     const saved = localStorage.getItem('mock_branches_db');
     if (saved) return JSON.parse(saved);
@@ -64,15 +58,6 @@ const Locations = () => {
     operatingHours: '6:00 AM - 10:00 PM'
   });
   const navigate = useNavigate();
-=======
-  const [branches, setBranches] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editingBranch, setEditingBranch] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '', photo: null, phone: '', location: '', adminName: '', adminPhone: '', runningSince: '', operatingHours: '6:00 AM - 10:00 PM'
-  });
->>>>>>> main
 
   useEffect(() => {
     const handlePopState = () => { if (selectedGym) setSelectedGym(null); };
@@ -90,11 +75,7 @@ const Locations = () => {
   }, [location.state]);
 
   const fetchBranches = async () => {
-<<<<<<< HEAD
     if (branches.length === 0) setIsLoading(true);
-=======
-    setIsLoading(true);
->>>>>>> main
     try {
       const token = localStorage.getItem('admin_token');
       const response = await fetch('http://localhost:5000/api/admin/branches', {
@@ -104,17 +85,13 @@ const Locations = () => {
         const data = await response.json();
         const mappedBranches = data.map(b => ({ ...b, id: b._id, inventory: b.inventorySummary || [] }));
         setBranches(mappedBranches);
-<<<<<<< HEAD
         localStorage.setItem('mock_branches_db', JSON.stringify(mappedBranches));
-=======
->>>>>>> main
         if (selectedGym) {
           const updatedGym = mappedBranches.find(b => b.id === selectedGym.id);
           if (updatedGym) setSelectedGym(updatedGym);
         }
       }
     } catch (error) {
-<<<<<<< HEAD
       console.warn('Backend reachability issue, using mock data:', error.message);
       const savedMock = localStorage.getItem('mock_branches_db');
       if (savedMock) {
@@ -128,9 +105,6 @@ const Locations = () => {
         setBranches(defaultMocks);
         localStorage.setItem('mock_branches_db', JSON.stringify(defaultMocks));
       }
-=======
-      console.error('Failed to load branch data:', error);
->>>>>>> main
     } finally {
       setIsLoading(false);
     }
@@ -214,11 +188,7 @@ const Locations = () => {
                   <div style={{ padding: '8px 16px', borderRadius: '100px', background: status === 'Open' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: status === 'Open' ? '#10B981' : '#EF4444', fontWeight: 800, fontSize: '0.8rem' }}>
                     ● {status.toUpperCase()}
                   </div>
-<<<<<<< HEAD
                   <span style={{ color: 'var(--color-text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>{selectedGym.operatingHours}</span>
-=======
-                  <span style={{ color: 'var(--color-text-dim)', fontSize: '0.85rem', fontWeight: 600 }}>{selectedGym.operatingHours}</span>
->>>>>>> main
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -246,11 +216,7 @@ const Locations = () => {
                     <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: 'var(--color-red)' }}>{inv.count}</div>
                     <span style={{ fontWeight: 700 }}>{inv.item}</span>
                   </div>
-<<<<<<< HEAD
                   <span style={{ fontSize: '0.65rem', fontWeight: 900, color: getConditionColor(inv.condition), padding: '4px 12px', borderRadius: '100px', border: `1px solid ${getConditionColor(inv.condition)}44` }}>{inv.condition.toUpperCase()}</span>
-=======
-                  <span style={{ fontSize: '0.75rem', fontWeight: 900, color: getConditionColor(inv.condition), padding: '4px 12px', borderRadius: '100px', border: `1px solid ${getConditionColor(inv.condition)}44` }}>{inv.condition.toUpperCase()}</span>
->>>>>>> main
                 </div>
               ))}
             </div>
@@ -262,7 +228,6 @@ const Locations = () => {
   }
 
   const renderFormModal = () => (
-<<<<<<< HEAD
     <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div className="sa-card" style={{ maxWidth: '650px', width: '100%', padding: '32px', maxHeight: '90vh', overflowY: 'auto', background: '#FFFFFF' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -324,47 +289,6 @@ const Locations = () => {
               {editingBranch ? 'Update Location' : 'Create Location'}
             </button>
           </div>
-=======
-    <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="sa-card" style={{ maxWidth: '650px', width: '100%', padding: '40px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 900 }}>{editingBranch ? 'Edit Franchise Unit' : 'Establish New Location'}</h2>
-          <button onClick={() => setShowModal(false)} className="icon-btn"><X /></button>
-        </div>
-        <form onSubmit={handleSaveModal}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
-              <label className="label">Center Name</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} required className="sa-search-bar" style={{ width: '100%', padding: '14px', background: 'var(--color-bg)', color: 'white', borderRadius: '12px', border: '1px solid var(--border-color)' }} />
-            </div>
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
-              <label className="label">Unit Coverage Photo</label>
-              <div style={{ border: '2px dashed var(--border-color)', borderRadius: '16px', padding: '20px', textAlign: 'center', background: 'var(--color-bg)' }}>
-                <Camera size={24} style={{ marginBottom: '8px', color: 'var(--color-text-dim)' }} />
-                <input type="file" name="photoFile" accept="image/*" onChange={handleChange} required={!editingBranch} style={{ fontSize: '0.8rem' }} />
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="label">Geo Location</label>
-              <input type="text" name="location" value={formData.location} onChange={handleChange} required style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg)', color: 'white' }} />
-            </div>
-            <div className="form-group">
-              <label className="label">Unit Phone</label>
-              <input type="text" name="phone" value={formData.phone} onChange={handleChange} required style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg)', color: 'white' }} />
-            </div>
-            <div className="form-group">
-              <label className="label">Manager/Admin</label>
-              <input type="text" name="adminName" value={formData.adminName} onChange={handleChange} required style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg)', color: 'white' }} />
-            </div>
-            <div className="form-group">
-              <label className="label">Manager Phone</label>
-              <input type="text" name="adminPhone" value={formData.adminPhone} onChange={handleChange} required style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg)', color: 'white' }} />
-            </div>
-          </div>
-          <button type="submit" className="sa-action-btn" style={{ width: '100%', marginTop: '32px', background: 'var(--color-red)', color: 'white', border: 'none', padding: '18px', borderRadius: '16px', fontWeight: 900 }}>
-            {editingBranch ? 'Authorize Changes' : 'Complete Activation'}
-          </button>
->>>>>>> main
         </form>
       </div>
     </div>
@@ -374,7 +298,6 @@ const Locations = () => {
     <div className="super-admin-dashboard">
       <header className="sa-header">
         <div className="sa-welcome">
-<<<<<<< HEAD
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             Location Management
           </h1>
@@ -436,20 +359,6 @@ const Locations = () => {
         </div>
       </section>
 
-=======
-          <h1>Network Locations</h1>
-          <p>Global monitoring of all franchise units and operational status</p>
-        </div>
-        <div className="sa-actions">
-          <div className="sa-search-bar" style={{ width: '350px' }}>
-            <Search className="sa-search-icon" size={20} />
-            <input type="text" placeholder="Search centers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          </div>
-          <button className="icon-btn" onClick={() => { setEditingBranch(null); setFormData({ name: '', photo: null, phone: '', location: '', adminName: '', adminPhone: '', runningSince: '', operatingHours: '6:00 AM - 10:00 PM' }); setShowModal(true); }}><Plus size={22} /></button>
-        </div>
-      </header>
-
->>>>>>> main
       <div className="sa-card" style={{ border: 'none', background: 'transparent', padding: 0 }}>
         {isLoading ? (
           <div style={{ padding: '100px', textAlign: 'center' }}><Loader2 className="animate-spin" size={40} color="var(--color-red)" /></div>
@@ -462,21 +371,12 @@ const Locations = () => {
                   <img src={gym.photo} alt={gym.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
                   <div style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-<<<<<<< HEAD
                       <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.1rem' }}>{gym.name}</h3>
                       <div style={{ width: 10, height: 10, borderRadius: '50%', background: status === 'Open' ? '#10B981' : '#EF4444', boxShadow: `0 0 10px ${status === 'Open' ? '#10B981' : '#EF4444'}` }}></div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><MapPin size={14} /> {gym.location}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><Clock size={14} /> {gym.operatingHours}</div>
-=======
-                      <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>{gym.name}</h3>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: status === 'Open' ? '#10B981' : '#EF4444', boxShadow: `0 0 10px ${status === 'Open' ? '#10B981' : '#EF4444'}` }}></div>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><MapPin size={14} /> {gym.location}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><Clock size={14} /> {gym.operatingHours}</div>
->>>>>>> main
                     </div>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'; // v1.0.1 force fresh reload
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Users,
     UserPlus,
@@ -24,20 +24,7 @@ import {
     Calendar,
     ClipboardList
 } from 'lucide-react';
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    PieChart,
-    Pie,
-    Cell
-} from 'recharts';
+import * as Recharts from 'recharts';
 
 import '../../style/SuperAdminDashboard.css';
 
@@ -250,6 +237,7 @@ const MiniCalendar = () => {
 
 const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
     const navigate = useNavigate();
+<<<<<<< HEAD
     const [searchQuery, setSearchQuery] = useState('');
     const [stats, setStats] = useState(() => {
         const raw = localStorage.getItem('sa_live_mock_database');
@@ -307,6 +295,12 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         };
     });
     const [isLoading, setIsLoading] = useState(false);
+=======
+    const location = useLocation();
+    const [searchQuery, setSearchQuery] = useState(location.state?.initialSearch || '');
+    const [stats, setStats] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
 
     useEffect(() => {
         const fetchLiveStats = () => {
@@ -376,6 +370,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         }
     };
 
+<<<<<<< HEAD
 
     return (
         <div className="super-admin-dashboard">
@@ -405,14 +400,65 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     <form className="sa-search-bar" onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', borderRadius: '12px', padding: '0 16px', border: '1px solid #e0e0e0', height: '44px', width: '280px' }}>
                         <Search className="sa-search-icon" size={18} color="#888" style={{ marginRight: '12px' }} />
                         <div style={{ height: '22px', width: '1px', background: '#d1d5db', marginRight: '12px' }}></div>
+=======
+    const filteredActivities = useMemo(() => {
+        if (!searchQuery.trim()) return recentActivities;
+        const q = searchQuery.toLowerCase();
+        return recentActivities.filter(act =>
+            act.user.toLowerCase().includes(q) ||
+            act.action.toLowerCase().includes(q)
+        );
+    }, [recentActivities, searchQuery]);
+
+    if (isLoading && !stats) {
+        return (
+            <div style={{ height: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+                <Loader2 className="animate-spin" size={48} color="var(--color-red)" />
+                <span style={{ fontWeight: 800, color: 'var(--color-text-dim)', letterSpacing: '0.1em' }}>INITIALIZING LIVE COMMAND CENTER...</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="super-admin-dashboard">
+            <header className="sa-header">
+                <div className="sa-welcome">
+                    <h1><span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>Admin</span> Dashboard</h1>
+                    <p>Hello, <span style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>{adminName}</span></p>
+                </div>
+
+                <div className="sa-actions">
+                    <div className="sa-header-btns">
+                        <button className="sa-primary-red-btn" onClick={() => navigate('/super-admin/owners', { state: { openModal: true } })}>
+                            <UserPlus size={24} />
+                            <div className="sa-btn-text-stack">
+                                <span className="sa-btn-sub">Add New</span>
+                                <span className="sa-btn-main">Manager</span>
+                            </div>
+                        </button>
+                        <button className="sa-secondary-btn" onClick={() => navigate('/super-admin/locations', { state: { openModal: true } })}>
+                            <Building2 size={24} color="var(--color-red)" />
+                            <div className="sa-btn-text-stack">
+                                <span className="sa-btn-sub" style={{ color: 'var(--color-text-dim)' }}>Add New</span>
+                                <span className="sa-btn-main" style={{ color: 'var(--color-text)' }}>Branch</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div className="sa-search-bar">
+                        <Search className="sa-search-icon" size={20} />
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
                         <input
                             type="text"
-                            placeholder="Search Members or Gyms..."
+                            placeholder="Search Members, Managers, Branches..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.9rem', fontWeight: 500, color: '#333' }}
                         />
+<<<<<<< HEAD
                     </form>
+=======
+                    </div>
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
                 </div>
             </header>
 
@@ -502,15 +548,22 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                 <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-red)' }}>LIVE TRACKING</span>
                             </div>
                         </div>
+<<<<<<< HEAD
                         <div style={{ height: '240px', minHeight: '240px', width: '100%', marginTop: '10px' }}>
                             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <AreaChart data={memberGrowthData}>
+=======
+                        <div style={{ height: '300px', width: '100%' }}>
+                            <Recharts.ResponsiveContainer width="100%" height="100%">
+                                <Recharts.AreaChart data={memberGrowthData}>
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
                                     <defs>
                                         <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#FF0000" stopOpacity={0.15} />
                                             <stop offset="95%" stopColor="#FF0000" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
+<<<<<<< HEAD
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                                     <XAxis
                                         dataKey="name"
@@ -534,16 +587,68 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                         }}
                                     />
                                     <Tooltip
+=======
+                                    <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                                    <Recharts.XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} dy={10} />
+                                    <Recharts.YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} dx={-10} />
+                                    <Recharts.Tooltip
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
                                         contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
                                         itemStyle={{ color: '#FF0000', fontWeight: 800 }}
                                     />
-                                    <Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                                    <Recharts.Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
+                                </Recharts.AreaChart>
+                            </Recharts.ResponsiveContainer>
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     {/* Removed Revenue Stream and Gym Distribution */}
+=======
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+                        <div className="sa-card">
+                            <div className="sa-card-header">
+                                <h3>Revenue Stream</h3>
+                            </div>
+                            <div style={{ height: '200px', width: '100%' }}>
+                                <Recharts.ResponsiveContainer width="100%" height="100%">
+                                    <Recharts.BarChart data={revenueData}>
+                                        <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                                        <Recharts.XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
+                                        <Recharts.Tooltip cursor={{ fill: 'rgba(0,0,0,0.02)' }} contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px' }} />
+                                        <Recharts.Bar dataKey="revenue" fill="#FF0000" radius={[4, 4, 0, 0]} />
+                                    </Recharts.BarChart>
+                                </Recharts.ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        <div className="sa-card">
+                            <div className="sa-card-header">
+                                <h3>Gym Distribution</h3>
+                            </div>
+                            <div style={{ height: '200px', width: '100%' }}>
+                                <Recharts.ResponsiveContainer width="100%" height="100%">
+                                    <Recharts.PieChart>
+                                        <Recharts.Pie
+                                            data={gymRatioData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={8}
+                                            dataKey="value"
+                                        >
+                                            {gymRatioData.map((entry, index) => (
+                                                <Recharts.Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Recharts.Pie>
+                                        <Recharts.Tooltip contentStyle={{ borderRadius: '12px', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }} />
+                                    </Recharts.PieChart>
+                                </Recharts.ResponsiveContainer>
+                            </div>
+                        </div>
+                    </div>
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
                 </main>
 
                 <aside className="sa-sidebar-col">
@@ -587,6 +692,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => navigate('/super-admin/activity-logs')}>View More</button>
                 </div>
 
+<<<<<<< HEAD
                 <div className="sa-activity-feed" style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '8px' }}>
                     {recentActivities.map(activity => (
                         <div key={activity.id} className="sa-activity-item">
@@ -599,9 +705,29 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                             </div>
                             <div className="activity-status-chip">
                                 <ChevronRight size={16} />
+=======
+                <div className="sa-activity-feed">
+                    {filteredActivities.length > 0 ? (
+                        filteredActivities.map(activity => (
+                            <div key={activity.id} className="sa-activity-item">
+                                <div className="sa-activity-icon">
+                                    {activity.icon}
+                                </div>
+                                <div className="sa-activity-info">
+                                    <p><strong>{activity.user}</strong> {activity.action}</p>
+                                    <span>{activity.time}</span>
+                                </div>
+                                <div className="activity-status-chip">
+                                    <ChevronRight size={16} />
+                                </div>
+>>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
                             </div>
+                        ))
+                    ) : (
+                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-dim)', fontWeight: 600 }}>
+                            No events found matching "{searchQuery}"
                         </div>
-                    ))}
+                    )}
                 </div>
             </section>
         </div>

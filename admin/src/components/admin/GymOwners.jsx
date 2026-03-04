@@ -32,6 +32,14 @@ const GymManagers = () => {
     });
     const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_managers_db'));
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.openModal) {
+            setEditingManager(null);
+            setShowModal(true);
+        }
+    }, [location.state]);
+
     const [editingManager, setEditingManager] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();

@@ -48,7 +48,11 @@
 }
 
 .modal-title {
+<<<<<<< HEAD
     font-size: 1.3rem;
+=======
+    font-size: 1.5rem;
+>>>>>>> main
     font-weight: 800;
     color: var(--color-text);
     margin-bottom: 8px;
@@ -56,7 +60,11 @@
 
 .modal-text {
     color: var(--color-ash);
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 1rem;
+>>>>>>> main
     margin-bottom: 32px;
 }
 
@@ -73,7 +81,11 @@
     padding: 14px;
     border-radius: 12px;
     font-weight: 800;
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 1rem;
+>>>>>>> main
     cursor: pointer;
     transition: var(--transition);
 }

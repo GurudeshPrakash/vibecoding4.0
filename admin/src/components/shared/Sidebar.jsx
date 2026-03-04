@@ -1,20 +1,32 @@
 import React from 'react';
+<<<<<<< HEAD
 import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign } from 'lucide-react';
+=======
+import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList } from 'lucide-react';
+>>>>>>> main
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
 const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
+<<<<<<< HEAD
     const normalizedRole = adminRole === 'super_admin' ? 'superadmin' : (adminRole || 'staff');
 
     const superAdminMenu = [
         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} /> },
         { id: 'managers', label: 'Managers', icon: <Users size={20} /> },
+=======
+    const adminMenu = [
+        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} /> },
+        { id: 'owners', label: 'Managers', icon: <Users size={20} /> },
+>>>>>>> main
         { id: 'locations', label: 'Locations', icon: <MapPin size={20} /> },
         { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
     ];
 
+<<<<<<< HEAD
     const adminMenu = [
         { id: 'dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'members', label: 'Members', icon: <Users size={20} /> },
@@ -79,6 +91,35 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
             </nav>
 
             <div className="sidebar-footer" style={{ padding: '20px', borderTop: '1px solid #f3f4f6' }}>
+=======
+    const menuItems = adminMenu;
+
+    return (
+        <div className="sidebar">
+            <div className="logo-container" style={{ padding: '20px', textAlign: 'center' }}>
+                <img src={logo} alt="Power World" style={{ width: '130px', height: 'auto' }} />
+            </div>
+
+            <nav className="sidebar-nav">
+                {menuItems.map((item) => {
+                    const isBlocked = adminRole !== 'super_admin' && (item.id === 'admins');
+                    return (
+                        <button
+                            key={item.id}
+                            className={`nav-item ${activeTab === item.id ? 'active' : ''} ${isBlocked ? 'blocked' : ''}`}
+                            onClick={() => {
+                                if (!isBlocked) setActiveTab(item.id);
+                            }}
+                        >
+                            {item.icon}
+                            <span>{item.label}</span>
+                        </button>
+                    );
+                })}
+            </nav>
+
+            <div className="sidebar-footer">
+>>>>>>> main
                 <button className="logout-btn" onClick={onLogoutTrigger}>
                     <LogOut size={20} />
                     <span>Log Out</span>

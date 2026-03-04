@@ -18,14 +18,22 @@
 }
 
 .page-title {
+<<<<<<< HEAD
     font-size: 1.75rem;
+=======
+    font-size: 2rem;
+>>>>>>> main
     font-weight: 800;
     color: var(--color-text);
     margin-bottom: 4px;
 }
 
 .page-subtitle {
+<<<<<<< HEAD
     font-size: 0.82rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
     color: var(--color-text-dim);
 }
 
@@ -57,7 +65,11 @@
     color: var(--color-text);
     width: 100%;
     outline: none;
+<<<<<<< HEAD
     font-size: 0.82rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
 }
 
 /* Gym Grid */
@@ -145,7 +157,11 @@
 }
 
 .gym-name-text {
+<<<<<<< HEAD
     font-size: 0.95rem;
+=======
+    font-size: 1.1rem;
+>>>>>>> main
     font-weight: 700;
     color: var(--color-text);
     margin-bottom: 4px;
@@ -156,7 +172,11 @@
     align-items: center;
     gap: 8px;
     color: var(--color-text-dim);
+<<<<<<< HEAD
     font-size: 0.72rem;
+=======
+    font-size: 0.85rem;
+>>>>>>> main
 }
 
 .no-results {
@@ -238,7 +258,11 @@
     gap: 8px;
     padding: 6px 12px;
     border-radius: 20px;
+<<<<<<< HEAD
     font-size: 0.75rem;
+=======
+    font-size: 0.85rem;
+>>>>>>> main
     font-weight: 700;
     width: fit-content;
 }
@@ -284,7 +308,11 @@
 }
 
 .gym-detail-name {
+<<<<<<< HEAD
     font-size: 2.5rem;
+=======
+    font-size: 3rem;
+>>>>>>> main
     font-weight: 800;
     color: white;
     line-height: 1.1;
@@ -295,7 +323,11 @@
     align-items: center;
     gap: 8px;
     color: rgba(255, 255, 255, 0.7);
+<<<<<<< HEAD
     font-size: 1.05rem;
+=======
+    font-size: 1.2rem;
+>>>>>>> main
 }
 
 .gym-info-simple-grid {
@@ -325,7 +357,11 @@
 }
 
 .info-label {
+<<<<<<< HEAD
     font-size: 0.65rem;
+=======
+    font-size: 0.75rem;
+>>>>>>> main
     color: rgba(255, 255, 255, 0.5);
     font-weight: 700;
     margin-bottom: 4px;
@@ -380,7 +416,11 @@
     gap: 8px;
     color: white;
     font-weight: 600;
+<<<<<<< HEAD
     font-size: 0.82rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
     padding: 8px 0;
     border-bottom: 2px solid #FF0000;
 }
@@ -388,7 +428,11 @@
 .read-only-badge {
     background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.7);
+<<<<<<< HEAD
     font-size: 0.65rem;
+=======
+    font-size: 0.75rem;
+>>>>>>> main
     font-weight: 700;
     padding: 4px 8px;
     border-radius: 4px;
@@ -402,7 +446,11 @@
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     color: rgba(255, 255, 255, 0.5);
+<<<<<<< HEAD
     font-size: 0.72rem;
+=======
+    font-size: 0.85rem;
+>>>>>>> main
     font-weight: 700;
     margin-bottom: 16px;
     padding: 0 12px;
@@ -433,7 +481,11 @@
     display: inline-block;
     padding: 4px 10px;
     border-radius: 12px;
+<<<<<<< HEAD
     font-size: 0.72rem;
+=======
+    font-size: 0.8rem;
+>>>>>>> main
     font-weight: 600;
     border: 1px solid transparent;
     text-align: center;

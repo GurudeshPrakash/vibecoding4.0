@@ -31,7 +31,11 @@
 }
 
 .welcome-admin {
+<<<<<<< HEAD
     font-size: 2.4rem;
+=======
+    font-size: 2.8rem;
+>>>>>>> main
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.1;
@@ -52,7 +56,11 @@
     gap: 12px;
     margin-top: 12px;
     color: var(--color-ash);
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 1rem;
+>>>>>>> main
     font-weight: 600;
 }
 
@@ -95,7 +103,11 @@
 
 .hero-title {
     color: #ffffff;
+<<<<<<< HEAD
     font-size: 2.22rem;
+=======
+    font-size: 2.6rem;
+>>>>>>> main
     font-weight: 900;
     margin: 0 0 8px 0;
     line-height: 1.1;
@@ -104,7 +116,11 @@
 
 .hero-subtitle {
     color: rgba(255, 255, 255, 0.85);
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 1rem;
+>>>>>>> main
     line-height: 1.5;
     margin-bottom: 24px;
     font-weight: 500;
@@ -123,7 +139,11 @@
     padding: 12px 24px;
     border-radius: 100px;
     color: #ffffff;
+<<<<<<< HEAD
     font-size: 0.75rem;
+=======
+    font-size: 0.85rem;
+>>>>>>> main
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 700;
@@ -133,7 +153,11 @@
 }
 
 .hero-stat-item .bold {
+<<<<<<< HEAD
     font-size: 1.3rem;
+=======
+    font-size: 1.5rem;
+>>>>>>> main
     font-weight: 900;
     letter-spacing: -0.02em;
 }
@@ -213,7 +237,11 @@
 
 .card-data .label {
     display: block;
+<<<<<<< HEAD
     font-size: 0.68rem;
+=======
+    font-size: 0.75rem;
+>>>>>>> main
     font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -222,7 +250,11 @@
 }
 
 .card-data .value {
+<<<<<<< HEAD
     font-size: 1.25rem;
+=======
+    font-size: 1.45rem;
+>>>>>>> main
     font-weight: 900;
     color: var(--color-text);
     margin: 0;
@@ -277,7 +309,11 @@
 }
 
 .sa-card-header h3 {
+<<<<<<< HEAD
     font-size: 1.15rem;
+=======
+    font-size: 1.25rem;
+>>>>>>> main
     font-weight: 800;
     margin: 0;
     color: #1E293B;
@@ -398,16 +434,28 @@
     padding: 16px 20px;
     font-size: 0.8rem;
     font-weight: 800;
+<<<<<<< HEAD
     color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     border-bottom: 1px solid var(--border-color);
     background: var(--primary-color);
+=======
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--color-surface-muted);
+>>>>>>> main
 }
 
 .log-table td {
     padding: 20px;
+<<<<<<< HEAD
     font-size: 0.9rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
     color: var(--color-text);
     border-bottom: 1px solid var(--border-color);
     transition: all 0.2s ease;
@@ -431,7 +479,11 @@
     color: var(--primary-color);
     padding: 4px 12px;
     border-radius: 50px;
+<<<<<<< HEAD
     font-size: 0.72rem;
+=======
+    font-size: 0.8rem;
+>>>>>>> main
     font-weight: 800;
 }
 
@@ -965,6 +1017,7 @@
     .review-grid {
         grid-template-columns: 1fr;
     }
+<<<<<<< HEAD
 }
 
 /* Search Box Alignment Fix */
@@ -1039,4 +1092,6 @@
     font-size: 0.9rem;
     font-weight: 800;
     color: var(--color-text);
+=======
+>>>>>>> main
 }

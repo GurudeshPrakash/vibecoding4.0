@@ -3,11 +3,16 @@ import { Search, Shield, Clock, Loader2, Calendar } from 'lucide-react';
 import '../../style/SuperAdminDashboard.css';
 
 const AdminLogs = ({ embedded = false }) => {
+<<<<<<< HEAD
     const [logs, setLogs] = useState(() => {
         const saved = localStorage.getItem('mock_admin_logs_db');
         return saved ? JSON.parse(saved) : [];
     });
     const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_admin_logs_db'));
+=======
+    const [logs, setLogs] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+>>>>>>> main
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -21,6 +26,7 @@ const AdminLogs = ({ embedded = false }) => {
                     setLogs({ error: 'Access Denied: You do not have permission to view Admin Activity Logs.' });
                 } else {
                     const data = await response.json();
+<<<<<<< HEAD
                     if (response.ok) {
                         setLogs(data);
                         localStorage.setItem('mock_admin_logs_db', JSON.stringify(data));
@@ -40,6 +46,12 @@ const AdminLogs = ({ embedded = false }) => {
                     setLogs(defaultMocks);
                     localStorage.setItem('mock_admin_logs_db', JSON.stringify(defaultMocks));
                 }
+=======
+                    if (response.ok) setLogs(data);
+                }
+            } catch (error) {
+                console.error('Fetch admin logs error:', error);
+>>>>>>> main
             } finally {
                 setIsLoading(false);
             }

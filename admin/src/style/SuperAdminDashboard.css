@@ -31,8 +31,13 @@
 }
 
 .sa-welcome h1 {
+<<<<<<< HEAD
     font-size: 2.4rem;
     font-weight: 900;
+=======
+    font-size: 2.2rem;
+    font-weight: 800;
+>>>>>>> main
     margin: 0;
     color: #000000;
     letter-spacing: -0.03em;
@@ -42,7 +47,11 @@
     color: var(--color-text-dim);
     margin: 6px 0 0 0;
     font-weight: 600;
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
 }
 
 .sa-actions {
@@ -58,13 +67,21 @@
 
 .sa-search-bar input {
     width: 100%;
+<<<<<<< HEAD
     padding: 12px 16px 12px 52px;
+=======
+    padding: 14px 16px 14px 52px;
+>>>>>>> main
     background: var(--color-surface);
     border: 1px solid var(--border-color);
     border-radius: 14px;
     color: var(--color-text);
     font-weight: 600;
+<<<<<<< HEAD
     font-size: 0.82rem;
+=======
+    font-size: 0.9rem;
+>>>>>>> main
     transition: all 0.3s ease;
 }
 
@@ -87,23 +104,39 @@
 /* Summary Grid */
 .sa-summary-grid {
     display: grid;
+<<<<<<< HEAD
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
     margin-bottom: 40px;
+=======
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 24px;
+    margin-bottom: 32px;
+>>>>>>> main
 }
 
 .sa-stat-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
+<<<<<<< HEAD
     border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+=======
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+>>>>>>> main
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+<<<<<<< HEAD
 }
 
 /* Removed side bar glow */
@@ -125,6 +158,47 @@
 
 .sa-stat-card .label {
     font-size: 0.8rem;
+=======
+    height: 100%;
+}
+
+.sa-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--color-red);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sa-stat-card:hover {
+    transform: translateY(-5px);
+    background: #FFFFFF;
+    border-color: var(--color-red);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.sa-stat-card:hover::before {
+    opacity: 1;
+}
+
+.sa-stat-card .icon-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+    font-size: 1.2rem;
+}
+
+.sa-stat-card .label {
+    font-size: 0.75rem;
+>>>>>>> main
     font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -132,15 +206,24 @@
 }
 
 .sa-stat-card .value {
+<<<<<<< HEAD
     font-size: 2rem;
     font-weight: 900;
+=======
+    font-size: 1.6rem;
+    font-weight: 800;
+>>>>>>> main
     margin: 0;
     color: var(--color-text);
     letter-spacing: -0.01em;
 }
 
 .sa-stat-card .trend {
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 0.8rem;
+>>>>>>> main
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -159,9 +242,15 @@
 /* Main Dashboard Content Layout */
 .sa-dashboard-layout {
     display: grid;
+<<<<<<< HEAD
     grid-template-columns: 2.2fr 1fr;
     gap: 24px;
     margin-bottom: 30px;
+=======
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+>>>>>>> main
 }
 
 .sa-analytics-col {
@@ -173,10 +262,17 @@
 .sa-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
+<<<<<<< HEAD
     border-radius: 20px;
     padding: 20px;
     height: 100%;
     min-height: 200px;
+=======
+    border-radius: 24px;
+    padding: 28px;
+    height: 100%;
+    min-height: 250px;
+>>>>>>> main
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
@@ -184,11 +280,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+<<<<<<< HEAD
     margin-bottom: 20px;
 }
 
 .sa-card-header h3 {
     font-size: 1.2rem;
+=======
+    margin-bottom: 32px;
+}
+
+.sa-card-header h3 {
+    font-size: 1.35rem;
+>>>>>>> main
     font-weight: 800;
     margin: 0;
     color: var(--color-text);
@@ -294,7 +398,11 @@
     border-radius: 20px;
     color: var(--color-text);
     font-weight: 700;
+<<<<<<< HEAD
     font-size: 0.82rem;
+=======
+    font-size: 0.9rem;
+>>>>>>> main
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -321,8 +429,13 @@
 .sa-activity-item {
     display: flex;
     align-items: center;
+<<<<<<< HEAD
     gap: 12px;
     padding: 12px 0;
+=======
+    gap: 20px;
+    padding: 20px 0;
+>>>>>>> main
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -332,9 +445,15 @@
 }
 
 .sa-activity-icon {
+<<<<<<< HEAD
     width: 36px;
     height: 36px;
     border-radius: 10px;
+=======
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+>>>>>>> main
     background: rgba(255, 0, 0, 0.05);
     color: var(--color-red);
     display: flex;
@@ -349,7 +468,11 @@
 
 .sa-activity-info p {
     margin: 0;
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
     font-weight: 600;
     line-height: 1.4;
 }
@@ -362,7 +485,11 @@
 .sa-activity-info span {
     display: block;
     margin-top: 4px;
+<<<<<<< HEAD
     font-size: 0.72rem;
+=======
+    font-size: 0.8rem;
+>>>>>>> main
     color: var(--color-text-dim);
     font-weight: 600;
 }
@@ -402,7 +529,11 @@
 
 .sa-alert-text {
     display: block;
+<<<<<<< HEAD
     font-size: 0.8rem;
+=======
+    font-size: 0.9rem;
+>>>>>>> main
     font-weight: 800;
     color: var(--color-text);
     margin-bottom: 2px;
@@ -421,7 +552,11 @@
     display: flex;
     align-items: center;
     gap: 12px;
+<<<<<<< HEAD
     font-size: 0.85rem;
+=======
+    font-size: 0.95rem;
+>>>>>>> main
     font-weight: 800;
     color: var(--color-text);
 }
@@ -473,7 +608,11 @@
 .sa-admin-avatar {
     width: 38px;
     height: 38px;
+<<<<<<< HEAD
     border-radius: 12px;
+=======
+    border-radius: 50%;
+>>>>>>> main
     background: var(--color-red);
     display: flex;
     align-items: center;
@@ -486,14 +625,22 @@
 
 .sa-admin-name {
     display: block;
+<<<<<<< HEAD
     font-size: 0.8rem;
+=======
+    font-size: 0.9rem;
+>>>>>>> main
     font-weight: 800;
     color: var(--color-text);
 }
 
 .sa-admin-role {
     display: block;
+<<<<<<< HEAD
     font-size: 0.72rem;
+=======
+    font-size: 0.75rem;
+>>>>>>> main
     color: var(--color-red);
     font-weight: 700;
     text-transform: uppercase;
@@ -501,11 +648,18 @@
 }
 
 /* Reusable Components */
+<<<<<<< HEAD
 .icon-btn,
 .content-area .icon-btn {
     width: 46px;
     height: 46px;
     border-radius: 12px !important;
+=======
+.icon-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+>>>>>>> main
     background: var(--color-surface);
     border: 1px solid var(--border-color);
     color: var(--color-text-dim);
@@ -530,11 +684,16 @@
     border-radius: 10px;
     color: var(--color-text-dim);
     font-weight: 700;
+<<<<<<< HEAD
     font-size: 0.75rem;
+=======
+    font-size: 0.85rem;
+>>>>>>> main
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
+<<<<<<< HEAD
 .sa-view-more-btn:hover {
     filter: brightness(1.1);
     transform: translateY(-2px);
@@ -543,10 +702,16 @@
 
 .sa-view-more-btn:active {
     transform: translateY(0);
+=======
+.view-all-link-top:hover {
+    border-color: var(--color-red);
+    color: var(--color-red);
+>>>>>>> main
 }
 
 /* Mini Calendar */
 .mini-calendar {
+<<<<<<< HEAD
     padding: 18px;
     background: #FFFFFF;
     border-radius: 20px;
@@ -557,6 +722,12 @@
     display: flex;
     flex-direction: column;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+=======
+    padding: 20px;
+    background: #F9FAFB;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+>>>>>>> main
 }
 
 .cal-header {
@@ -564,12 +735,22 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+<<<<<<< HEAD
     width: 100%;
+=======
+}
+
+.cal-month {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-red);
+>>>>>>> main
 }
 
 .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+<<<<<<< HEAD
     gap: 4px;
     text-align: center;
     flex: 1;
@@ -581,11 +762,23 @@
     font-weight: 800;
     color: var(--color-text-dim);
     padding-bottom: 12px;
+=======
+    gap: 8px;
+    text-align: center;
+}
+
+.cal-day-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-text-dim);
+    padding-bottom: 8px;
+>>>>>>> main
 }
 
 .cal-date {
     font-size: 0.85rem;
     font-weight: 600;
+<<<<<<< HEAD
     display: flex;
     align-items: center;
     justify-content: center;
@@ -600,6 +793,19 @@
     color: #ffffff !important;
     font-weight: 800 !important;
     box-shadow: 0 4px 10px rgba(255, 0, 0, 0.25);
+=======
+    padding: 8px 0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    color: var(--color-text-dim);
+}
+
+.cal-date.active {
+    background: var(--color-red);
+    color: white;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+>>>>>>> main
 }
 
 .cal-date:hover:not(.active) {

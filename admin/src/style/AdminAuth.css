@@ -267,3 +267,31 @@
         transform: scale(1) translateY(0);
     }
 }
+
+/* Role Indicators */
+.role-indicator-pill div {
+    transition: all 0.3s ease;
+    cursor: default;
+    border: 1px solid transparent;
+}
+
+.role-indicator-pill div:hover {
+    background: #ffffff !important;
+    border-color: #e2e8f0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 32px 24px;
+        max-width: 90%;
+    }
+
+    .back-btn-top {
+        top: 16px;
+        left: 16px;
+        padding: 8px 12px;
+    }
+}

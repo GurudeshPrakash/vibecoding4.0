@@ -4,16 +4,19 @@ import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
 const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
+    // Note: adminRole passed here might be the old naming, we'll normalize it or use user.role if we had useAuth here.
+    const normalizedRole = adminRole === 'super_admin' ? 'superadmin' : adminRole;
+
     const adminMenu = [
-        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} /> },
-        { id: 'owners', label: 'Managers', icon: <Users size={20} /> },
-        { id: 'locations', label: 'Locations', icon: <MapPin size={20} /> },
-        { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} /> },
-        { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} />, roles: ['admin', 'superadmin'] },
+        { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} />, roles: ['superadmin'] },
+        { id: 'owners', label: 'Managers', icon: <Users size={20} />, roles: ['admin', 'superadmin'] },
+        { id: 'locations', label: 'Locations', icon: <MapPin size={20} />, roles: ['admin', 'superadmin'] },
+        { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} />, roles: ['admin', 'superadmin'] },
+        { id: 'settings', label: 'Settings', icon: <Settings size={20} />, roles: ['admin', 'superadmin'] },
     ];
 
-    const menuItems = adminMenu;
+    const menuItems = adminMenu.filter(item => item.roles.includes(normalizedRole));
 
     return (
         <div className="sidebar">
@@ -23,14 +26,11 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
 
             <nav className="sidebar-nav">
                 {menuItems.map((item) => {
-                    const isBlocked = adminRole !== 'super_admin' && (item.id === 'admins');
                     return (
                         <button
                             key={item.id}
-                            className={`nav-item ${activeTab === item.id ? 'active' : ''} ${isBlocked ? 'blocked' : ''}`}
-                            onClick={() => {
-                                if (!isBlocked) setActiveTab(item.id);
-                            }}
+                            className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+                            onClick={() => setActiveTab(item.id)}
                         >
                             {item.icon}
                             <span>{item.label}</span>

@@ -27,14 +27,15 @@ const {
     markNotificationRead
 } = require('../controllers/staffManagementController');
 const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddleware');
+const rbac = require('../middleware/rbacMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
 // Admins Management (Super Admin only)
-router.get('/admins', protect, superAdminOnly, getAllAdmins);
-router.post('/admins', protect, superAdminOnly, createAdmin);
-router.put('/admins/:id', protect, superAdminOnly, updateAdmin);
-router.delete('/admins/:id', protect, superAdminOnly, deleteAdmin);
-router.get('/admin-logs', protect, superAdminOnly, getAdminLogs);
+router.get('/admins', protect, rbac('superadmin'), getAllAdmins);
+router.post('/admins', protect, rbac('superadmin'), createAdmin);
+router.put('/admins/:id', protect, rbac('superadmin'), updateAdmin);
+router.delete('/admins/:id', protect, rbac('superadmin'), deleteAdmin);
+router.get('/admin-logs', protect, rbac('superadmin'), getAdminLogs);
 
 // Auth
 router.post('/signup', registerAdmin);
@@ -42,33 +43,33 @@ router.post('/login', loginAdmin);
 router.post('/logout', logoutAdmin);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
-router.get('/profile', protect, adminOnly, getAdminProfile);
+router.get('/profile', protect, rbac('admin', 'superadmin'), getAdminProfile);
 
 // Gym Owners Management
-router.get('/owners', protect, adminOnly, getAllOwners);
-router.post('/owners', protect, adminOnly, addOwner);
-router.put('/owners/:id', protect, adminOnly, updateOwner);
-router.delete('/owners/:id', protect, adminOnly, deleteOwner);
+router.get('/owners', protect, rbac('admin', 'superadmin'), getAllOwners);
+router.post('/owners', protect, rbac('admin', 'superadmin'), addOwner);
+router.put('/owners/:id', protect, rbac('admin', 'superadmin'), updateOwner);
+router.delete('/owners/:id', protect, rbac('admin', 'superadmin'), deleteOwner);
 
 // Branch Management
-router.get('/branches', protect, adminOnly, getAllBranches);
-router.post('/branches', protect, adminOnly, upload.single('photoFile'), addBranch);
-router.put('/branches/:id', protect, adminOnly, upload.single('photoFile'), updateBranch);
-router.delete('/branches/:id', protect, adminOnly, deleteBranch);
+router.get('/branches', protect, rbac('admin', 'superadmin'), getAllBranches);
+router.post('/branches', protect, rbac('admin', 'superadmin'), upload.single('photoFile'), addBranch);
+router.put('/branches/:id', protect, rbac('admin', 'superadmin'), upload.single('photoFile'), updateBranch);
+router.delete('/branches/:id', protect, rbac('admin', 'superadmin'), deleteBranch);
 
 // Staff Management (Admin only)
-router.post('/staff', protect, adminOnly, createStaff);
-router.get('/staff', protect, adminOnly, getAllStaff);
-router.put('/staff/:id', protect, adminOnly, updateStaff);
-router.delete('/staff/:id', protect, adminOnly, deleteStaff);
+router.post('/staff', protect, rbac('admin', 'superadmin'), createStaff);
+router.get('/staff', protect, rbac('admin', 'superadmin'), getAllStaff);
+router.put('/staff/:id', protect, rbac('admin', 'superadmin'), updateStaff);
+router.delete('/staff/:id', protect, rbac('admin', 'superadmin'), deleteStaff);
 
 // Activity Logs and Notifications
-router.get('/staff-logs', protect, adminOnly, getActivityLogs);
-router.get('/staff-logs/:id', protect, adminOnly, getLogById);
-router.get('/notifications', protect, adminOnly, getNotifications);
-router.put('/notifications/:id', protect, adminOnly, markNotificationRead);
+router.get('/staff-logs', protect, rbac('admin', 'superadmin'), getActivityLogs);
+router.get('/staff-logs/:id', protect, rbac('admin', 'superadmin'), getLogById);
+router.get('/notifications', protect, rbac('admin', 'superadmin'), getNotifications);
+router.put('/notifications/:id', protect, rbac('admin', 'superadmin'), markNotificationRead);
 
 // Dashboard Statistics
-router.get('/dashboard-stats', protect, superAdminOnly, getDashboardStats);
+router.get('/dashboard-stats', protect, rbac('superadmin'), getDashboardStats);
 
 module.exports = router;

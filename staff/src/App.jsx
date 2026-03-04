@@ -50,7 +50,7 @@ const StaffLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('staff_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(() => true);
   const loginRole = 'staff'; // Hardcoded for Staff app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -143,8 +143,8 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'staff') {
-      // Force navigation to login page to ensure security checkpoint
-      navigate('/staff/login');
+      // Force navigation directly to staff dashboard
+      navigate('/staff/dashboard');
     } else {
       alert("This is the Staff portal. Please use the Admin portal for admin access.");
     }

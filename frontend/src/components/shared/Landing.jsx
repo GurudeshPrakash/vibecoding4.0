@@ -25,7 +25,7 @@ const Landing = ({ onSelectRole }) => {
 
         {/* Action Buttons */}
         <div className="landing-button-row">
-          <button className="landing-btn admin-solid" onClick={() => onSelectRole('admin')}>
+          <button className="landing-btn admin-solid" onClick={() => window.location.href = 'http://localhost:5173/admin/dashboard'}>
             Admin Login
           </button>
           <button className="landing-btn staff-outline" onClick={() => onSelectRole('staff')}>

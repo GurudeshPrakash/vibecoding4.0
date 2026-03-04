@@ -185,10 +185,10 @@ const Locations = () => {
               <img src={selectedGym.photo} alt={selectedGym.name} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
               <div style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                  <div style={{ padding: '8px 16px', borderRadius: '100px', background: status === 'Open' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: status === 'Open' ? '#10B981' : '#EF4444', fontWeight: 800, fontSize: '0.8rem' }}>
+                  <div style={{ padding: '8px 16px', borderRadius: '100px', background: status === 'Open' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: status === 'Open' ? '#10B981' : '#EF4444', fontWeight: 800, fontSize: '0.7rem' }}>
                     ● {status.toUpperCase()}
                   </div>
-                  <span style={{ color: 'var(--color-text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>{selectedGym.operatingHours}</span>
+                  <span style={{ color: 'var(--color-text-dim)', fontSize: '0.65rem', fontWeight: 600 }}>{selectedGym.operatingHours}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -214,9 +214,9 @@ const Locations = () => {
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'var(--color-bg)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: 'var(--color-red)' }}>{inv.count}</div>
-                    <span style={{ fontWeight: 700 }}>{inv.item}</span>
+                    <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{inv.item}</span>
                   </div>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 900, color: getConditionColor(inv.condition), padding: '4px 12px', borderRadius: '100px', border: `1px solid ${getConditionColor(inv.condition)}44` }}>{inv.condition.toUpperCase()}</span>
+                  <span style={{ fontSize: '0.58rem', fontWeight: 900, color: getConditionColor(inv.condition), padding: '4px 12px', borderRadius: '100px', border: `1px solid ${getConditionColor(inv.condition)}44` }}>{inv.condition.toUpperCase()}</span>
                 </div>
               ))}
             </div>
@@ -235,7 +235,7 @@ const Locations = () => {
             <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(255,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <MapPin size={22} color="var(--color-red)" />
             </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0, color: '#1a1a1a' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0, color: '#1a1a1a' }}>
               {editingBranch ? 'Update Location' : 'Add New Location'}
             </h2>
           </div>
@@ -244,30 +244,30 @@ const Locations = () => {
         <form onSubmit={handleSaveModal}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             <div style={{ gridColumn: 'span 2' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>Location Name <span style={{ color: 'red' }}>*</span></label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Power World – Colombo" required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} />
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Location Name <span style={{ color: 'red' }}>*</span></label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Power World – Colombo" required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>City <span style={{ color: 'red' }}>*</span></label>
-              <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="e.g. Colombo" required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} />
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>City <span style={{ color: 'red' }}>*</span></label>
+              <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="e.g. Colombo" required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>Type</label>
-              <select name="type" value={formData.type} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Type</label>
+              <select name="type" value={formData.type} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
                 <option value="AC">AC</option>
                 <option value="Non-AC">Non-AC</option>
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>Status</label>
-              <select name="status" value={formData.status} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Status</label>
+              <select name="status" value={formData.status} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>Assign Manager <span style={{ color: '#666', fontWeight: 500 }}>(Optional)</span></label>
-              <select name="managerId" value={formData.managerId} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Assign Manager <span style={{ color: '#666', fontWeight: 500 }}>(Optional)</span></label>
+              <select name="managerId" value={formData.managerId} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
                 <option value="">Select Manager...</option>
                 <option value="m1">Prakash S.</option>
                 <option value="m2">Kamal P.</option>
@@ -371,12 +371,12 @@ const Locations = () => {
                   <img src={gym.photo} alt={gym.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
                   <div style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.1rem' }}>{gym.name}</h3>
+                      <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1rem' }}>{gym.name}</h3>
                       <div style={{ width: 10, height: 10, borderRadius: '50%', background: status === 'Open' ? '#10B981' : '#EF4444', boxShadow: `0 0 10px ${status === 'Open' ? '#10B981' : '#EF4444'}` }}></div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><MapPin size={14} /> {gym.location}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><Clock size={14} /> {gym.operatingHours}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><MapPin size={14} /> {gym.location}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><Clock size={14} /> {gym.operatingHours}</div>
                     </div>
                   </div>
                 </div>

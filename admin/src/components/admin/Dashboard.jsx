@@ -91,7 +91,7 @@ const MiniCalendar = () => {
                     <div style={{ position: 'relative' }}>
                         <span
                             onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
-                            style={{ fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', color: 'var(--color-text)' }}
+                            style={{ fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', color: 'var(--color-text)' }}
                         >
                             {monthNames[monthNum]}
                         </span>
@@ -134,12 +134,12 @@ const MiniCalendar = () => {
                                 onBlur={handleYearBlur}
                                 onKeyDown={handleYearKeyDown}
                                 autoFocus
-                                style={{ width: '45px', border: 'none', borderBottom: '1px solid var(--color-red)', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', padding: 0 }}
+                                style={{ width: '45px', border: 'none', borderBottom: '1px solid var(--color-red)', background: 'transparent', outline: 'none', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text)', padding: 0 }}
                             />
                         ) : (
                             <span
                                 onDoubleClick={handleYearDoubleClick}
-                                style={{ fontWeight: 600, fontSize: '0.9rem', cursor: 'default', color: 'var(--color-text)' }}
+                                style={{ fontWeight: 600, fontSize: '0.8rem', cursor: 'default', color: 'var(--color-text)' }}
                             >
                                 {year}
                             </span>
@@ -177,7 +177,7 @@ const MiniCalendar = () => {
                             key={d}
                             className="cal-date"
                             onDoubleClick={() => handleDateDoubleClick(d)}
-                            style={{ cursor: 'pointer' }}
+                            style={{ cursor: 'pointer', fontSize: '0.75rem' }}
                         >
                             {d}
                         </div>
@@ -308,7 +308,7 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                     <div className="sa-card" style={{ minHeight: '350px' }}>
                         <div className="sa-card-header">
                             <h3>Branch Performance Dynamics</h3>
-                            <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', fontWeight: 700 }}>
+                            <div style={{ display: 'flex', gap: '12px', fontSize: '0.7rem', fontWeight: 700 }}>
                                 <span style={{ color: '#3B82F6' }}>● Peak Hours</span>
                                 <span style={{ color: '#10B981' }}>● Revenue</span>
                             </div>
@@ -338,8 +338,8 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                                         <Package size={18} color="#EF4444" />
                                     </div>
                                     <div className="sa-activity-info">
-                                        <p style={{ color: '#1E293B' }}><strong>{item.name}</strong> status updated to <strong>{item.status}</strong></p>
-                                        <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>{item.area} Center</span>
+                                        <p style={{ color: '#1E293B', fontSize: '0.82rem' }}><strong>{item.name}</strong> status updated to <strong>{item.status}</strong></p>
+                                        <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>{item.area} Center</span>
                                     </div>
                                     <ChevronRight size={16} color="#CBD5E1" />
                                 </div>
@@ -352,7 +352,7 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                         </div>
                         <div className="sa-activity-feed" style={{ padding: '0 16px' }}>
                             {dismantleRequests.length === 0 ? (
-                                <p style={{ color: '#64748B', fontSize: '0.9rem', padding: '16px 0' }}>No pending dismantle requests.</p>
+                                <p style={{ color: '#64748B', fontSize: '0.78rem', padding: '16px 0' }}>No pending dismantle requests.</p>
                             ) : (
                                 dismantleRequests.map(req => (
                                     <div key={req._id} className="request-card-v2">
@@ -402,15 +402,15 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                             <div className="alert-item-branch">
                                 <AlertTriangle size={20} color="#EF4444" />
                                 <div>
-                                    <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>3 Assets Need Repair</span>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B' }}>Dismantle requests pending</p>
+                                    <span style={{ fontWeight: 800, fontSize: '0.78rem' }}>3 Assets Need Repair</span>
+                                    <p style={{ margin: 0, fontSize: '0.62rem', color: '#64748B' }}>Dismantle requests pending</p>
                                 </div>
                             </div>
                             <div className="alert-item-branch warning">
                                 <Clock size={20} color="#F59E0B" />
                                 <div>
-                                    <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>14 Fees Overdue</span>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B' }}>Follow up required</p>
+                                    <span style={{ fontWeight: 800, fontSize: '0.78rem' }}>14 Fees Overdue</span>
+                                    <p style={{ margin: 0, fontSize: '0.62rem', color: '#64748B' }}>Follow up required</p>
                                 </div>
                             </div>
                         </div>
@@ -420,11 +420,11 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                             <div style={{ width: 40, height: 40, borderRadius: '12px', background: '#334155', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>{adminName.charAt(0)}</div>
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '0.95rem' }}>{adminName}</h4>
-                                <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Administrator</span>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem' }}>{adminName}</h4>
+                                <span style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>Administrator</span>
                             </div>
                         </div>
-                        <div style={{ padding: '12px 14px', background: '#FFFFFF', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                        <div style={{ padding: '12px 14px', background: '#FFFFFF', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 700 }}>
                             <span style={{ color: '#94A3B8' }}>Logic Engine:</span>
                             <span style={{ color: '#10B981' }}>Synchronized</span>
                         </div>

@@ -31,18 +31,18 @@
 }
 
 .sa-welcome h1 {
-    font-size: 2.4rem;
-    font-weight: 900;
+    font-size: 1.85rem;
+    font-weight: 800;
     margin: 0;
-    color: #000000;
-    letter-spacing: -0.03em;
+    color: var(--color-text);
+    letter-spacing: -0.025em;
 }
 
 .sa-welcome p {
     color: var(--color-text-dim);
-    margin: 6px 0 0 0;
-    font-weight: 600;
-    font-size: 0.85rem;
+    margin: 4px 0 0 0;
+    font-weight: 500;
+    font-size: 0.825rem;
 }
 
 .sa-actions {
@@ -58,13 +58,13 @@
 
 .sa-search-bar input {
     width: 100%;
-    padding: 12px 16px 12px 52px;
+    padding: 11px 16px 11px 48px;
     background: var(--color-surface);
     border: 1px solid var(--border-color);
-    border-radius: 14px;
+    border-radius: 12px;
     color: var(--color-text);
-    font-weight: 600;
-    font-size: 0.82rem;
+    font-weight: 500;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
 }
 
@@ -95,53 +95,53 @@
 .sa-stat-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 24px;
+    border-radius: 12px;
+    padding: 20px 24px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
-
-/* Removed side bar glow */
 
 .sa-stat-card:hover {
     border-color: var(--color-red);
 }
 
 .sa-stat-card .icon-circle {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 4px;
-    font-size: 1.4rem;
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    flex-shrink: 0;
 }
 
 .sa-stat-card .label {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.725rem;
+    font-weight: 600;
     color: var(--color-text-dim);
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
 
 .sa-stat-card .value {
-    font-size: 2rem;
-    font-weight: 900;
+    font-size: 1.2rem;
+    font-weight: 800;
     margin: 0;
     color: var(--color-text);
     letter-spacing: -0.01em;
 }
 
 .sa-stat-card .trend {
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.775rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -159,9 +159,10 @@
 /* Main Dashboard Content Layout */
 .sa-dashboard-layout {
     display: grid;
-    grid-template-columns: 2.2fr 1fr;
-    gap: 24px;
-    margin-bottom: 30px;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+    align-items: flex-start;
 }
 
 .sa-analytics-col {
@@ -174,22 +175,20 @@
     background: #FFFFFF;
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    padding: 20px;
-    height: 100%;
-    min-height: 200px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .sa-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .sa-card-header h3 {
-    font-size: 1.2rem;
-    font-weight: 800;
+    font-size: 1.15rem;
+    font-weight: 700;
     margin: 0;
     color: var(--color-text);
     letter-spacing: -0.01em;
@@ -225,7 +224,7 @@
 }
 
 .sa-btn-sub {
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     color: rgba(255, 255, 255, 0.85);
     font-weight: 700;
     text-transform: uppercase;
@@ -233,7 +232,7 @@
 }
 
 .sa-btn-main {
-    font-size: 1rem;
+    font-size: 0.88rem;
     font-weight: 900;
     letter-spacing: -0.01em;
 }
@@ -280,6 +279,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+    padding: 20px;
 }
 
 .sa-action-btn {
@@ -287,14 +287,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 24px 16px;
-    background: var(--color-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    color: var(--color-text);
-    font-weight: 700;
-    font-size: 0.82rem;
+    gap: 8px;
+    padding: 20px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.825rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -349,22 +349,22 @@
 
 .sa-activity-info p {
     margin: 0;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 500;
     line-height: 1.4;
 }
 
 .sa-activity-info p strong {
     color: var(--color-text);
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .sa-activity-info span {
     display: block;
-    margin-top: 4px;
-    font-size: 0.72rem;
+    margin-top: 2px;
+    font-size: 0.75rem;
     color: var(--color-text-dim);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 /* Alerts Section */
@@ -402,8 +402,8 @@
 
 .sa-alert-text {
     display: block;
-    font-size: 0.8rem;
-    font-weight: 800;
+    font-size: 0.825rem;
+    font-weight: 700;
     color: var(--color-text);
     margin-bottom: 2px;
 }
@@ -421,7 +421,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: var(--color-text);
 }
@@ -471,29 +471,29 @@
 }
 
 .sa-admin-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     background: var(--color-red);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 900;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
 }
 
 .sa-admin-name {
     display: block;
-    font-size: 0.8rem;
-    font-weight: 800;
+    font-size: 0.825rem;
+    font-weight: 700;
     color: var(--color-text);
 }
 
 .sa-admin-role {
     display: block;
-    font-size: 0.72rem;
+    font-size: 0.62rem;
     color: var(--color-red);
     font-weight: 700;
     text-transform: uppercase;
@@ -526,11 +526,11 @@
 .view-all-link-top {
     background: var(--color-surface);
     border: 1px solid var(--border-color);
-    padding: 8px 18px;
-    border-radius: 10px;
+    padding: 6px 16px;
+    border-radius: 8px;
     color: var(--color-text-dim);
-    font-weight: 700;
-    font-size: 0.75rem;
+    font-weight: 600;
+    font-size: 0.775rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -552,8 +552,6 @@
     border-radius: 20px;
     border: 1px solid var(--border-color);
     width: 100%;
-    aspect-ratio: 1 / 1;
-    margin-left: auto;
     display: flex;
     flex-direction: column;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
@@ -577,14 +575,14 @@
 }
 
 .cal-day-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 800;
     color: var(--color-text-dim);
     padding-bottom: 12px;
 }
 
 .cal-date {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -603,7 +601,7 @@
 }
 
 .cal-date:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     color: var(--color-text);
 }
 

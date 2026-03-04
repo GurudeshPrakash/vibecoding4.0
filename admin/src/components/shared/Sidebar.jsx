@@ -1,10 +1,9 @@
 import React from 'react';
-import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign, Package } from 'lucide-react';
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
-    const normalizedRole = adminRole === 'super_admin' ? 'superadmin' : (adminRole || 'staff');
+const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
@@ -27,10 +26,11 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
         { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'check-ins', label: 'Member Check-ins', icon: <CheckSquare size={20} /> },
         { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
-        { id: 'attendance', label: 'Attendance', icon: <Users size={20} /> },
+        { id: 'members', label: 'Members', icon: <Users size={20} /> },
+        { id: 'inventory', label: 'Facility Inventory', icon: <Package size={20} /> },
     ];
 
-    const renderNavSection = (title, menuItems) => (
+    const renderNavSection = (title, menuItems, role) => (
         <div style={{ marginBottom: '24px' }}>
             <h4 style={{
                 padding: '0 20px',
@@ -44,16 +44,23 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
                 {title}
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {menuItems.map((item) => (
-                    <button
-                        key={item.id}
-                        className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-                        onClick={() => setActiveTab(item.id)}
-                    >
-                        {item.icon}
-                        <span>{item.label}</span>
-                    </button>
-                ))}
+                {menuItems.map((item) => {
+                    // Check if it's the active tab and it corresponds to the currently viewed role
+                    const isActive = activeTab === item.id && viewRole === role;
+                    return (
+                        <button
+                            key={item.id}
+                            className={`nav-item ${isActive ? 'active' : ''}`}
+                            onClick={() => {
+                                setViewRole(role);
+                                setActiveTab(item.id);
+                            }}
+                        >
+                            {item.icon}
+                            <span>{item.label}</span>
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
@@ -65,23 +72,21 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole }) => {
             </div>
 
             <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', padding: '10px 0' }}>
-                {normalizedRole === 'superadmin' && renderNavSection('SUPER ADMIN', superAdminMenu)}
-
-                {(normalizedRole === 'superadmin' || normalizedRole === 'admin') && (
-                    <>
-                        <div style={{ height: '1px', background: '#f3f4f6', margin: '0 20px 24px 20px' }}></div>
-                        {renderNavSection('ADMIN', adminMenu)}
-                    </>
-                )}
+                {renderNavSection('SUPER ADMIN', superAdminMenu, 'super_admin')}
 
                 <div style={{ height: '1px', background: '#f3f4f6', margin: '0 20px 24px 20px' }}></div>
-                {renderNavSection('STAFF', staffMenu)}
+
+                {renderNavSection('ADMIN', adminMenu, 'admin')}
+
+                <div style={{ height: '1px', background: '#f3f4f6', margin: '0 20px 24px 20px' }}></div>
+
+                {renderNavSection('STAFF', staffMenu, 'staff')}
             </nav>
 
             <div className="sidebar-footer" style={{ padding: '20px', borderTop: '1px solid #f3f4f6' }}>
                 <button className="logout-btn" onClick={onLogoutTrigger}>
                     <LogOut size={20} />
-                    <span>Log Out</span>
+                    <span>Back to Home</span>
                 </button>
             </div>
         </div>

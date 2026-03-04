@@ -86,7 +86,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRo
             <div className="sidebar-footer" style={{ padding: '20px', borderTop: '1px solid #f3f4f6' }}>
                 <button className="logout-btn" onClick={onLogoutTrigger}>
                     <LogOut size={20} />
-                    <span>Log Out</span>
+                    <span>Back to Home</span>
                 </button>
             </div>
         </div>

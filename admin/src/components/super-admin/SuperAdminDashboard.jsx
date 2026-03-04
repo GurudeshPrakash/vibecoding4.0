@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'; // v1.0.1 force fresh reload
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Users,
@@ -15,8 +15,8 @@ import {
     Activity,
     ArrowUpRight,
     Building2,
-    ChevronRight,
     ChevronLeft,
+    ChevronRight,
     ChevronDown,
     Zap,
     Briefcase,
@@ -82,11 +82,12 @@ const MiniCalendar = () => {
     };
 
     const handleDateDoubleClick = (d) => {
-        alert("Add Reminder interaction / UI opening for date: " + d);
+        const clickedDate = new Date(year, monthNum, d);
+        alert(`Add Reminder for ${clickedDate.toDateString()}`);
     };
 
     return (
-        <div className="mini-calendar">
+        <div className="mini-calendar" onClick={() => setIsMonthDropdownOpen(false)}>
             <div className="cal-header">
                 {/* Month Group */}
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -97,11 +98,11 @@ const MiniCalendar = () => {
                         onMouseDown={() => setActiveArrow('prev')}
                         onMouseUp={() => setActiveArrow(null)}
                         onMouseLeave={() => setActiveArrow(null)}
-                        onClick={() => setCurrentDate(new Date(year, monthNum - 1, 1))}
+                        onClick={(e) => { e.stopPropagation(); setCurrentDate(new Date(year, monthNum - 1, 1)); }}
                     />
                     <div
                         className="cal-month-box"
-                        onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                        onClick={(e) => { e.stopPropagation(); setIsMonthDropdownOpen(!isMonthDropdownOpen); }}
                         style={{
                             position: 'relative',
                             display: 'flex',
@@ -158,7 +159,7 @@ const MiniCalendar = () => {
                         onMouseDown={() => setActiveArrow('next')}
                         onMouseUp={() => setActiveArrow(null)}
                         onMouseLeave={() => setActiveArrow(null)}
-                        onClick={() => setCurrentDate(new Date(year, monthNum + 1, 1))}
+                        onClick={(e) => { e.stopPropagation(); setCurrentDate(new Date(year, monthNum + 1, 1)); }}
                     />
                 </div>
 
@@ -171,11 +172,11 @@ const MiniCalendar = () => {
                         onMouseDown={() => setActiveArrow('year-prev')}
                         onMouseUp={() => setActiveArrow(null)}
                         onMouseLeave={() => setActiveArrow(null)}
-                        onClick={() => setCurrentDate(new Date(year - 1, monthNum, 1))}
+                        onClick={(e) => { e.stopPropagation(); setCurrentDate(new Date(year - 1, monthNum, 1)); }}
                     />
                     <div
                         className="cal-year-box"
-                        onDoubleClick={handleYearDoubleClick}
+                        onDoubleClick={(e) => { e.stopPropagation(); handleYearDoubleClick(); }}
                         style={{
                             background: 'var(--color-red)',
                             padding: '6px 12px',
@@ -208,7 +209,7 @@ const MiniCalendar = () => {
                         onMouseDown={() => setActiveArrow('year-next')}
                         onMouseUp={() => setActiveArrow(null)}
                         onMouseLeave={() => setActiveArrow(null)}
-                        onClick={() => setCurrentDate(new Date(year + 1, monthNum, 1))}
+                        onClick={(e) => { e.stopPropagation(); setCurrentDate(new Date(year + 1, monthNum, 1)); }}
                     />
                 </div>
             </div>
@@ -218,7 +219,7 @@ const MiniCalendar = () => {
                 {[...Array(daysInMonth)].map((_, i) => {
                     const d = i + 1;
                     const today = new Date();
-                    const isToday = today.getDate() === d && today.getMonth() === currentDate.getMonth() && today.getFullYear() === currentDate.getFullYear();
+                    const isToday = today.getDate() === d && today.getMonth() === monthNum && today.getFullYear() === year;
                     return (
                         <div
                             key={d}
@@ -235,6 +236,29 @@ const MiniCalendar = () => {
     );
 };
 
+const CustomChartTooltip = ({ active, payload, label, color = '#FF0000', prefix = '' }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div style={{
+                background: color,
+                color: '#FFFFFF',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                boxShadow: `0 8px 20px ${color}88`,
+                border: 'none',
+                textAlign: 'center',
+                lineHeight: '1.3'
+            }}>
+                <div style={{ fontSize: '0.65rem', opacity: 0.9, textTransform: 'uppercase', marginBottom: '2px', letterSpacing: '0.05em' }}>{label}</div>
+                <div style={{ letterSpacing: '0.02em' }}>{prefix}{payload[0].value.toLocaleString()}</div>
+            </div>
+        );
+    }
+    return null;
+};
+
 const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -242,28 +266,24 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
     const [stats, setStats] = useState(() => {
         const raw = localStorage.getItem('sa_live_mock_database');
         if (raw) {
-            try {
-                return JSON.parse(raw);
-            } catch (e) {
-                // Ignore
-            }
+            try { return JSON.parse(raw); } catch (e) { }
         }
         return {
-            totalMembers: 0,
-            activeMembers: 0,
-            newMembersToday: 0,
-            activeGyms: 0,
-            acGyms: 0,
-            nonAcGyms: 0,
-            monthlyRevenue: 0,
-            pendingPayments: 0,
+            totalMembers: 12450,
+            activeMembers: 11920,
+            newMembersToday: 48,
+            activeGyms: 12,
+            acGyms: 8,
+            nonAcGyms: 4,
+            monthlyRevenue: 2450000,
+            pendingPayments: 45000,
             revenueTrend: [
-                { month: 'Jan', revenue: 0 },
-                { month: 'Feb', revenue: 0 },
-                { month: 'Mar', revenue: 0 },
-                { month: 'Apr', revenue: 0 },
-                { month: 'May', revenue: 0 },
-                { month: 'Jun', revenue: 0 },
+                { month: 'Jan', revenue: 1800000 },
+                { month: 'Feb', revenue: 2100000 },
+                { month: 'Mar', revenue: 1950000 },
+                { month: 'Apr', revenue: 2300000 },
+                { month: 'May', revenue: 2450000 },
+                { month: 'Jun', revenue: 2800000 },
             ],
             memberGrowth: [
                 { name: 'Jan', members: 85000 },
@@ -279,7 +299,13 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                 { name: 'Nov', members: 710000 },
                 { name: 'Dec', members: 850000 },
             ],
-            recentActivities: []
+            recentActivities: [
+                { id: 1, user: 'Malith Perera', action: 'started a new workout session at Colombo 03', time: '10:45 AM' },
+                { id: 2, user: 'System', action: 'auto-scaled database for peak hour traffic', time: '10:30 AM' },
+                { id: 3, user: 'Gym #08', action: 'reported a maintenance request (AC Unit)', time: '10:15 AM' },
+                { id: 4, user: 'Sarah J.', action: 'renewed Platinum Membership', time: '09:50 AM' },
+                { id: 5, user: 'Kasun D.', action: 'completed payment for Personal Training', time: '09:30 AM' }
+            ]
         };
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -290,10 +316,6 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
             if (raw) {
                 try {
                     const parsed = JSON.parse(raw);
-                    // Ensure we always have 12-month revenue-based format as requested
-                    if (parsed.memberGrowth && parsed.memberGrowth.length !== 12) {
-                        parsed.memberGrowth = stats.memberGrowth;
-                    }
                     setStats(parsed);
                 } catch (e) { }
             } else {
@@ -302,16 +324,12 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
         };
         fetchLiveStats();
 
-        // Fast polling for instant true "LIVE" graph reflection across windows
         const LIVE_INTERVAL = setInterval(fetchLiveStats, 300);
-
-        // Fluctuation effect for the "LIVE" look
         const FLUCTUATION_INTERVAL = setInterval(() => {
             setStats(prev => {
                 if (!prev.memberGrowth) return prev;
                 const newGrowth = [...prev.memberGrowth];
                 const lastIdx = newGrowth.length - 1;
-                // Add/subtract a small random amount (max 0.5%) to the last data point
                 const currentVal = newGrowth[lastIdx].members;
                 const fluctuation = currentVal * (0.005 * (Math.random() - 0.5));
                 newGrowth[lastIdx] = { ...newGrowth[lastIdx], members: Math.max(0, currentVal + fluctuation) };
@@ -327,10 +345,6 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
 
     const memberGrowthData = stats.memberGrowth;
     const revenueData = stats.revenueTrend;
-    const gymRatioData = [
-        { name: 'AC Gyms', value: stats.acGyms },
-        { name: 'Non-AC Gyms', value: stats.nonAcGyms },
-    ];
     const COLORS = ['#FF0000', '#374151'];
 
     const recentActivities = stats.recentActivities.map((act, idx) => ({
@@ -338,12 +352,6 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
         icon: act.action && act.action.includes('session') ? <Activity size={18} /> : <Zap size={18} />,
         time: act.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }));
-
-    const alerts = [
-        { id: 1, title: '12 Memberships Expiring', type: 'warning', desc: 'Action required within 48 hours' },
-        { id: 2, title: 'Failed Payment (Gym #08)', type: 'error', desc: 'Automatic retry in progress' },
-        { id: 3, title: 'Inactive Gym: Rathnapura', type: 'warning', desc: 'No activity for 5 consecutive days' },
-    ];
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -361,15 +369,6 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
             act.action.toLowerCase().includes(q)
         );
     }, [recentActivities, searchQuery]);
-
-    if (isLoading && !stats) {
-        return (
-            <div style={{ height: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--color-red)" />
-                <span style={{ fontWeight: 800, color: 'var(--color-text-dim)', letterSpacing: '0.1em' }}>INITIALIZING LIVE COMMAND CENTER...</span>
-            </div>
-        );
-    }
 
     return (
         <div className="super-admin-dashboard">
@@ -469,7 +468,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                             <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(stats?.monthlyRevenue / 1000000).toFixed(1)}M</h2>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 <div className="sa-stat-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -481,23 +480,23 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                             <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(stats?.pendingPayments / 1000).toFixed(0)}K</h2>
                         </div>
                     </div>
-                </div>
-            </section>
+                </div >
+            </section >
 
             <div className="sa-dashboard-layout">
                 <main className="sa-analytics-col">
                     <div className="sa-card">
                         <div className="sa-card-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <TrendingUp size={22} color="#FF0000" />
-                                <h3>Network Expansion</h3>
+                                <DollarSign size={22} color="#FF0000" />
+                                <h3>Member Growth Hub</h3>
                             </div>
                             <div className="sa-card-meta">
                                 <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--color-red)' }}>LIVE TRACKING</span>
                             </div>
                         </div>
                         <div style={{ height: '240px', minHeight: '240px', width: '100%', marginTop: '10px' }}>
-                            <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                            <Recharts.ResponsiveContainer width="100%" height="100%">
                                 <Recharts.AreaChart data={memberGrowthData}>
                                     <defs>
                                         <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
@@ -521,29 +520,20 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                                         dx={-10}
                                         domain={[0, 'auto']}
                                         allowDecimals={false}
-                                        tickFormatter={(value) => {
-                                            if (value >= 1000000) return `LKR ${(value / 1000000).toFixed(1)}M`;
-                                            if (value >= 1000) return `LKR ${(value / 1000).toFixed(0)}K`;
-                                            return `LKR ${value}`;
-                                        }}
+                                        tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
                                     />
-                                    <Recharts.Tooltip
-                                        contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-                                        itemStyle={{ color: '#FF0000', fontWeight: 800 }}
-                                    />
+                                    <Recharts.Tooltip content={<CustomChartTooltip />} />
                                     <Recharts.Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
                                 </Recharts.AreaChart >
                             </Recharts.ResponsiveContainer >
                         </div >
                     </div >
-
-                    {/* Removed Revenue Stream and Gym Distribution */}
                 </main >
 
                 <aside className="sa-sidebar-col">
                     <MiniCalendar />
 
-                    <div className="sa-card" style={{ background: '#111827', color: '#fff', padding: '0', overflow: 'hidden' }}>
+                    <div className="sa-card" style={{ background: '#111827', color: '#fff', padding: '0', overflow: 'hidden', marginTop: '20px' }}>
                         <div className="sa-card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Zap size={20} color="#FF0000" />
@@ -570,7 +560,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                         </div>
                     </div>
                 </aside>
-            </div >
+            </div>
 
             <section className="sa-card" style={{ marginTop: '32px' }}>
                 <div className="sa-card-header">

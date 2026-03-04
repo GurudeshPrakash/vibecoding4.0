@@ -30,9 +30,9 @@ const StaffSidebar = ({ activeTab, setActiveTab, onLogoutTrigger }) => {
             </nav>
 
             <div className="sidebar-footer">
-                <button className="logout-btn" onClick={onLogoutTrigger}>
+                <button className="logout-btn" onClick={() => window.location.href = '/'}>
                     <LogOut size={20} />
-                    <span>Log Out</span>
+                    <span>Back to Home</span>
                 </button>
             </div>
         </div>

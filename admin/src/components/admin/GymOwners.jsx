@@ -10,7 +10,7 @@ const LiveClock = () => {
         return () => clearInterval(timer);
     }, []);
     return (
-        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>
             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
     );
@@ -321,20 +321,20 @@ const GymManagers = () => {
                             <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--color-red)' }}>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>No</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Name</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Email</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Last Login</th>
-                                        <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>No</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Name</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Email</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Last Login</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredManagers.map((m, index) => (
                                         <tr key={m._id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
-                                            <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>
                                                 {String(index + 1).padStart(2, '0')}
                                             </td>
                                             <td style={{ padding: '16px 24px' }}>
@@ -342,25 +342,25 @@ const GymManagers = () => {
                                                     <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(255,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                         <Shield size={18} color="var(--color-red)" />
                                                     </div>
-                                                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{m.firstName} {m.lastName}</span>
+                                                    <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>{m.firstName} {m.lastName}</span>
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '16px 24px', fontSize: '0.85rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{m.email}</td>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{m.email}</td>
                                             <td style={{ padding: '16px 24px' }}>
-                                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-red)', background: 'rgba(255,0,0,0.08)', padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase' }}>
+                                                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--color-red)', background: 'rgba(255,0,0,0.08)', padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase' }}>
                                                     {m.role || 'Manager'}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 700 }}>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>
                                                 {branches.find(b => b._id === m.branchId)?.name || m.branch || 'Default Center'}
                                             </td>
                                             <td style={{ padding: '16px 24px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: m.status === 'Inactive' ? '#EF4444' : '#10B981' }} />
-                                                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: m.status === 'Inactive' ? '#EF4444' : '#10B981' }}>{m.status || 'Active'}</span>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: m.status === 'Inactive' ? '#EF4444' : '#10B981' }}>{m.status || 'Active'}</span>
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '16px 24px', fontSize: '0.85rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{m.lastLogin || 'Never'}</td>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{m.lastLogin || 'Never'}</td>
                                             <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                     <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => openEdit(m)} title="Edit Details"><Edit2 size={14} /></button>
@@ -390,7 +390,7 @@ const GymManagers = () => {
                                 <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(255,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <UserPlus size={22} color="var(--color-red)" />
                                 </div>
-                                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
                                     {editingManager ? 'Update Manager' : 'Add New Manager'}
                                 </h2>
                             </div>
@@ -401,48 +401,48 @@ const GymManagers = () => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                 {/* Basic Info */}
                                 <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '0 0 16px 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Basic Information</h4>
+                                    <h4 style={{ margin: '0 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Basic Information</h4>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>First Name <span style={{ color: 'red' }}>*</span></label>
-                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="e.g. Sarah" />
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>First Name <span style={{ color: 'red' }}>*</span></label>
+                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="e.g. Sarah" />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Last Name <span style={{ color: 'red' }}>*</span></label>
-                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="e.g. Perera" />
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Last Name <span style={{ color: 'red' }}>*</span></label>
+                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="e.g. Perera" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div style={{ gridColumn: 'span 1' }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Corporate Email <span style={{ color: 'red' }}>*</span></label>
-                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="sarah@powerworld.com" />
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Corporate Email <span style={{ color: 'red' }}>*</span></label>
+                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="sarah@powerworld.com" />
                                 </div>
 
                                 <div style={{ gridColumn: 'span 1' }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Direct Line <span style={{ color: 'var(--color-text-dim)', fontWeight: 500 }}>(Optional)</span></label>
-                                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="+94 77 000 0000" />
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Direct Line <span style={{ color: 'var(--color-text-dim)', fontWeight: 500 }}>(Optional)</span></label>
+                                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="+94 77 000 0000" />
                                 </div>
 
                                 {/* Area & Branch */}
                                 <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Operational Scope</h4>
+                                    <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Operational Scope</h4>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assigned Branch</label>
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Assigned Branch</label>
                                             <select
                                                 name="branchId"
                                                 value={formData.branchId}
                                                 onChange={handleChange}
-                                                style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}
+                                                style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}
                                             >
                                                 <option value="">Select Center...</option>
                                                 {branches.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
                                             </select>
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Regional Area</label>
-                                            <input type="text" name="assignedArea" value={formData.assignedArea} onChange={handleChange} placeholder="e.g. Western Province South" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} />
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Regional Area</label>
+                                            <input type="text" name="assignedArea" value={formData.assignedArea} onChange={handleChange} placeholder="e.g. Western Province South" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
                                         </div>
                                     </div>
                                 </div>
@@ -450,16 +450,16 @@ const GymManagers = () => {
                                 {/* Account Setup */}
                                 {!editingManager && (
                                     <div style={{ gridColumn: 'span 2' }}>
-                                        <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account Provisioning</h4>
+                                        <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account Provisioning</h4>
                                         <div style={{ background: '#F9FAFB', padding: '16px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <div>
-                                                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)', marginBottom: '4px' }}>Default Password</span>
-                                                    <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--color-red)', letterSpacing: '0.1em' }}>{formData.tempPassword}</span>
+                                                    <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-text-dim)', marginBottom: '4px' }}>Default Password</span>
+                                                    <span style={{ fontSize: '0.88rem', fontWeight: 900, color: 'var(--color-red)', letterSpacing: '0.1em' }}>{formData.tempPassword}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <input type="checkbox" id="si" name="sendInvite" checked={formData.sendInvite} onChange={handleChange} />
-                                                    <label htmlFor="si" style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Send Invite Link</label>
+                                                    <label htmlFor="si" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Send Invite Link</label>
                                                 </div>
                                             </div>
                                         </div>

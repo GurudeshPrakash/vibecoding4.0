@@ -121,7 +121,7 @@ const TopNav = ({
                             gap: '8px',
                             marginRight: '16px',
                             cursor: 'pointer',
-                            fontSize: '0.9rem',
+                            fontSize: '0.825rem',
                             fontWeight: '600'
                         }}
                     >

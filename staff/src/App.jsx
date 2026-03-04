@@ -11,8 +11,6 @@ import LogoutModal from './components/shared/LogoutModal';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
-import { useAuth } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
 
 const StaffLayout = ({
   children,
@@ -52,7 +50,7 @@ const StaffLayout = ({
 );
 
 function App() {
-  const { login, logout, isAuthenticated } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(() => true);
   const loginRole = 'staff'; // Hardcoded for Staff app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -76,6 +74,7 @@ function App() {
   const [adminPhone, setAdminPhone] = useState('');
   const [profileImage, setProfileImage] = useState(null);
 
+
   const {
     inventoryData,
     dismantledHistory,
@@ -90,27 +89,23 @@ function App() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlToken = urlParams.get('token');
     if (urlToken) {
-      try {
-        const urlUser = JSON.parse(decodeURIComponent(urlParams.get('user') || '{}'));
-        const urlLogId = urlParams.get('logId');
+      const urlUser = JSON.parse(decodeURIComponent(urlParams.get('user') || '{}'));
+      const urlLogId = urlParams.get('logId');
 
-        localStorage.setItem('staff_token', urlToken);
-        if (urlLogId) localStorage.setItem('staff_current_log', urlLogId);
-        localStorage.setItem('staff_user_info', JSON.stringify(urlUser));
+      localStorage.setItem('staff_token', urlToken);
+      if (urlLogId) localStorage.setItem('staff_current_log', urlLogId);
+      localStorage.setItem('staff_user_info', JSON.stringify(urlUser));
 
-        setUserName(urlUser.firstName || 'Staff');
-        setUserEmail(urlUser.email || '');
+      setIsAuthenticated(true);
+      setUserName(urlUser.firstName || 'Staff');
+      setUserEmail(urlUser.email || '');
 
-        login(urlUser, urlToken);
-
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } catch (e) {
-        console.error("SSO Login failed", e);
-      }
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       const staffToken = localStorage.getItem('staff_token');
       if (staffToken && !isAuthenticated) {
+        setIsAuthenticated(true);
         const savedStaff = JSON.parse(localStorage.getItem('staff_user_info'));
         if (savedStaff) {
           setUserName(savedStaff.firstName || 'Staff');
@@ -118,7 +113,7 @@ function App() {
         }
       }
     }
-  }, [login, isAuthenticated]);
+  }, []);
 
 
 
@@ -148,8 +143,8 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'staff') {
-      // Force navigation to login page to ensure security checkpoint
-      navigate('/staff/login');
+      // Force navigation directly to staff dashboard
+      navigate('/staff/dashboard');
     } else {
       alert("This is the Staff portal. Please use the Admin portal for admin access.");
     }
@@ -158,8 +153,7 @@ function App() {
   const handleLogin = (data) => {
     setUserName(data.firstName);
     setUserEmail(data.email);
-
-    login(data, data.token);
+    setIsAuthenticated(true);
     navigate('/staff/dashboard');
   };
 
@@ -176,8 +170,11 @@ function App() {
         console.error('Logout logging failed', e);
       }
     }
-    logout();
-    setUserName('Staff member'); // Reset local state
+    localStorage.removeItem('staff_token');
+    localStorage.removeItem('staff_current_log');
+    localStorage.removeItem('staff_user_info');
+
+    setIsAuthenticated(false);
     setShowLogoutModal(false);
     navigate('/');
   };
@@ -198,13 +195,13 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to="/staff/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
         <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
 
         {/* Protected Routes */}
-        <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'superadmin']}><StaffLayout {...layoutProps}><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></StaffLayout></ProtectedRoute>} />
-        <Route path="/staff/inventory" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'superadmin']}><StaffLayout {...layoutProps}><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></StaffLayout></ProtectedRoute>} />
-        <Route path="/staff/profile" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'superadmin']}><StaffLayout {...layoutProps}><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></StaffLayout></ProtectedRoute>} />
+        <Route path="/staff/dashboard" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></StaffLayout> : <Navigate to="/staff/login" />} />
+        <Route path="/staff/inventory" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></StaffLayout> : <Navigate to="/staff/login" />} />
+        <Route path="/staff/profile" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></StaffLayout> : <Navigate to="/staff/login" />} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

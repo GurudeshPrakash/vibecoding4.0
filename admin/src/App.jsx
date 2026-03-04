@@ -22,6 +22,7 @@ import StaffDashboard from './components/staff/StaffDashboard';
 import CheckIns from './components/staff/CheckIns';
 import Payments from './components/staff/Payments';
 import Members from './components/staff/Members';
+import StaffInventory from './components/staff/StaffInventory';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
@@ -35,6 +36,7 @@ const AdminLayout = ({
   adminRole,
   viewRole,
   setViewRole,
+  setAdminRole,
   userName,
   userEmail,
   adminId,
@@ -78,24 +80,42 @@ const AdminLayout = ({
       <div className="content-area">
         {children}
       </div>
+
+      {/* Floating Role Switcher */}
+      <button
+        onClick={() => {
+          const newRole = adminRole === 'super_admin' ? 'admin' : 'super_admin';
+          setAdminRole(newRole);
+          navigate(newRole === 'super_admin' ? '/super-admin/dashboard' : '/admin/dashboard');
+        }}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'var(--primary-color, #0a1128)',
+          color: 'var(--brand-yellow, #fdb813)',
+          border: '2px solid var(--brand-yellow, #fdb813)',
+          padding: '10px 15px',
+          borderRadius: '25px',
+          cursor: 'pointer',
+          zIndex: 1000,
+          fontWeight: 'bold',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+        }}
+      >
+        Switch to {adminRole === 'super_admin' ? 'Admin' : 'Super Admin'} View
+      </button>
+
     </main>
   </div>
 );
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [adminRole, setAdminRole] = useState('super_admin'); // Start as super_admin by default for testing
-  const [viewRole, setViewRole] = useState('super_admin');
-  const [activeTab, setActiveTab] = useState('dashboard');
   const loginRole = 'admin'; // Hardcoded for Admin app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    setViewRole(adminRole);
-    setActiveTab('dashboard');
-  }, [adminRole]);
 
   // Pre-load user data from localStorage for synchronous initialization
   const savedAdminData = useMemo(() => {
@@ -108,6 +128,15 @@ function App() {
 
   const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'Vibe Master'));
   const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
+  const savedRole = savedAdminData.role || 'super_admin';
+  const [adminRole, setAdminRole] = useState(savedRole);
+  const [viewRole, setViewRole] = useState(savedRole);
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    setViewRole(adminRole);
+    setActiveTab('dashboard');
+  }, [adminRole]);
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
@@ -168,14 +197,14 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'admin') {
-      // Force navigation to login page to ensure security checkpoint
-      navigate('/login');
+      // Navigate straight to admin dashboard instead of login
+      navigate('/admin/dashboard');
     } else if (role === 'super_admin') {
-      // Force navigation to super-admin login
-      navigate('/super-admin/login');
+      // Navigate straight to super admin dashboard instead of login
+      navigate('/super-admin/dashboard');
     } else {
-      // Manager path - Force navigation to staff login for security
-      window.location.href = `http://localhost:5174/staff/login`;
+      // Manager path
+      window.location.href = `http://localhost:5174/staff/dashboard`;
     }
   };
 
@@ -220,6 +249,7 @@ function App() {
     adminRole,
     viewRole,
     setViewRole,
+    setAdminRole,
     userName,
     userEmail,
     adminId,
@@ -270,6 +300,7 @@ function App() {
         case 'members': return <Members />;
         case 'check-ins': return <CheckIns />;
         case 'payments': return <Payments />;
+        case 'inventory': return <StaffInventory inventoryData={props.inventoryData} />;
         default: return <StaffDashboard />;
       }
     }

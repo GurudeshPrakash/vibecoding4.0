@@ -44,7 +44,7 @@
     gap: 24px;
 }
 
-.icon-btn {
+.top-nav .icon-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -79,7 +79,7 @@
     position: relative;
 }
 
-.profile-section-new {
+.top-nav .profile-section-new {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -241,7 +241,7 @@
 .remove-btn {
     background: white;
     color: var(--color-red);
-    border: 1px solid rgba(255, 0, 0, 0.1);
+    border: 1.5px solid #ff4d4d;
 }
 
 .remove-btn:hover {

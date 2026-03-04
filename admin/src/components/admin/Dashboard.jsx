@@ -11,6 +11,7 @@ import {
     Package,
     ShieldAlert,
     ChevronDown,
+    ChevronLeft,
     ChevronRight,
     Trophy,
     Plus,
@@ -312,8 +313,8 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                                 <span style={{ color: '#10B981' }}>● Revenue</span>
                             </div>
                         </div>
-                        <div style={{ height: '240px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div style={{ height: '240px', width: '100%', minHeight: '0' }}>
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <ComposedChart data={peakHoursData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                                     <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />

@@ -39,9 +39,10 @@ const AdminLayout = ({
   notifications,
   setNotifications,
   loginRole,
-  handleViewActivityLog
+  handleViewActivityLog,
+  onToggleRole
 }) => (
-  <div className="app-layout">
+  <div className={`app-layout ${adminRole === 'super_admin' ? 'is-super-admin' : ''}`}>
     <Sidebar activeTab={activeTab} setActiveTab={(tab) => {
       const prefix = adminRole === 'super_admin' ? '/super-admin' : '/admin';
       navigate(`${prefix}/${tab}`);
@@ -65,11 +66,39 @@ const AdminLayout = ({
         setNotifications={setNotifications}
         loginRole={loginRole}
         onViewLog={handleViewActivityLog}
+        onToggleRole={onToggleRole}
+        adminRole={adminRole}
       />
 
       <div className="content-area">
         {children}
       </div>
+
+      {onToggleRole && (
+        <button
+          onClick={onToggleRole}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            background: 'var(--color-red, #ff0000)',
+            color: '#fff',
+            border: '3px solid #ffaa00',
+            borderRadius: '24px',
+            padding: '10px 24px',
+            fontSize: '0.9rem',
+            fontWeight: '800',
+            cursor: 'pointer',
+            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+            zIndex: 9999,
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.4)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)'; }}
+        >
+          Switch to {adminRole === 'super_admin' ? 'Admin View' : 'Super Admin View'}
+        </button>
+      )}
     </main>
   </div>
 );
@@ -121,10 +150,9 @@ function App() {
   useEffect(() => {
     const adminToken = localStorage.getItem('admin_token');
     if (adminToken && !isAuthenticated) {
-      setIsAuthenticated(true);
       const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
       if (savedAdmin) {
-        setUserName(savedAdmin.firstName || 'Admin');
+        setUserName(savedAdmin.firstName || 'Shahana Kuganesan');
         setUserEmail(savedAdmin.email || 'admin@gymsys.com');
         setAdminRole(savedAdmin.role || 'admin');
       }
@@ -147,8 +175,6 @@ function App() {
     }
   };
 
-
-
   const stats = useMemo(() => {
     return {
       total: inventoryData.length,
@@ -160,13 +186,10 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'admin') {
-      // Force navigation to login page to ensure security checkpoint
       navigate('/login');
     } else if (role === 'super_admin') {
-      // Force navigation to super-admin login
       navigate('/super-admin/login');
     } else {
-      // Manager path - Force navigation to staff login for security
       window.location.href = `http://localhost:5174/staff/login`;
     }
   };
@@ -174,7 +197,7 @@ function App() {
   const handleLogin = (data) => {
     setUserName(data.firstName || 'User');
     setUserEmail(data.email);
-    setAdminRole(data.role || 'staff');
+    setAdminRole(data.role || 'admin');
 
     login(data, data.token);
 
@@ -201,12 +224,20 @@ function App() {
         console.error('Logout logging failed', e);
       }
     }
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_current_log');
-    localStorage.removeItem('admin_user'); logout();
+    logout();
     setAdminRole('admin'); // Reset local state
     setShowLogoutModal(false);
     navigate('/');
+  };
+
+  const handleToggleRole = () => {
+    const newRole = adminRole === 'super_admin' ? 'admin' : 'super_admin';
+    setAdminRole(newRole);
+    if (newRole === 'super_admin') {
+      navigate('/super-admin/dashboard');
+    } else {
+      navigate('/admin/dashboard');
+    }
   };
 
   const layoutProps = {
@@ -223,16 +254,17 @@ function App() {
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog
+    handleViewActivityLog,
+    onToggleRole: handleToggleRole
   };
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
-        <Route path="/login" element={<AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} onGoToSignUp={(view) => navigate(`/admin/${view}`)} />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} onGoToSignUp={(view) => navigate(`/admin/${view}`)} />} />
         <Route path="/admin/login" element={<Navigate to="/login" />} />
-        <Route path="/super-admin/login" element={<SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
+        <Route path="/super-admin/login" element={isAuthenticated ? <Navigate to="/super-admin/dashboard" /> : <SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
         <Route path="/admin/signup" element={<Navigate to="/login" />} />
         <Route path="/admin/forgot-password" element={<ForgotPassword onBack={() => navigate('/login')} />} />
         <Route path="/reset-password/:token" element={<ResetPassword onComplete={() => navigate('/login')} />} />
@@ -252,12 +284,13 @@ function App() {
         <Route path="/super-admin/settings" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><SuperAdminSettings adminName={userName} setAdminName={setUserName} /></AdminLayout></ProtectedRoute>} />
         <Route path="/super-admin/admins" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><Admins /></AdminLayout></ProtectedRoute>} />
 
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} />} />
       </Routes>
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
       <ActivityDetailModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} log={selectedLog} />
     </>
   );
 }
+
 
 export default App;

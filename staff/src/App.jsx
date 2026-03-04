@@ -198,7 +198,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/staff/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
         <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
 
         {/* Protected Routes */}

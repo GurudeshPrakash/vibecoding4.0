@@ -4,10 +4,12 @@ import '../../style/AdminDashboard.css';
 
 const StaffDashboard = () => {
     const todayCheckins = [
-        { id: 'M-001', name: 'John Doe', time: '08:30 AM', status: 'Checked In' },
-        { id: 'M-002', name: 'Jane Smith', time: '09:15 AM', status: 'Checked In' },
-        { id: 'M-003', name: 'Mike Ross', time: '09:45 AM', status: 'Checked Out' },
-        { id: 'M-004', name: 'Rachel Zane', time: '10:00 AM', status: 'Checked In' },
+        { id: 'M-1024', name: 'Arjun Perera', time: '08:15 AM', status: 'Checked In' },
+        { id: 'M-1056', name: 'Sarah Mendis', time: '08:45 AM', status: 'Checked In' },
+        { id: 'M-1089', name: 'Dilshan Silva', time: '09:05 AM', status: 'Checked In' },
+        { id: 'M-1102', name: 'Anjali Gunawardena', time: '09:30 AM', status: 'Checked In' },
+        { id: 'M-1115', name: 'Kasun Rajapaksa', time: '10:00 AM', status: 'Checked Out' },
+        { id: 'M-1128', name: 'Nirosha Fernando', time: '10:15 AM', status: 'Checked In' },
     ];
 
     return (
@@ -25,33 +27,47 @@ const StaffDashboard = () => {
                 </div>
             </header>
 
-            <section className="sa-summary-grid" style={{ marginBottom: '32px' }}>
+            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)' }}>
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><UserCheck /></div>
+                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users /></div>
                     <div className="card-data">
-                        <span className="label">Today's Check-ins</span>
-                        <h2 className="value">145</h2>
+                        <span className="label">Total Members</span>
+                        <h2 className="value">842</h2>
                     </div>
                 </div>
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><Activity /></div>
+                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><UserCheck /></div>
                     <div className="card-data">
-                        <span className="label">Currently Active</span>
-                        <h2 className="value">42</h2>
+                        <span className="label">Active Members</span>
+                        <h2 className="value">756</h2>
                     </div>
                 </div>
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><UserPlus /></div>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Activity /></div>
                     <div className="card-data">
-                        <span className="label">New Registrations</span>
-                        <h2 className="value">08</h2>
+                        <span className="label">Today Check-ins</span>
+                        <h2 className="value">124</h2>
                     </div>
                 </div>
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><CreditCard /></div>
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><DollarSign /></div>
                     <div className="card-data">
                         <span className="label">Pending Payments</span>
-                        <h2 className="value">12</h2>
+                        <h2 className="value">18</h2>
+                    </div>
+                </div>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare /></div>
+                    <div className="card-data">
+                        <span className="label">Total Equipment</span>
+                        <h2 className="value">64</h2>
+                    </div>
+                </div>
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Clock /></div>
+                    <div className="card-data">
+                        <span className="label">Equipment Under Maintenance</span>
+                        <h2 className="value">03</h2>
                     </div>
                 </div>
             </section>

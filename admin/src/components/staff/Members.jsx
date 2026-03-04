@@ -6,10 +6,21 @@ const Members = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const membersList = [
-        { id: 'M-001', name: 'John Doe', email: 'john@example.com', phone: '077 123 4567', type: 'AC', status: 'Active', expire: '2026-08-15' },
-        { id: 'M-002', name: 'Jane Smith', email: 'jane@example.com', phone: '077 234 5678', type: 'Non-AC', status: 'Active', expire: '2026-11-20' },
-        { id: 'M-003', name: 'Mike Ross', email: 'mike@example.com', phone: '077 345 6789', type: 'AC', status: 'Expired', expire: '2026-02-10' },
-        { id: 'M-004', name: 'Rachel Zane', email: 'rachel@example.com', phone: '077 456 7890', type: 'AC', status: 'Active', expire: '2027-01-05' },
+        { id: 'M-1024', name: 'Arjun Perera', email: 'arjun.p@example.com', phone: '077 123 4567', type: 'Monthly', status: 'Active', enrollDate: '2026-01-10', expire: '2026-03-10' },
+        { id: 'M-1056', name: 'Sarah Mendis', email: 'sarah.m@example.com', phone: '071 234 5678', type: 'Annual', status: 'Active', enrollDate: '2025-11-20', expire: '2026-11-20' },
+        { id: 'M-1089', name: 'Dilshan Silva', email: 'dilshan.s@example.com', phone: '076 345 6789', type: 'Quarterly', status: 'Active', enrollDate: '2025-12-15', expire: '2026-03-15' },
+        { id: 'M-1102', name: 'Anjali Gunawardena', email: 'anjali@example.com', phone: '072 456 7890', type: 'Monthly', status: 'Active', enrollDate: '2026-02-05', expire: '2026-03-05' },
+        { id: 'M-1115', name: 'Kasun Rajapaksa', email: 'kasun.r@example.com', phone: '075 567 8901', type: 'Annual', status: 'Expired', enrollDate: '2025-02-10', expire: '2026-02-10' },
+        { id: 'M-1128', name: 'Nirosha Fernando', email: 'nirosha@example.com', phone: '070 678 9012', type: 'Monthly', status: 'Active', enrollDate: '2026-02-15', expire: '2026-03-15' },
+        { id: 'M-1142', name: 'Damith Perera', email: 'damith@example.com', phone: '077 789 0123', type: 'Quarterly', status: 'Active', enrollDate: '2026-01-05', expire: '2026-04-05' },
+        { id: 'M-1156', name: 'Priyanka Jayasuriya', email: 'priyanka@example.com', phone: '071 890 1234', type: 'Annual', status: 'Active', enrollDate: '2025-10-20', expire: '2026-10-20' },
+        { id: 'M-1170', name: 'Ruwan Kumara', email: 'ruwan@example.com', phone: '076 901 2345', type: 'Monthly', status: 'Active', enrollDate: '2026-03-01', expire: '2026-04-01' },
+        { id: 'M-1185', name: 'Lakmini Silva', email: 'lakmini@example.com', phone: '072 012 3456', type: 'Monthly', status: 'Expired', enrollDate: '2026-01-28', expire: '2026-02-28' },
+        { id: 'M-1201', name: 'Ishara Madushanka', email: 'ishara@example.com', phone: '075 123 4567', type: 'Quarterly', status: 'Active', enrollDate: '2026-02-10', expire: '2026-05-10' },
+        { id: 'M-1215', name: 'Tharindu Fernando', email: 'tharindu@example.com', phone: '070 234 5678', type: 'Annual', status: 'Active', enrollDate: '2025-12-05', expire: '2026-12-05' },
+        { id: 'M-1230', name: 'Sanduni Perera', email: 'sanduni@example.com', phone: '077 345 6789', type: 'Monthly', status: 'Active', enrollDate: '2026-02-20', expire: '2026-03-20' },
+        { id: 'M-1245', name: 'Malith Silva', email: 'malith@example.com', phone: '071 456 7890', type: 'Annual', status: 'Active', enrollDate: '2025-09-15', expire: '2026-09-15' },
+        { id: 'M-1260', name: 'Dinithi Jayasinghe', email: 'dinithi@example.com', phone: '076 567 8901', type: 'Quarterly', status: 'Active', enrollDate: '2026-01-20', expire: '2026-04-20' },
     ];
 
     return (

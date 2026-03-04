@@ -9,7 +9,6 @@ import Settings from './components/admin/Settings';
 import Landing from './components/shared/Landing';
 import AdminLogin from './components/admin/Login';
 import Admins from './components/admin/Admins';
-import AdminLogs from './components/admin/AdminLogs';
 import ActivityLogs from './components/admin/ActivityLogs';
 import LogoutModal from './components/shared/LogoutModal';
 import ActivityDetailModal from './components/shared/ActivityDetailModal';
@@ -18,6 +17,10 @@ import ResetPassword from './components/admin/ResetPassword';
 import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
 import SuperAdminSettings from './components/super-admin/SuperAdminSettings';
+import StaffDashboard from './components/staff/StaffDashboard';
+import CheckIns from './components/staff/CheckIns';
+import Payments from './components/staff/Payments';
+import Members from './components/staff/Members';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
@@ -27,6 +30,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 const AdminLayout = ({
   children,
   activeTab,
+  setActiveTab,
   navigate,
   setShowLogoutModal,
   adminRole,
@@ -39,14 +43,15 @@ const AdminLayout = ({
   notifications,
   setNotifications,
   loginRole,
-  handleViewActivityLog,
-  onToggleRole
+  handleViewActivityLog
 }) => (
   <div className={`app-layout ${adminRole === 'super_admin' ? 'is-super-admin' : ''}`}>
-    <Sidebar activeTab={activeTab} setActiveTab={(tab) => {
-      const prefix = adminRole === 'super_admin' ? '/super-admin' : '/admin';
-      navigate(`${prefix}/${tab}`);
-    }} onLogoutTrigger={() => setShowLogoutModal(true)} adminRole={adminRole} />
+    <Sidebar
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      onLogoutTrigger={() => setShowLogoutModal(true)}
+      adminRole={adminRole}
+    />
 
     <main className="main-container">
       <TopNav
@@ -56,49 +61,19 @@ const AdminLayout = ({
         adminId={adminId}
         profileImage={profileImage}
         setProfileImage={setProfileImage}
-        setActiveTab={(tab) => {
-          const prefix = adminRole === 'super_admin' ? '/super-admin' : '/admin';
-          navigate(`${prefix}/${tab}`);
-        }}
+        setActiveTab={setActiveTab}
         onLogoutTrigger={() => setShowLogoutModal(true)}
-        role="Administrator"
+        role={adminRole === 'super_admin' ? 'Super Admin' : adminRole === 'admin' ? 'Administrator' : 'Staff'}
         notifications={notifications}
         setNotifications={setNotifications}
         loginRole={loginRole}
         onViewLog={handleViewActivityLog}
-        onToggleRole={onToggleRole}
         adminRole={adminRole}
       />
 
       <div className="content-area">
         {children}
       </div>
-
-      {onToggleRole && (
-        <button
-          onClick={onToggleRole}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            background: 'var(--color-red, #ff0000)',
-            color: '#fff',
-            border: '3px solid #ffaa00',
-            borderRadius: '24px',
-            padding: '10px 24px',
-            fontSize: '0.9rem',
-            fontWeight: '800',
-            cursor: 'pointer',
-            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
-            zIndex: 9999,
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.4)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)'; }}
-        >
-          Switch to {adminRole === 'super_admin' ? 'Admin View' : 'Super Admin View'}
-        </button>
-      )}
     </main>
   </div>
 );
@@ -121,17 +96,15 @@ function App() {
   }, []);
 
   const [adminRole, setAdminRole] = useState(savedAdminData.role || 'admin');
-  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'Vibe Master'));
-  const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
+  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'User'));
+  const [userEmail, setUserEmail] = useState(savedAdminData.email || '');
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
 
-  // Extract active path section for sidebar
+  // Extract active track/tab from URL
   const pathParts = location.pathname.split('/');
-  const activeTab = pathParts[1] === 'super-admin'
-    ? (pathParts[2] || 'dashboard')
-    : (pathParts[2] || 'dashboard');
+  const activeTab = pathParts[2] || 'dashboard';
 
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -146,14 +119,14 @@ function App() {
 
   const { notifications, setNotifications } = useNotifications(isAuthenticated, loginRole);
 
-  // Restore session handles any edge cases not caught by sync init
+  // Restore session
   useEffect(() => {
     const adminToken = localStorage.getItem('admin_token');
     if (adminToken && !isAuthenticated) {
       const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
       if (savedAdmin) {
-        setUserName(savedAdmin.firstName || 'Shahana Kuganesan');
-        setUserEmail(savedAdmin.email || 'admin@gymsys.com');
+        setUserName(savedAdmin.firstName || 'User');
+        setUserEmail(savedAdmin.email || '');
         setAdminRole(savedAdmin.role || 'admin');
       }
     }
@@ -225,23 +198,14 @@ function App() {
       }
     }
     logout();
-    setAdminRole('admin'); // Reset local state
+    setAdminRole('admin');
     setShowLogoutModal(false);
     navigate('/');
   };
 
-  const handleToggleRole = () => {
-    const newRole = adminRole === 'super_admin' ? 'admin' : 'super_admin';
-    setAdminRole(newRole);
-    if (newRole === 'super_admin') {
-      navigate('/super-admin/dashboard');
-    } else {
-      navigate('/admin/dashboard');
-    }
-  };
-
   const layoutProps = {
     activeTab,
+    setActiveTab: (tab) => navigate(`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/${tab}`),
     navigate,
     setShowLogoutModal,
     adminRole,
@@ -254,18 +218,19 @@ function App() {
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog,
-    onToggleRole: handleToggleRole
+    handleViewActivityLog
   };
 
   return (
     <>
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} onGoToSignUp={(view) => navigate(`/admin/${view}`)} />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} /> : <Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} /> : <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
+
+        {/* Redirect old paths */}
         <Route path="/admin/login" element={<Navigate to="/login" />} />
         <Route path="/super-admin/login" element={isAuthenticated ? <Navigate to="/super-admin/dashboard" /> : <SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
-        <Route path="/admin/signup" element={<Navigate to="/login" />} />
+
         <Route path="/admin/forgot-password" element={<ForgotPassword onBack={() => navigate('/login')} />} />
         <Route path="/reset-password/:token" element={<ResetPassword onComplete={() => navigate('/login')} />} />
 
@@ -291,6 +256,5 @@ function App() {
     </>
   );
 }
-
 
 export default App;

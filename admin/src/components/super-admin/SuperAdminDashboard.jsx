@@ -235,7 +235,7 @@ const MiniCalendar = () => {
     );
 };
 
-const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
+const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState(location.state?.initialSearch || '');
@@ -244,7 +244,9 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
         if (raw) {
             try {
                 return JSON.parse(raw);
-            } catch (e) { }
+            } catch (e) {
+                // Ignore
+            }
         }
         return {
             totalMembers: 0,
@@ -413,7 +415,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
             </header>
 
             <section className="sa-summary-grid">
-                <div className="sa-stat-card primary" onClick={() => navigate('/super-admin/owners')} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card primary" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
                             <Users />
@@ -425,7 +427,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => navigate('/super-admin/owners')} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
                             <ShieldCheck />
@@ -437,7 +439,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => navigate('/super-admin/admins')} style={{ cursor: 'pointer', borderLeft: '3px solid var(--color-red)' }}>
+                <div className="sa-stat-card" onClick={() => { setActiveTab('admins'); navigate('/dashboard'); }} style={{ cursor: 'pointer', borderLeft: '3px solid var(--color-red)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
                             <ShieldCheck />
@@ -449,7 +451,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => navigate('/super-admin/locations')} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { setActiveTab('locations'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
                             <Building2 />
@@ -534,10 +536,10 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                                         itemStyle={{ color: '#FF0000', fontWeight: 800 }}
                                     />
                                     <Recharts.Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
-                                </Recharts.AreaChart>
-                            </Recharts.ResponsiveContainer>
-                        </div>
-                    </div>
+                                </Recharts.AreaChart >
+                            </Recharts.ResponsiveContainer >
+                        </div >
+                    </div >
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                         <div className="sa-card">
@@ -587,34 +589,34 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                 <aside className="sa-sidebar-col">
                     <MiniCalendar />
 
-                    <div className="sa-card" style={{ height: 'auto', minHeight: 'unset' }}>
-                        <div className="sa-card-header" style={{ marginBottom: '16px' }}>
+                    <div className="sa-card" style={{ background: '#111827', color: '#fff', padding: '0', overflow: 'hidden' }}>
+                        <div className="sa-card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Zap size={20} color="#FF0000" />
                                 <h3 style={{ fontSize: '1rem' }}>Quick Terminal</h3>
                             </div>
                         </div>
                         <div className="sa-quick-actions">
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/admins')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('admins'); navigate('/dashboard'); }}>
                                 <ShieldCheck />
                                 <span>Admins</span>
                             </button>
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/owners')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }}>
                                 <Users />
                                 <span>Managers</span>
                             </button>
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/locations')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('locations'); navigate('/dashboard'); }}>
                                 <Building2 />
                                 <span>Locations</span>
                             </button>
-                            <button className="sa-action-btn" onClick={() => navigate('/super-admin/activity-logs')}>
+                            <button className="sa-action-btn" onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>
                                 <ClipboardList />
                                 <span>Logs</span>
                             </button>
                         </div>
                     </div>
                 </aside>
-            </div>
+            </div >
 
             <section className="sa-card" style={{ marginTop: '32px' }}>
                 <div className="sa-card-header">
@@ -622,7 +624,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin" }) => {
                         <Activity size={24} color="#FF0000" />
                         <h3>Real-time Event Log</h3>
                     </div>
-                    <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => navigate('/super-admin/activity-logs')}>View More</button>
+                    <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>View More</button>
                 </div>
 
                 <div className="sa-activity-feed" style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '8px' }}>

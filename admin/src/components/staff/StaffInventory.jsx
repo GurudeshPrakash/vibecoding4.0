@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
     Package, Search, Filter, AlertTriangle, CheckCircle2,
-    Wrench, Trash2, ChevronDown, Eye, X, Send
+    Wrench, Trash2, ChevronDown, Eye, X, Send, QrCode, Printer, Download
 } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
+import logo from '../../assets/logo1.png';
 import '../../style/AdminDashboard.css';
 
 const STATUS_CONFIG = {
@@ -12,14 +14,14 @@ const STATUS_CONFIG = {
 };
 
 const MOCK_INVENTORY = [
-    { id: 'TM-204-01', name: 'Pro-Series Treadmill G7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T Elevation', serial: 'SN-TM-2024-001X', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EB-102-05', name: 'Matrix Upright Bike U50', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Matrix', model: 'U50 V2', serial: 'SN-EB-2023-112B', lastMaintenance: '2025-12-01', nextMaintenance: '2026-02-28', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LP-305-12', name: 'Plate-Loaded Leg Press', category: 'Weight Machine', status: 'Good', area: 'Leg Zone', brand: 'Hammer Strength', model: 'MTS Leg Press', serial: 'SN-LP-2022-998C', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CB-501-03', name: 'Cable Crossover Machine', category: 'Weight Machine', status: 'Good', area: 'Free Weights', brand: 'Precor', model: 'FTS Glide', serial: 'SN-CB-2023-441D', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
-    { id: 'RW-107-02', name: 'Concept2 Rowing Machine', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RW-2024-220A', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'BN-210-08', name: 'Olympic Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-BN-2022-105B', lastMaintenance: '2025-11-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'SM-404-01', name: 'Smith Machine Pro', category: 'Weight Machine', status: 'Maintenance', area: 'Power Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-2021-889F', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EL-601-04', name: 'Elliptical Cross Trainer', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-2023-312G', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
+    { id: 'TM-204-01', name: 'Pro-Series Treadmill G7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T Elevation', serial: 'SN-TM-2024-001X', mfgYear: '2024', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
+    { id: 'EB-102-05', name: 'Matrix Upright Bike U50', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Matrix', model: 'U50 V2', serial: 'SN-EB-2023-112B', mfgYear: '2023', lastMaintenance: '2025-12-01', nextMaintenance: '2026-02-28', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
+    { id: 'LP-305-12', name: 'Plate-Loaded Leg Press', category: 'Weight Machine', status: 'Good', area: 'Leg Zone', brand: 'Hammer Strength', model: 'MTS Leg Press', serial: 'SN-LP-2022-998C', mfgYear: '2022', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
+    { id: 'CB-501-03', name: 'Cable Crossover Machine', category: 'Weight Machine', status: 'Good', area: 'Free Weights', brand: 'Precor', model: 'FTS Glide', serial: 'SN-CB-2023-441D', mfgYear: '2023', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
+    { id: 'RW-107-02', name: 'Concept2 Rowing Machine', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RW-2024-220A', mfgYear: '2024', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
+    { id: 'BN-210-08', name: 'Olympic Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-BN-2022-105B', mfgYear: '2022', lastMaintenance: '2025-11-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
+    { id: 'SM-404-01', name: 'Smith Machine Pro', category: 'Weight Machine', status: 'Maintenance', area: 'Power Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-2021-889F', mfgYear: '2021', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
+    { id: 'EL-601-04', name: 'Elliptical Cross Trainer', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-2023-312G', mfgYear: '2023', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
 ];
 
 const CATEGORIES = ['All', 'Cardio', 'Weight Machine', 'Free Weights'];
@@ -35,6 +37,7 @@ const StaffInventory = ({ inventoryData = [] }) => {
     const [reportItem, setReportItem] = useState(null);
     const [reportReason, setReportReason] = useState('');
     const [reportSubmitted, setReportSubmitted] = useState(false);
+    const [qrItem, setQrItem] = useState(null);
 
     const filtered = allItems.filter(item => {
         const matchSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -65,6 +68,50 @@ const StaffInventory = ({ inventoryData = [] }) => {
         // In production, send to backend API
         console.log('Dismantle report submitted for:', reportItem?.id, 'Reason:', reportReason);
         setReportSubmitted(true);
+    };
+
+    const handlePrintQR = () => {
+        const canvas = document.getElementById(`qr-code-${qrItem.id}`);
+        const url = canvas.toDataURL();
+        const win = window.open();
+        win.document.write(`
+            <html>
+                <head>
+                    <title>Print QR Code - ${qrItem.name}</title>
+                    <style>
+                        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+                        .qr-card { border: 2px solid #333; padding: 40px; border-radius: 20px; text-align: center; }
+                        h2 { margin-top: 20px; color: #1e3a5f; }
+                        p { color: #64748b; font-weight: bold; }
+                    </style>
+                </head>
+                <body onload="window.print();window.close()">
+                    <div class="qr-card">
+                        <img src="${url}" width="300" height="300" />
+                        <h2 style="margin-bottom: 5px;">${qrItem.name}</h2>
+                        <p style="margin: 2px 0;">Brand: ${qrItem.brand || 'N/A'}</p>
+                        <p style="margin: 2px 0;">ID: ${qrItem.id}</p>
+                        <p style="margin: 2px 0;">Serial: ${qrItem.serial || 'N/A'}</p>
+                        <p style="margin: 2px 0;">Year: ${qrItem.mfgYear || 'N/A'}</p>
+                    </div>
+                </body>
+            </html>
+        `);
+    };
+
+    const generateQRValue = (item) => {
+        return `--- EQUIPMENT PROFILE ---
+NAME: ${item.name}
+ID: ${item.id}
+SERIAL: ${item.serial || 'N/A'}
+BRAND: ${item.brand || 'N/A'}
+MODEL: ${item.model || 'N/A'}
+MFG YEAR: ${item.mfgYear || 'N/A'}
+ZONE: ${item.area}
+STATUS: ${item.status}
+
+POWER WORLD GYMS
+Digital Asset Record`;
     };
 
     return (
@@ -198,13 +245,19 @@ const StaffInventory = ({ inventoryData = [] }) => {
                                         onClick={() => setSelectedItem(item)}
                                         style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                                     >
-                                        <Eye size={14} /> View Details
+                                        <Eye size={14} /> View
+                                    </button>
+                                    <button
+                                        onClick={() => setQrItem(item)}
+                                        style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                    >
+                                        <QrCode size={14} /> QR
                                     </button>
                                     <button
                                         onClick={() => handleOpenReport(item)}
                                         style={{ flex: 1, padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                                     >
-                                        <AlertTriangle size={14} /> Report Issue
+                                        <AlertTriangle size={14} /> Report
                                     </button>
                                 </div>
                             </div>
@@ -244,6 +297,7 @@ const StaffInventory = ({ inventoryData = [] }) => {
                                     ['Model', selectedItem.model || '—'],
                                     ['Location', selectedItem.area || '—'],
                                     ['Category', selectedItem.category || '—'],
+                                    ['MFG Year', selectedItem.mfgYear || '—'],
                                     ['Last Maintenance', selectedItem.lastMaintenance || '—'],
                                     ['Next Maintenance', selectedItem.nextMaintenance || '—'],
                                 ].map(([label, val]) => (
@@ -319,6 +373,45 @@ const StaffInventory = ({ inventoryData = [] }) => {
                                     </div>
                                 </form>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* QR Modal */}
+            {qrItem && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', padding: '24px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0, fontSize: '1rem', color: '#1E293B' }}>Equipment QR Code</h3>
+                            <button onClick={() => setQrItem(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
+                        </div>
+
+                        <div style={{ background: '#F8FAFC', padding: '32px', borderRadius: '12px', marginBottom: '20px', display: 'inline-block' }}>
+                            <QRCodeCanvas
+                                id={`qr-code-${qrItem.id}`}
+                                value={generateQRValue(qrItem)}
+                                size={200}
+                                level={"H"}
+                                includeMargin={true}
+                                imageSettings={{
+                                    src: logo,
+                                    height: 40,
+                                    width: 40,
+                                    excavate: true,
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <h4 style={{ margin: '0 0 4px', fontSize: '0.9rem', color: '#1E293B' }}>{qrItem.name}</h4>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748B' }}>Serial: {qrItem.serial}</p>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={() => setQrItem(null)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.75rem' }}>Close</button>
+                            <button onClick={handlePrintQR} style={{ flex: 1, padding: '12px', background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <Printer size={16} /> Print Label
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/emailService');
 
-const generateToken = (id) => {
-    return jwt.sign({ id, role: 'admin' }, process.env.JWT_SECRET, {
+const generateToken = (id, role) => {
+    return jwt.sign({ id, role }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
@@ -113,7 +113,8 @@ exports.registerAdmin = async (req, res) => {
             _id: admin._id,
             firstName: admin.firstName,
             email: admin.email,
-            token: generateToken(admin._id),
+            role: admin.role,
+            token: generateToken(admin._id, admin.role),
         });
     } catch (error) {
         console.error('Signup Error:', error);
@@ -132,7 +133,8 @@ exports.loginAdmin = async (req, res) => {
                 _id: admin._id,
                 firstName: admin.firstName,
                 email: admin.email,
-                token: generateToken(admin._id),
+                role: admin.role,
+                token: generateToken(admin._id, admin.role),
             });
         } else {
             res.status(401).json({ message: 'Invalid email or password' });

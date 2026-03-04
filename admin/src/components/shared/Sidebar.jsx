@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, Clipboar
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRole }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
@@ -16,6 +16,8 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRo
 
     const adminMenu = [
         { id: 'dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'inventory', label: 'Asset Management', icon: <Package size={20} /> },
+        { id: 'managers', label: 'Staff Management', icon: <Users size={20} /> },
         { id: 'members', label: 'Members', icon: <Users size={20} /> },
         { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
         { id: 'trainers', label: 'Trainers', icon: <Users size={20} /> },
@@ -30,40 +32,61 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRo
         { id: 'inventory', label: 'Facility Inventory', icon: <Package size={20} /> },
     ];
 
-    const renderNavSection = (title, menuItems, role) => (
-        <div style={{ marginBottom: '24px' }}>
-            <h4 style={{
-                padding: '0 20px',
-                fontSize: '11px',
-                fontWeight: '700',
-                color: '#9CA3AF',
-                marginBottom: '12px',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase'
-            }}>
-                {title}
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {menuItems.map((item) => {
-                    // Check if it's the active tab and it corresponds to the currently viewed role
-                    const isActive = activeTab === item.id && viewRole === role;
-                    return (
-                        <button
-                            key={item.id}
-                            className={`nav-item ${isActive ? 'active' : ''}`}
-                            onClick={() => {
-                                setViewRole(role);
-                                setActiveTab(item.id);
-                            }}
-                        >
-                            {item.icon}
-                            <span>{item.label}</span>
-                        </button>
-                    );
-                })}
+    const canAccess = (userRole, targetSectionRole) => {
+        if (userRole === 'super_admin') return true;
+        if (userRole === 'admin') return targetSectionRole === 'admin' || targetSectionRole === 'staff';
+        if (userRole === 'staff') return targetSectionRole === 'staff';
+        return false;
+    };
+
+    const renderNavSection = (title, menuItems, sectionRole) => {
+        const isRestricted = !canAccess(adminRole, sectionRole);
+
+        return (
+            <div style={{ marginBottom: '24px', opacity: isRestricted ? 0.6 : 1 }}>
+                <h4 style={{
+                    padding: '0 20px',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#9CA3AF',
+                    marginBottom: '12px',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <span>{title}</span>
+                    {isRestricted && <span style={{ fontSize: '9px', background: '#FEE2E2', color: '#EF4444', padding: '2px 6px', borderRadius: '4px' }}>LOCKED</span>}
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {menuItems.map((item) => {
+                        const isActive = activeTab === item.id && viewRole === sectionRole;
+                        return (
+                            <button
+                                key={item.id}
+                                className={`nav-item ${isActive ? 'active' : ''} ${isRestricted ? 'restricted' : ''}`}
+                                onClick={() => {
+                                    if (!isRestricted) {
+                                        setViewRole(sectionRole);
+                                        setActiveTab(item.id);
+                                    }
+                                }}
+                                style={{
+                                    cursor: isRestricted ? 'not-allowed' : 'pointer',
+                                    position: 'relative'
+                                }}
+                                title={isRestricted ? `Access restricted to ${sectionRole.replace('_', ' ')}s` : ''}
+                            >
+                                {item.icon}
+                                <span>{item.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#fff', borderRight: '1px solid #e5e7eb' }}>
@@ -73,11 +96,9 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRo
 
             <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', padding: '10px 0' }}>
                 {renderNavSection('SUPER ADMIN', superAdminMenu, 'super_admin')}
-
                 <div style={{ height: '1px', background: '#f3f4f6', margin: '0 20px 24px 20px' }}></div>
 
                 {renderNavSection('ADMIN', adminMenu, 'admin')}
-
                 <div style={{ height: '1px', background: '#f3f4f6', margin: '0 20px 24px 20px' }}></div>
 
                 {renderNavSection('STAFF', staffMenu, 'staff')}

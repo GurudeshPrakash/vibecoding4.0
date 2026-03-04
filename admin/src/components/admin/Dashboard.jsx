@@ -188,13 +188,18 @@ const MiniCalendar = () => {
     );
 };
 
-const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleRequests = [], setDismantleRequests, refreshInventory }) => {
+const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleRequests = [], setDismantleRequests, refreshInventory, userRole = 'admin' }) => {
     const navigate = useNavigate();
+    const isRestricted = userRole === 'staff';
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [adminComment, setAdminComment] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleAction = async (requestId, action) => {
+        if (isRestricted) {
+            alert("Restricted: Staff members cannot perform administrative actions.");
+            return;
+        }
         try {
             setIsProcessing(true);
             const token = localStorage.getItem('admin_token');
@@ -484,10 +489,22 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                         <div className="admin-modal-footer">
                             <button className="btn-secondary" onClick={() => setSelectedRequest(null)} disabled={isProcessing}>Close</button>
                             <div className="action-btns">
-                                <button className="btn-reject" onClick={() => handleAction(selectedRequest._id, 'reject')} disabled={isProcessing}>
+                                <button
+                                    className="btn-reject"
+                                    onClick={() => handleAction(selectedRequest._id, 'reject')}
+                                    disabled={isProcessing || isRestricted}
+                                    style={{ opacity: isRestricted ? 0.5 : 1, cursor: isRestricted ? 'not-allowed' : 'pointer' }}
+                                    title={isRestricted ? "Restricted: Admin Only" : ""}
+                                >
                                     Reject Request
                                 </button>
-                                <button className="btn-approve" onClick={() => handleAction(selectedRequest._id, 'approve')} disabled={isProcessing}>
+                                <button
+                                    className="btn-approve"
+                                    onClick={() => handleAction(selectedRequest._id, 'approve')}
+                                    disabled={isProcessing || isRestricted}
+                                    style={{ opacity: isRestricted ? 0.5 : 1, cursor: isRestricted ? 'not-allowed' : 'pointer' }}
+                                    title={isRestricted ? "Restricted: Admin Only" : ""}
+                                >
                                     {isProcessing ? 'Processing...' : 'Approve Dismantle'}
                                 </button>
                             </div>

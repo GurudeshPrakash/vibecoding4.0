@@ -11,6 +11,7 @@ import {
     Package,
     ShieldAlert,
     ChevronDown,
+    ChevronLeft,
     ChevronRight,
     Trophy,
     Plus,
@@ -39,30 +40,144 @@ import heroImage from '../../assets/gym_man_hero.png';
 import '../../style/AdminDashboard.css';
 
 const MiniCalendar = () => {
-    const now = new Date();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-    const today = now.getDate();
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
+    const [isYearEditable, setIsYearEditable] = useState(false);
+    const [yearInput, setYearInput] = useState('');
+    const [activeArrow, setActiveArrow] = useState(null);
 
-    const monthName = now.toLocaleString('default', { month: 'long' });
-    const year = now.getFullYear();
+    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+
+    const monthNum = currentDate.getMonth();
+    const year = currentDate.getFullYear();
     const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const handleYearDoubleClick = () => {
+        setYearInput(year.toString());
+        setIsYearEditable(true);
+    };
+
+    const handleYearChange = (e) => {
+        setYearInput(e.target.value);
+    };
+
+    const handleYearBlur = () => {
+        setIsYearEditable(false);
+        const parsedYear = parseInt(yearInput, 10);
+        if (!isNaN(parsedYear) && parsedYear >= 2016 && parsedYear <= 2035) {
+            setCurrentDate(new Date(parsedYear, currentDate.getMonth(), 1));
+        }
+    };
+
+    const handleYearKeyDown = (e) => {
+        if (e.key === 'Enter') handleYearBlur();
+    };
+
+    const handleDateDoubleClick = (d) => {
+        alert("Add Reminder interaction / UI opening for date: " + d);
+    };
 
     return (
         <div className="mini-calendar">
-            <div className="cal-header">
-                <span className="cal-month">{monthName} {year}</span>
-                <Calendar size={18} color="var(--color-red)" />
+            <div className="cal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative', background: '#ffffff', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                    {/* Month Selector */}
+                    <div style={{ position: 'relative' }}>
+                        <span
+                            onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                            style={{ fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', color: 'var(--color-text)' }}
+                        >
+                            {monthNames[monthNum]}
+                        </span>
+                        {isMonthDropdownOpen && (
+                            <div style={{
+                                position: 'absolute', top: '100%', left: 0, marginTop: '4px',
+                                background: '#fff', border: 'none', borderRadius: '8px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 50,
+                                maxHeight: '135px', overflowY: 'auto', minWidth: '110px',
+                                padding: '4px 0'
+                            }}>
+                                {monthNames.map((m, idx) => (
+                                    <div
+                                        key={m}
+                                        onClick={() => {
+                                            setCurrentDate(new Date(year, idx, 1));
+                                            setIsMonthDropdownOpen(false);
+                                        }}
+                                        style={{
+                                            padding: '8px 12px', fontSize: '0.85rem', cursor: 'pointer',
+                                            color: idx === monthNum ? 'var(--color-red)' : '#333',
+                                            fontWeight: idx === monthNum ? 700 : 500
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.background = '#f8f9fa'}
+                                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                    >
+                                        {m}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {/* Year Selector */}
+                    <div>
+                        {isYearEditable ? (
+                            <input
+                                type="text"
+                                value={yearInput}
+                                onChange={handleYearChange}
+                                onBlur={handleYearBlur}
+                                onKeyDown={handleYearKeyDown}
+                                autoFocus
+                                style={{ width: '45px', border: 'none', borderBottom: '1px solid var(--color-red)', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', padding: 0 }}
+                            />
+                        ) : (
+                            <span
+                                onDoubleClick={handleYearDoubleClick}
+                                style={{ fontWeight: 600, fontSize: '0.9rem', cursor: 'default', color: 'var(--color-text)' }}
+                            >
+                                {year}
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                    <ChevronLeft
+                        size={18}
+                        color={activeArrow === 'left' ? 'var(--color-red)' : 'var(--color-text-dim)'}
+                        style={{ cursor: 'pointer', transition: 'color 0.1s' }}
+                        onMouseDown={() => setActiveArrow('left')}
+                        onMouseUp={() => setActiveArrow(null)}
+                        onMouseLeave={() => setActiveArrow(null)}
+                        onClick={() => setCurrentDate(new Date(year, currentDate.getMonth() - 1, 1))}
+                    />
+                    <ChevronRight
+                        size={18}
+                        color={activeArrow === 'right' ? 'var(--color-red)' : 'var(--color-text-dim)'}
+                        style={{ cursor: 'pointer', transition: 'color 0.1s' }}
+                        onMouseDown={() => setActiveArrow('right')}
+                        onMouseUp={() => setActiveArrow(null)}
+                        onMouseLeave={() => setActiveArrow(null)}
+                        onClick={() => setCurrentDate(new Date(year, currentDate.getMonth() + 1, 1))}
+                    />
+                </div>
             </div>
             <div className="cal-grid">
-                {days.map(d => <div key={d} className="cal-day-label">{d}</div>)}
+                {days.map((d, i) => <div key={`day-${i}`} className="cal-day-label">{d}</div>)}
                 {[...Array(firstDay)].map((_, i) => <div key={`empty-${i}`} />)}
                 {[...Array(daysInMonth)].map((_, i) => {
                     const d = i + 1;
                     return (
                         <div
                             key={d}
-                            className={`cal-date ${d === today ? 'active' : ''}`}
+                            className="cal-date"
+                            onDoubleClick={() => handleDateDoubleClick(d)}
+                            style={{ cursor: 'pointer' }}
                         >
                             {d}
                         </div>
@@ -198,8 +313,8 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
                                 <span style={{ color: '#10B981' }}>● Revenue</span>
                             </div>
                         </div>
-                        <div style={{ height: '240px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div style={{ height: '240px', width: '100%', minHeight: '0' }}>
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <ComposedChart data={peakHoursData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                                     <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }} />
@@ -348,7 +463,7 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
 
                                     <div className="detail-item">
                                         <label>Admin Decision Comment</label>
-                                        <textarea 
+                                        <textarea
                                             placeholder="Add a comment for the branch manager..."
                                             value={adminComment}
                                             onChange={(e) => setAdminComment(e.target.value)}

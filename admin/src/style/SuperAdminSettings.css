@@ -1,0 +1,459 @@
+.sas-container {
+    padding: 32px;
+    animation: fadeIn 0.4s ease-out;
+    font-family: 'Inter', sans-serif;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.sas-header {
+    background: linear-gradient(135deg, #111111 0%, #2a2a2a 100%);
+    border-radius: 24px;
+    padding: 48px;
+    color: white;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.sas-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.2) 0%, transparent 60%);
+    pointer-events: none;
+    transform: rotate(-15deg);
+}
+
+.sas-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+}
+
+.sas-subtitle {
+    color: #a3a3a3;
+    font-size: 1.1rem;
+    margin-top: 12px;
+    max-width: 500px;
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+}
+
+.sas-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+}
+
+.sas-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sas-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    color: #666;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.sas-nav-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+    border-color: rgba(255, 0, 0, 0.1);
+}
+
+.sas-nav-item.active {
+    background: var(--color-red, #ff0000);
+    color: white;
+    box-shadow: 0 12px 24px rgba(255, 0, 0, 0.25);
+    border-color: transparent;
+    transform: translateX(8px);
+}
+
+.sas-nav-item .nav-icon {
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+    transition: all 0.3s;
+}
+
+.sas-nav-item.active .nav-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.sas-nav-text h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.sas-nav-text p {
+    margin: 4px 0 0 0;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+.sas-content-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sas-section-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-top: 0;
+    margin-bottom: 32px;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sas-section-title::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 24px;
+    background: var(--color-red, #ff0000);
+    border-radius: 4px;
+}
+
+.sas-input-group {
+    margin-bottom: 28px;
+}
+
+.sas-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #555;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sas-input {
+    width: 100%;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 2px solid #eaeaea;
+    background: #fcfcfc;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.sas-input:focus {
+    outline: none;
+    border-color: rgba(239, 68, 68, 0.5);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.sas-input:disabled {
+    background: #f1f1f1;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.sas-btn-primary {
+    background: var(--color-red, #ff0000);
+    color: white;
+    border: none;
+    padding: 16px 36px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 16px rgba(255, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sas-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(255, 0, 0, 0.3);
+}
+
+.sas-btn-secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sas-btn-secondary:hover {
+    background: #e5e5e5;
+    color: #000;
+}
+
+.sas-toggle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border: 1px solid #eaeaea;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    background: white;
+}
+
+.sas-toggle-item:hover {
+    border-color: #d0d0d0;
+    background: #fafafa;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.03);
+}
+
+.sas-toggle-info h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #111;
+}
+
+.sas-toggle-info p {
+    margin: 6px 0 0 0;
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Custom switch */
+.sas-switch {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 32px;
+}
+
+.sas-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.sas-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e0e0e0;
+    transition: .4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    border-radius: 34px;
+}
+
+.sas-slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sas-switch input:checked+.sas-slider {
+    background-color: #10B981;
+}
+
+.sas-switch input:checked+.sas-slider.red {
+    background-color: var(--color-red, #ff0000);
+}
+
+.sas-switch input:checked+.sas-slider:before {
+    transform: translateX(24px);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.sas-profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 48px;
+}
+
+.sas-profile-pic-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 32px;
+    background: #fafafa;
+    border-radius: 24px;
+    border: 1px dashed #ddd;
+}
+
+.sas-avatar-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    padding: 8px;
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(0, 0, 0, 0.02));
+}
+
+.sas-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid white;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.sas-avatar-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: white;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    color: var(--color-red);
+    transition: transform 0.2s;
+    border: none;
+}
+
+.sas-avatar-badge:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Plan Card */
+.sas-plan-card {
+    background: linear-gradient(135deg, #18181b, #27272a);
+    border-radius: 20px;
+    padding: 40px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    margin-bottom: 32px;
+}
+
+.sas-plan-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background: radial-gradient(circle at center, rgba(239, 68, 68, 0.15), transparent 40%);
+    pointer-events: none;
+}
+
+.sas-plan-title {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: #fca5a5;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.sas-plan-name {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin: 12px 0;
+    letter-spacing: -0.02em;
+}
+
+.sas-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.sas-action-row:last-child {
+    border-bottom: none;
+}
+
+.sas-danger-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sas-danger-btn:hover {
+    background: #ef4444;
+    color: white;
+}

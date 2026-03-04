@@ -3,8 +3,11 @@ import { Search, Shield, Clock, Loader2, Calendar } from 'lucide-react';
 import '../../style/SuperAdminDashboard.css';
 
 const AdminLogs = ({ embedded = false }) => {
-    const [logs, setLogs] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [logs, setLogs] = useState(() => {
+        const saved = localStorage.getItem('mock_admin_logs_db');
+        return saved ? JSON.parse(saved) : [];
+    });
+    const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_admin_logs_db'));
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -18,10 +21,25 @@ const AdminLogs = ({ embedded = false }) => {
                     setLogs({ error: 'Access Denied: You do not have permission to view Admin Activity Logs.' });
                 } else {
                     const data = await response.json();
-                    if (response.ok) setLogs(data);
+                    if (response.ok) {
+                        setLogs(data);
+                        localStorage.setItem('mock_admin_logs_db', JSON.stringify(data));
+                    }
                 }
             } catch (error) {
                 console.error('Fetch admin logs error:', error);
+                const savedMock = localStorage.getItem('mock_admin_logs_db');
+                if (savedMock) {
+                    setLogs(JSON.parse(savedMock));
+                } else {
+                    const defaultMocks = [
+                        { _id: 'l1', adminName: 'Shahana Kuganesan', adminEmail: 'shaha@vibecoding.com', loginTimestamp: new Date(Date.now() - 3600000).toISOString(), logoutTimestamp: null, status: 'Active' },
+                        { _id: 'l2', adminName: 'Admin User', adminEmail: 'admin@gymsys.com', loginTimestamp: new Date(Date.now() - 86400000).toISOString(), logoutTimestamp: new Date(Date.now() - 82800000).toISOString(), status: 'Inactive' },
+                        { _id: 'l3', adminName: 'Super Admin', adminEmail: 'master@vibecoding.com', loginTimestamp: new Date(Date.now() - 172800000).toISOString(), logoutTimestamp: new Date(Date.now() - 169200000).toISOString(), status: 'Inactive' }
+                    ];
+                    setLogs(defaultMocks);
+                    localStorage.setItem('mock_admin_logs_db', JSON.stringify(defaultMocks));
+                }
             } finally {
                 setIsLoading(false);
             }

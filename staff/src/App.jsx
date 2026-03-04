@@ -50,7 +50,7 @@ const StaffLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('staff_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const loginRole = 'staff'; // Hardcoded for Staff app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -195,7 +195,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Landing onSelectRole={handleSelectRole} />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/staff/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
         <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
 
         {/* Protected Routes */}

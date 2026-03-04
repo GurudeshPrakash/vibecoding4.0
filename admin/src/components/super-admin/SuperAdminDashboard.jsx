@@ -35,7 +35,7 @@ const LiveClock = () => {
         return () => clearInterval(timer);
     }, []);
     return (
-        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '0.05em' }}>
             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
     );
@@ -116,7 +116,7 @@ const MiniCalendar = () => {
                             boxShadow: '0 4px 12px rgba(255, 0, 0, 0.15)'
                         }}
                     >
-                        <span style={{ fontWeight: 800, fontSize: '0.75rem', color: '#FFFFFF', textTransform: 'uppercase' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.65rem', color: '#FFFFFF', textTransform: 'uppercase' }}>
                             {monthNames[monthNum].slice(0, 3)}
                         </span>
                         <ChevronDown size={14} color="#FFFFFF" />
@@ -138,7 +138,7 @@ const MiniCalendar = () => {
                                             setIsMonthDropdownOpen(false);
                                         }}
                                         style={{
-                                            padding: '10px 16px', fontSize: '0.8rem', cursor: 'pointer',
+                                            padding: '10px 16px', fontSize: '0.72rem', cursor: 'pointer',
                                             color: idx === monthNum ? 'var(--color-red)' : '#333',
                                             fontWeight: idx === monthNum ? 700 : 500
                                         }}
@@ -195,10 +195,10 @@ const MiniCalendar = () => {
                                 onBlur={handleYearBlur}
                                 onKeyDown={handleYearKeyDown}
                                 autoFocus
-                                style={{ width: '40px', border: 'none', background: 'transparent', outline: 'none', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', padding: 0, textAlign: 'center' }}
+                                style={{ width: '40px', border: 'none', background: 'transparent', outline: 'none', fontSize: '0.7rem', fontWeight: 800, color: '#FFFFFF', padding: 0, textAlign: 'center' }}
                             />
                         ) : (
-                            <span style={{ fontWeight: 800, fontSize: '0.8rem', color: '#FFFFFF' }}>{year}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.7rem', color: '#FFFFFF' }}>{year}</span>
                         )}
                     </div>
                     <ChevronRight
@@ -375,14 +375,14 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
         <div className="super-admin-dashboard">
             <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
-                    <h1 style={{ margin: 0, padding: 0 }}>Admin Dashboard</h1>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>Monitor and manage your entire gym system.</p>
+                    <h1 style={{ margin: 0, padding: 0, fontSize: '1.2rem' }}>Admin Dashboard</h1>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.78rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>Monitor and manage your entire gym system.</p>
                 </div>
 
                 <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100%' }}>
                     <button className="add-admin-btn" style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(255,0,0,0.2)' }} onClick={() => { setActiveTab('admins'); navigate('/dashboard', { state: { openModal: true } }); }}>
                         <UserPlus size={20} />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.85rem', fontWeight: 800, lineHeight: 1.2 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.75rem', fontWeight: 800, lineHeight: 1.2 }}>
                             <span>Add</span>
                             <span>Admin</span>
                         </div>
@@ -390,7 +390,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
 
                     <button className="add-branch-btn" style={{ background: '#f8f9fa', color: '#000', border: '1px solid #e0e0e0', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }} onClick={() => { setActiveTab('locations'); navigate('/dashboard', { state: { openModal: true } }); }}>
                         <Building2 size={20} />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.85rem', fontWeight: 800, lineHeight: 1.2 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.75rem', fontWeight: 800, lineHeight: 1.2 }}>
                             <span>Add</span>
                             <span>Branch</span>
                         </div>
@@ -404,7 +404,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                             placeholder="Search Members, Managers, Branches..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.9rem', fontWeight: 500, color: '#333' }}
+                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.78rem', fontWeight: 500, color: '#333' }}
                         />
                     </form>
                 </div>
@@ -493,7 +493,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                                 <h3>Network Expansion</h3>
                             </div>
                             <div className="sa-card-meta">
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-red)' }}>LIVE TRACKING</span>
+                                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--color-red)' }}>LIVE TRACKING</span>
                             </div>
                         </div>
                         <div style={{ height: '240px', minHeight: '240px', width: '100%', marginTop: '10px' }}>
@@ -510,14 +510,14 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                                         dataKey="name"
                                         axisLine={{ stroke: 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
                                         tickLine={false}
-                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 9, fontWeight: 700 }}
+                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 8, fontWeight: 700 }}
                                         dy={10}
                                         interval={0}
                                     />
                                     <Recharts.YAxis
                                         axisLine={{ stroke: 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
                                         tickLine={false}
-                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 9, fontWeight: 700 }}
+                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 8, fontWeight: 700 }}
                                         dx={-10}
                                         domain={[0, 'auto']}
                                         allowDecimals={false}
@@ -547,7 +547,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                         <div className="sa-card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Zap size={20} color="#FF0000" />
-                                <h3 style={{ fontSize: '1rem' }}>Quick Terminal</h3>
+                                <h3 style={{ fontSize: '0.88rem' }}>Quick Terminal</h3>
                             </div>
                         </div>
                         <div className="sa-quick-actions">
@@ -578,7 +578,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                         <Activity size={24} color="#FF0000" />
                         <h3>Real-time Event Log</h3>
                     </div>
-                    <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>View More</button>
+                    <button className="sa-view-more-btn" style={{ background: 'var(--color-red)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer' }} onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>View More</button>
                 </div>
 
                 <div className="sa-activity-feed" style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '8px' }}>

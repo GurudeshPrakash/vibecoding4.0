@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign, Package } from 'lucide-react';
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
@@ -26,7 +26,8 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, viewRole, setViewRo
         { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'check-ins', label: 'Member Check-ins', icon: <CheckSquare size={20} /> },
         { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
-        { id: 'attendance', label: 'Attendance', icon: <Users size={20} /> },
+        { id: 'members', label: 'Members', icon: <Users size={20} /> },
+        { id: 'inventory', label: 'Facility Inventory', icon: <Package size={20} /> },
     ];
 
     const renderNavSection = (title, menuItems, role) => (

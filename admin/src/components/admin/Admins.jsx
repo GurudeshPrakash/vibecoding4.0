@@ -11,7 +11,7 @@ const LiveClock = () => {
         return () => clearInterval(timer);
     }, []);
     return (
-        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>
             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
     );
@@ -326,20 +326,20 @@ const Admins = () => {
                                 <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                     <thead>
                                         <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--color-red)' }}>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>No</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Name</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Email</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Last Login</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>No</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Name</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Email</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Last Login</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {filteredAdmins.map((a, index) => (
                                             <tr key={a._id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>
+                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>
                                                     {String(index + 1).padStart(2, '0')}
                                                 </td>
                                                 <td style={{ padding: '16px 24px' }}>
@@ -347,25 +347,25 @@ const Admins = () => {
                                                         <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(255,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                             <Shield size={18} color="var(--color-red)" />
                                                         </div>
-                                                        <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{a.firstName} {a.lastName}</span>
+                                                        <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>{a.firstName} {a.lastName}</span>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.email}</td>
+                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.email}</td>
                                                 <td style={{ padding: '16px 24px' }}>
-                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-red)', background: 'rgba(255,0,0,0.08)', padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase' }}>
+                                                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--color-red)', background: 'rgba(255,0,0,0.08)', padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase' }}>
                                                         {a.role || 'Admin'}
                                                     </span>
                                                 </td>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 700 }}>
+                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>
                                                     {a.allBranchAccess ? 'All Branches' : (branches.find(b => b._id === a.branchId)?.name || 'Default Branch')}
                                                 </td>
                                                 <td style={{ padding: '16px 24px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: a.status === 'Inactive' ? '#EF4444' : '#10B981' }} />
-                                                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: a.status === 'Inactive' ? '#EF4444' : '#10B981' }}>{a.status || 'Active'}</span>
+                                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: a.status === 'Inactive' ? '#EF4444' : '#10B981' }}>{a.status || 'Active'}</span>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.lastLogin || 'Never'}</td>
+                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.lastLogin || 'Never'}</td>
                                                 <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                         <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => openEdit(a)} title="Edit Details"><Edit2 size={14} /></button>
@@ -404,7 +404,7 @@ const Admins = () => {
                                 <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(255,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <UserPlus size={22} color="var(--color-red)" />
                                 </div>
-                                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
                                     {editingAdmin ? 'Update Administrator' : 'Add New Administrator'}
                                 </h2>
                             </div>
@@ -415,22 +415,22 @@ const Admins = () => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                 {/* Basic Info */}
                                 <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '0 0 16px 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Basic Information</h4>
+                                    <h4 style={{ margin: '0 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Basic Information</h4>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>First Name <span style={{ color: 'red' }}>*</span></label>
-                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="e.g. John" />
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>First Name <span style={{ color: 'red' }}>*</span></label>
+                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="e.g. John" />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Last Name <span style={{ color: 'red' }}>*</span></label>
-                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="e.g. Doe" />
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Last Name <span style={{ color: 'red' }}>*</span></label>
+                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="e.g. Doe" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div style={{ gridColumn: 'span 1' }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Email Address <span style={{ color: 'red' }}>*</span></label>
-                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="john@gymsys.com" />
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>Email Address <span style={{ color: 'red' }}>*</span></label>
+                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="john@gymsys.com" />
                                 </div>
 
                                 <div style={{ gridColumn: 'span 1' }}>
@@ -440,7 +440,7 @@ const Admins = () => {
 
                                 {/* Role & Branch */}
                                 <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Permissions & Access</h4>
+                                    <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Permissions & Access</h4>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
                                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assign Role</label>
@@ -476,8 +476,8 @@ const Admins = () => {
                                         <div style={{ background: '#F9FAFB', padding: '16px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <div>
-                                                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)', marginBottom: '4px' }}>Temporary Password</span>
-                                                    <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--color-red)', letterSpacing: '0.1em' }}>{formData.tempPassword}</span>
+                                                    <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-text-dim)', marginBottom: '4px' }}>Temporary Password</span>
+                                                    <span style={{ fontSize: '0.88rem', fontWeight: 900, color: 'var(--color-red)', letterSpacing: '0.1em' }}>{formData.tempPassword}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <input type="checkbox" id="si" name="sendInvite" checked={formData.sendInvite} onChange={handleChange} />

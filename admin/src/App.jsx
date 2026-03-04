@@ -22,6 +22,7 @@ import StaffDashboard from './components/staff/StaffDashboard';
 import CheckIns from './components/staff/CheckIns';
 import Payments from './components/staff/Payments';
 import Members from './components/staff/Members';
+import StaffInventory from './components/staff/StaffInventory';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
@@ -270,6 +271,7 @@ function App() {
         case 'members': return <Members />;
         case 'check-ins': return <CheckIns />;
         case 'payments': return <Payments />;
+        case 'inventory': return <StaffInventory inventoryData={props.inventoryData} />;
         default: return <StaffDashboard />;
       }
     }

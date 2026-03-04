@@ -31,7 +31,7 @@
 }
 
 .sa-welcome h1 {
-    font-size: 2.4rem;
+    font-size: 2.1rem;
     font-weight: 900;
     margin: 0;
     color: #000000;
@@ -42,7 +42,7 @@
     color: var(--color-text-dim);
     margin: 6px 0 0 0;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .sa-actions {
@@ -64,7 +64,7 @@
     border-radius: 14px;
     color: var(--color-text);
     font-weight: 600;
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     transition: all 0.3s ease;
 }
 
@@ -124,7 +124,7 @@
 }
 
 .sa-stat-card .label {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -132,7 +132,7 @@
 }
 
 .sa-stat-card .value {
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 900;
     margin: 0;
     color: var(--color-text);
@@ -140,7 +140,7 @@
 }
 
 .sa-stat-card .trend {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -188,7 +188,7 @@
 }
 
 .sa-card-header h3 {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 800;
     margin: 0;
     color: var(--color-text);
@@ -225,7 +225,7 @@
 }
 
 .sa-btn-sub {
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     color: rgba(255, 255, 255, 0.85);
     font-weight: 700;
     text-transform: uppercase;
@@ -233,7 +233,7 @@
 }
 
 .sa-btn-main {
-    font-size: 1rem;
+    font-size: 0.88rem;
     font-weight: 900;
     letter-spacing: -0.01em;
 }
@@ -294,7 +294,7 @@
     border-radius: 20px;
     color: var(--color-text);
     font-weight: 700;
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -349,7 +349,7 @@
 
 .sa-activity-info p {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.4;
 }
@@ -362,7 +362,7 @@
 .sa-activity-info span {
     display: block;
     margin-top: 4px;
-    font-size: 0.72rem;
+    font-size: 0.62rem;
     color: var(--color-text-dim);
     font-weight: 600;
 }
@@ -421,7 +421,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: var(--color-text);
 }
@@ -471,29 +471,29 @@
 }
 
 .sa-admin-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     background: var(--color-red);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 900;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
 }
 
 .sa-admin-name {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 800;
     color: var(--color-text);
 }
 
 .sa-admin-role {
     display: block;
-    font-size: 0.72rem;
+    font-size: 0.62rem;
     color: var(--color-red);
     font-weight: 700;
     text-transform: uppercase;
@@ -530,7 +530,7 @@
     border-radius: 10px;
     color: var(--color-text-dim);
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -577,14 +577,14 @@
 }
 
 .cal-day-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 800;
     color: var(--color-text-dim);
     padding-bottom: 12px;
 }
 
 .cal-date {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
     display: flex;
     align-items: center;

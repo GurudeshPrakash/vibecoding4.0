@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, User, Mail, Phone, MapPin, MoreHorizontal, CheckCircle2, XCircle } from 'lucide-react';
+import { Search, Filter, Plus, User, Mail, Phone, MapPin, MoreHorizontal, CheckCircle2, XCircle, Eye } from 'lucide-react';
 import '../../style/AdminDashboard.css';
 
 const Members = () => {
@@ -27,13 +27,8 @@ const Members = () => {
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1>Member Directory</h1>
+                    <h1>Members</h1>
                     <p>Manage branch members, subscriptions, and profiles.</p>
-                </div>
-                <div className="sa-actions">
-                    <button className="btn-approve" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Plus size={18} /> New Member
-                    </button>
                 </div>
             </header>
 
@@ -71,7 +66,11 @@ const Members = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {membersList.map((member, idx) => (
+                            {membersList.filter(m =>
+                                m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                m.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                m.phone.includes(searchTerm)
+                            ).map((member, idx) => (
                                 <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -111,8 +110,8 @@ const Members = () => {
                                         {member.expire}
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'right' }}>
-                                        <button style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
-                                            <MoreHorizontal size={20} />
+                                        <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+                                            <Eye size={14} style={{ marginRight: '6px' }} /> View
                                         </button>
                                     </td>
                                 </tr>

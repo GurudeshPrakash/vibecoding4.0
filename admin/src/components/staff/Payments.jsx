@@ -5,6 +5,18 @@ import '../../style/AdminDashboard.css';
 const Payments = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+    const handleProcessPayment = (e) => {
+        e.preventDefault();
+        setPaymentSuccess(true);
+        setTimeout(() => {
+            setShowPaymentModal(false);
+            setPaymentSuccess(false);
+        }, 2000);
+    };
+
     const paymentsList = [
         { id: 'PAY-8001', memberId: 'M-1024', name: 'Arjun Perera', amount: 'LKR 4,500', date: '2026-03-04', status: 'Completed', type: 'Monthly', method: 'Cash' },
         { id: 'PAY-8002', memberId: 'M-1056', name: 'Sarah Mendis', amount: 'LKR 45,000', date: '2026-03-04', status: 'Completed', type: 'Annual', method: 'Card' },
@@ -22,11 +34,15 @@ const Payments = () => {
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1>Payments & Billing</h1>
+                    <h1>Payments</h1>
                     <p>Process member payments, renewals, and view transaction history.</p>
                 </div>
                 <div className="sa-actions">
-                    <button className="btn-approve" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                        onClick={() => setShowPaymentModal(true)}
+                        className="btn-approve"
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
                         <DollarSign size={18} /> Process Payment
                     </button>
                 </div>
@@ -90,7 +106,11 @@ const Payments = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {paymentsList.map((payment, idx) => (
+                            {paymentsList.filter(p =>
+                                p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                p.memberId.toLowerCase().includes(searchTerm.toLowerCase())
+                            ).map((payment, idx) => (
                                 <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                     <td style={{ padding: '16px', fontWeight: 'bold', color: '#334155' }}>
                                         {payment.id}
@@ -136,6 +156,57 @@ const Payments = () => {
                     </table>
                 </div>
             </div>
+            {/* Process Payment Modal */}
+            {showPaymentModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Process New Payment</h3>
+                            <button onClick={() => setShowPaymentModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                <Clock size={20} />
+                            </button>
+                        </div>
+                        <div style={{ padding: '24px' }}>
+                            {paymentSuccess ? (
+                                <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                                    <CheckCircle2 size={48} color="#10B981" style={{ marginBottom: '16px' }} />
+                                    <h4 style={{ color: '#1E293B', marginBottom: '8px' }}>Payment Successful!</h4>
+                                    <p style={{ color: '#64748B', fontSize: '0.75rem' }}>The transaction has been recorded and receipt generated.</p>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleProcessPayment}>
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Member ID or Name</label>
+                                        <input type="text" placeholder="Search member..." required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                                        <div>
+                                            <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Amount (LKR)</label>
+                                            <input type="number" placeholder="0.00" required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Payment Mode</label>
+                                            <select style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem', background: '#fff' }}>
+                                                <option>Cash</option>
+                                                <option>Card</option>
+                                                <option>Online Transfer</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style={{ marginBottom: '24px' }}>
+                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Remarks</label>
+                                        <textarea placeholder="Optional notes..." rows={2} style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem', resize: 'none' }} />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                        <button type="button" onClick={() => setShowPaymentModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.75rem' }}>Cancel</button>
+                                        <button type="submit" style={{ flex: 2, padding: '12px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem' }}>Confirm Payment</button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

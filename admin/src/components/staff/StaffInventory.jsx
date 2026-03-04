@@ -8,9 +8,9 @@ import logo from '../../assets/logo1.png';
 import '../../style/AdminDashboard.css';
 
 const STATUS_CONFIG = {
-    'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
+    'Available': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
     'Maintenance': { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)', icon: <Wrench size={12} /> },
-    'Dismantled': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <Trash2 size={12} /> },
+    'Damaged': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={12} /> },
 };
 
 const MOCK_INVENTORY = [
@@ -40,7 +40,7 @@ const MOCK_INVENTORY = [
 ];
 
 const CATEGORIES = ['All', 'Cardio', 'Weight Machine', 'Free Weights'];
-const STATUSES = ['All', 'Good', 'Maintenance', 'Dismantled'];
+const STATUSES = ['All', 'Available', 'Maintenance', 'Damaged'];
 
 const StaffInventory = ({ inventoryData = [] }) => {
     const allItems = inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY;
@@ -50,6 +50,7 @@ const StaffInventory = ({ inventoryData = [] }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [reportItem, setReportItem] = useState(null);
+    const [newStatus, setNewStatus] = useState('');
     const [reportReason, setReportReason] = useState('');
     const [reportSubmitted, setReportSubmitted] = useState(false);
     const [qrItem, setQrItem] = useState(null);
@@ -72,6 +73,7 @@ const StaffInventory = ({ inventoryData = [] }) => {
 
     const handleOpenReport = (item) => {
         setReportItem(item);
+        setNewStatus(item.status);
         setReportReason('');
         setReportSubmitted(false);
         setShowReportModal(true);
@@ -134,8 +136,8 @@ Digital Asset Record`;
             {/* Header */}
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1 style={{ fontSize: '1.2rem' }}>Facility Inventory</h1>
-                    <p style={{ fontSize: '0.78rem' }}>View all gym equipment and facilities. Flag items that need attention.</p>
+                    <h1 style={{ fontSize: '1.2rem' }}>Inventory</h1>
+                    <p style={{ fontSize: '0.78rem' }}>View all gym equipment and facilities. Update status as needed.</p>
                 </div>
             </header>
 
@@ -151,21 +153,21 @@ Digital Asset Record`;
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Operational</span>
+                        <span className="label" style={{ fontSize: '0.7rem' }}>Available</span>
                         <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.good}</h2>
                     </div>
                 </div>
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Under Maintenance</span>
+                        <span className="label" style={{ fontSize: '0.7rem' }}>In Maintenance</span>
                         <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.maintenance}</h2>
                     </div>
                 </div>
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Dismantled</span>
+                        <span className="label" style={{ fontSize: '0.7rem' }}>Damaged</span>
                         <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.dismantled}</h2>
                     </div>
                 </div>
@@ -211,7 +213,7 @@ Digital Asset Record`;
             {/* Equipment Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {filtered.map(item => {
-                    const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
+                    const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Available'];
                     return (
                         <div key={item.id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
                             {/* Equipment Image */}
@@ -270,9 +272,9 @@ Digital Asset Record`;
                                     </button>
                                     <button
                                         onClick={() => handleOpenReport(item)}
-                                        style={{ flex: 1, padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                        style={{ flex: 1, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                                     >
-                                        <AlertTriangle size={14} /> Report
+                                        <Wrench size={14} /> Update
                                     </button>
                                 </div>
                             </div>
@@ -301,8 +303,8 @@ Digital Asset Record`;
                         <div style={{ padding: '24px' }}>
                             <div style={{ marginBottom: '4px', fontSize: '0.6rem', color: '#94A3B8', textTransform: 'uppercase', fontWeight: '600' }}>{selectedItem.category} • {selectedItem.area}</div>
                             <h2 style={{ margin: '0 0 8px', fontSize: '0.95rem', fontWeight: '800', color: '#1E293B' }}>{selectedItem.name}</h2>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 12px', borderRadius: '20px', fontSize: '0.62rem', fontWeight: '700', background: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).bg, color: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).color, marginBottom: '20px' }}>
-                                {(STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).icon} {selectedItem.status}
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 12px', borderRadius: '20px', fontSize: '0.62rem', fontWeight: '700', background: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Available']).bg, color: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Available']).color, marginBottom: '20px' }}>
+                                {(STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Available']).icon} {selectedItem.status}
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 {[
@@ -339,7 +341,7 @@ Digital Asset Record`;
                     <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
                         <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Report Equipment Issue</h3>
+                                <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Update Equipment Status</h3>
                                 <p style={{ margin: '4px 0 0', fontSize: '0.68rem', color: '#64748B' }}>{reportItem?.name} ({reportItem?.id})</p>
                             </div>
                             <button onClick={() => setShowReportModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
@@ -348,23 +350,34 @@ Digital Asset Record`;
                             {reportSubmitted ? (
                                 <div style={{ textAlign: 'center', padding: '32px 0' }}>
                                     <CheckCircle2 size={48} color="#10B981" style={{ marginBottom: '12px' }} />
-                                    <h4 style={{ color: '#1E293B', marginBottom: '8px' }}>Report Submitted!</h4>
-                                    <p style={{ color: '#64748B', fontSize: '0.7rem' }}>Your dismantle/issue request has been sent to the admin for review.</p>
+                                    <h4 style={{ color: '#1E293B', marginBottom: '8px' }}>Status Updated!</h4>
+                                    <p style={{ color: '#64748B', fontSize: '0.7rem' }}>The equipment status has been updated and a log entry has been created.</p>
                                     <button onClick={() => setShowReportModal(false)} style={{ marginTop: '20px', padding: '10px 24px', background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600' }}>Done</button>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmitReport}>
                                     <div style={{ marginBottom: '16px' }}>
-                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Issue Type</label>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                            {['Damage', 'Malfunction', 'Safety Risk', 'Request Dismantle'].map(type => (
+                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Set Status</label>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                                            {['Available', 'Maintenance', 'Damaged'].map(status => (
                                                 <button
-                                                    key={type}
+                                                    key={status}
                                                     type="button"
-                                                    onClick={() => setReportReason(prev => prev ? `${type}: ` : `${type}: `)}
-                                                    style={{ padding: '10px', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#475569', background: '#F8FAFC', textAlign: 'left' }}
+                                                    onClick={() => setNewStatus(status)}
+                                                    style={{
+                                                        padding: '10px',
+                                                        border: '1px solid #E2E8F0',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.65rem',
+                                                        fontWeight: '600',
+                                                        color: newStatus === status ? STATUS_CONFIG[status].color : '#475569',
+                                                        background: newStatus === status ? STATUS_CONFIG[status].bg : '#F8FAFC',
+                                                        border: newStatus === status ? `1px solid ${STATUS_CONFIG[status].color}` : '1px solid #E2E8F0',
+                                                        textAlign: 'center'
+                                                    }}
                                                 >
-                                                    {type}
+                                                    {status}
                                                 </button>
                                             ))}
                                         </div>
@@ -382,8 +395,8 @@ Digital Asset Record`;
                                     </div>
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Cancel</button>
-                                        <button type="submit" style={{ flex: 2, padding: '12px', background: '#EF4444', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                                            <Send size={16} /> Submit Report
+                                        <button type="submit" style={{ flex: 2, padding: '12px', background: '#1E3A5F', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
+                                            <Send size={16} /> Save Changes
                                         </button>
                                     </div>
                                 </form>

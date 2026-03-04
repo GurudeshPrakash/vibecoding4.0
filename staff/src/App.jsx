@@ -11,6 +11,8 @@ import LogoutModal from './components/shared/LogoutModal';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
+import { useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const StaffLayout = ({
   children,
@@ -50,7 +52,7 @@ const StaffLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const { login, logout, isAuthenticated } = useAuth();
   const loginRole = 'staff'; // Hardcoded for Staff app
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -74,7 +76,6 @@ function App() {
   const [adminPhone, setAdminPhone] = useState('');
   const [profileImage, setProfileImage] = useState(null);
 
-
   const {
     inventoryData,
     dismantledHistory,
@@ -89,23 +90,27 @@ function App() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlToken = urlParams.get('token');
     if (urlToken) {
-      const urlUser = JSON.parse(decodeURIComponent(urlParams.get('user') || '{}'));
-      const urlLogId = urlParams.get('logId');
+      try {
+        const urlUser = JSON.parse(decodeURIComponent(urlParams.get('user') || '{}'));
+        const urlLogId = urlParams.get('logId');
 
-      localStorage.setItem('staff_token', urlToken);
-      if (urlLogId) localStorage.setItem('staff_current_log', urlLogId);
-      localStorage.setItem('staff_user_info', JSON.stringify(urlUser));
+        localStorage.setItem('staff_token', urlToken);
+        if (urlLogId) localStorage.setItem('staff_current_log', urlLogId);
+        localStorage.setItem('staff_user_info', JSON.stringify(urlUser));
 
-      setIsAuthenticated(true);
-      setUserName(urlUser.firstName || 'Staff');
-      setUserEmail(urlUser.email || '');
+        setUserName(urlUser.firstName || 'Staff');
+        setUserEmail(urlUser.email || '');
 
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+        login(urlUser, urlToken);
+
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (e) {
+        console.error("SSO Login failed", e);
+      }
     } else {
       const staffToken = localStorage.getItem('staff_token');
       if (staffToken && !isAuthenticated) {
-        setIsAuthenticated(true);
         const savedStaff = JSON.parse(localStorage.getItem('staff_user_info'));
         if (savedStaff) {
           setUserName(savedStaff.firstName || 'Staff');
@@ -113,7 +118,7 @@ function App() {
         }
       }
     }
-  }, []);
+  }, [login, isAuthenticated]);
 
 
 
@@ -153,7 +158,8 @@ function App() {
   const handleLogin = (data) => {
     setUserName(data.firstName);
     setUserEmail(data.email);
-    setIsAuthenticated(true);
+
+    login(data, data.token);
     navigate('/staff/dashboard');
   };
 
@@ -170,11 +176,8 @@ function App() {
         console.error('Logout logging failed', e);
       }
     }
-    localStorage.removeItem('staff_token');
-    localStorage.removeItem('staff_current_log');
-    localStorage.removeItem('staff_user_info');
-
-    setIsAuthenticated(false);
+    logout();
+    setUserName('Staff member'); // Reset local state
     setShowLogoutModal(false);
     navigate('/');
   };
@@ -199,9 +202,9 @@ function App() {
         <Route path="/staff/login" element={!isAuthenticated ? <StaffLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : <Navigate to="/staff/dashboard" />} />
 
         {/* Protected Routes */}
-        <Route path="/staff/dashboard" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></StaffLayout> : <Navigate to="/staff/login" />} />
-        <Route path="/staff/inventory" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></StaffLayout> : <Navigate to="/staff/login" />} />
-        <Route path="/staff/profile" element={isAuthenticated ? <StaffLayout {...layoutProps}><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></StaffLayout> : <Navigate to="/staff/login" />} />
+        <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'superadmin']}><StaffLayout {...layoutProps}><StaffDashboard staffName={userName} stats={stats} allInventory={inventoryData} dismantledHistory={dismantledHistory} onFinalizeDismantle={finalizeDismantle} /></StaffLayout></ProtectedRoute>} />
+        <Route path="/staff/inventory" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'superadmin']}><StaffLayout {...layoutProps}><StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} /></StaffLayout></ProtectedRoute>} />
+        <Route path="/staff/profile" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'superadmin']}><StaffLayout {...layoutProps}><StaffProfile staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }} setProfileImage={setProfileImage} /></StaffLayout></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

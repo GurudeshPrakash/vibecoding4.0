@@ -434,14 +434,14 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
 
     const generateDismantleReport = (request) => {
         const doc = new jsPDF();
-        
+
         // Add Header
         doc.setFillColor(33, 33, 33);
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
         doc.text("ASSET DISMANTLE REPORT", 105, 25, { align: 'center' });
-        
+
         doc.setFontSize(10);
         doc.text(`Official Document ID: DIS-${request._id.substring(0, 8).toUpperCase()}`, 105, 32, { align: 'center' });
 
@@ -450,7 +450,7 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
         doc.text("EQUIPMENT IDENTIFICATION", 15, 60);
-        
+
         doc.setFont("helvetica", "normal");
         doc.setFontSize(11);
         doc.text(`Name: ${request.equipmentName}`, 15, 70);
@@ -783,7 +783,7 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                                             <div className="hidden-qr-gen" style={{ display: 'none' }}>
                                                 <QRCodeCanvas
                                                     id={`qr-gen-${item.id}`}
-                                                    value={`--- EQUIPMENT PROFILE ---\nID: ${item.customId || item.id}\nName: ${item.name}\nType: ${item.type}\nArea: ${item.area}\nStatus: ${item.status}\nBranch: ${item.branch}\n\nPOWER WORLD GYMS\nDigital Asset Record`}
+                                                    value={`--- EQUIPMENT PROFILE ---\nID: ${item.customId || item.id}\nName: ${item.name}\nType: ${item.type}\nArea: ${item.area}\nStatus: ${item.status}\nSerial: ${item.serial || 'N/A'}\nMFG Year: ${item.mfgYear || 'N/A'}\nBranch: ${item.branch}\n\nPOWER WORLD GYMS\nDigital Asset Record`}
                                                     size={256}
                                                 />
                                             </div>
@@ -1436,7 +1436,7 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
 
                             <div className="form-field">
                                 <label className="field-label">Equipment Condition Photo <span className="req">*</span></label>
-                                <div 
+                                <div
                                     className={`dismantle-dropzone ${dismantlePhoto ? 'has-file' : ''}`}
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={(e) => {
@@ -1459,11 +1459,11 @@ const StaffInventory = ({ inventoryData, setInventoryData, addNotification, sele
                                                 <strong>Click to upload</strong> or drag and drop
                                                 <span>JPG, PNG or JPEG (Max 5MB)</span>
                                             </div>
-                                            <input 
-                                                type="file" 
-                                                hidden 
+                                            <input
+                                                type="file"
+                                                hidden
                                                 accept=".jpg,.jpeg,.png"
-                                                onChange={(e) => handleDismantlePhotoSelect(e.target.files[0])} 
+                                                onChange={(e) => handleDismantlePhotoSelect(e.target.files[0])}
                                             />
                                         </label>
                                     )}

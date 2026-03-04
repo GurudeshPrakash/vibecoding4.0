@@ -235,7 +235,9 @@ const MiniCalendar = () => {
     );
 };
 
-const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
+const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole = 'super_admin' }) => {
+    const isSuperAdmin = userRole === 'super_admin';
+    const isLocked = !isSuperAdmin;
     const navigate = useNavigate();
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState(location.state?.initialSearch || '');
@@ -361,41 +363,65 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
     }
 
     return (
-        <div className="super-admin-dashboard">
+        <div className="super-admin-dashboard" style={{ opacity: isLocked ? 0.95 : 1 }}>
             <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                 <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column' }}>
                     <div className="admin-greeting-inline" style={{ marginBottom: '6px' }}>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 600, color: '#ef4444' }}>Hello, </span>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1a1a1a' }}>{adminName}</span>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 600, color: '#ef4444' }}>Insight Mode: </span>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1a1a1a' }}>{isLocked ? 'Restricted View' : adminName}</span>
                     </div>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Admin Dashboard</h1>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Command Analytics</h1>
                 </div>
 
                 <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                     <button
                         className="add-admin-btn"
-                        onClick={() => navigate('/super-admin/owners', { state: { openModal: true } })}
-                        style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(255,0,0,0.25)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(255,0,0,0.35)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(255,0,0,0.25)'; }}
+                        onClick={() => { if (!isLocked) navigate('/super-admin/owners', { state: { openModal: true } }); }}
+                        disabled={isLocked}
+                        style={{
+                            background: isLocked ? '#9ca3af' : '#ff0000',
+                            color: '#fff',
+                            border: 'none',
+                            padding: '12px 28px',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '14px',
+                            cursor: isLocked ? 'not-allowed' : 'pointer',
+                            boxShadow: isLocked ? 'none' : '0 8px 20px rgba(255,0,0,0.25)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            opacity: isLocked ? 0.8 : 1
+                        }}
                     >
                         <UserPlus size={24} />
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span style={{ opacity: 0.85 }}>Add New</span>
+                            <span style={{ opacity: 0.85 }}>{isLocked ? 'Locked' : 'Add New'}</span>
                             <span>Manager</span>
                         </div>
                     </button>
 
                     <button
                         className="add-branch-btn"
-                        onClick={() => navigate('/super-admin/locations', { state: { openModal: true } })}
-                        style={{ background: '#fff', color: '#ff0000', border: '2px solid #ff0000', padding: '10px 28px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(0,0,0,0.12)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.06)'; }}
+                        onClick={() => { if (!isLocked) navigate('/super-admin/locations', { state: { openModal: true } }); }}
+                        disabled={isLocked}
+                        style={{
+                            background: '#fff',
+                            color: isLocked ? '#9ca3af' : '#ff0000',
+                            border: `2px solid ${isLocked ? '#9ca3af' : '#ff0000'}`,
+                            padding: '10px 28px',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '14px',
+                            cursor: isLocked ? 'not-allowed' : 'pointer',
+                            boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            opacity: isLocked ? 0.7 : 1
+                        }}
                     >
                         <Building2 size={24} />
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span style={{ color: '#666', opacity: 0.7 }}>Add New</span>
+                            <span style={{ color: '#666', opacity: 0.7 }}>{isLocked ? 'Locked' : 'Add New'}</span>
                             <span>Branch</span>
                         </div>
                     </button>
@@ -405,7 +431,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                         <div style={{ height: '28px', width: '1px', background: '#D1D5DB', marginRight: '18px' }}></div>
                         <input
                             type="text"
-                            placeholder="Search Members, Managers, Branches..."
+                            placeholder="Search Data Stream..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '1rem', fontWeight: 700, color: '#111827' }}
@@ -415,7 +441,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
             </header>
 
             <section className="sa-summary-grid">
-                <div className="sa-stat-card primary" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('managers'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
                             <Users />
@@ -427,7 +453,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('managers'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
                             <ShieldCheck />
@@ -439,7 +465,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { setActiveTab('admins'); navigate('/dashboard'); }} style={{ cursor: 'pointer', borderLeft: '3px solid var(--color-red)' }}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer', borderLeft: '3px solid var(--color-red)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
                             <ShieldCheck />
@@ -451,7 +477,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab }) => {
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { setActiveTab('locations'); navigate('/dashboard'); }} style={{ cursor: 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
                             <Building2 />

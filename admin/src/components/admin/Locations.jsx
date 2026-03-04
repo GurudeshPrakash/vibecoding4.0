@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search, Plus, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
-=======
-import { useLocation } from 'react-router-dom';
-import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search, Plus, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera } from 'lucide-react';
->>>>>>> a6ccbe26cea8b7c21d57f0e69c6b358ba191708d
 import '../../style/SuperAdminDashboard.css';
 
 const checkStatus = (hours, now) => {

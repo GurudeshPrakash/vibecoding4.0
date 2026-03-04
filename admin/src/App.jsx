@@ -21,6 +21,8 @@ import SuperAdminSettings from './components/super-admin/SuperAdminSettings';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
+import { useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AdminLayout = ({
   children,
@@ -102,18 +104,12 @@ const AdminLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [adminRole, setAdminRole] = useState('super_admin'); // Start as super_admin by default for testing
-  const loginRole = 'admin'; // Hardcoded for Admin app
+  const { login, logout, isAuthenticated } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Extract active path section for sidebar
-  const pathParts = location.pathname.split('/');
-  const activeTab = pathParts[1] === 'super-admin'
-    ? (pathParts[2] || 'dashboard')
-    : (pathParts[2] || 'dashboard');
+  const loginRole = 'admin'; // Static for this app
 
   // Pre-load user data from localStorage for synchronous initialization
   const savedAdminData = useMemo(() => {
@@ -124,11 +120,18 @@ function App() {
     }
   }, []);
 
+  const [adminRole, setAdminRole] = useState(savedAdminData.role || 'admin');
   const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'Vibe Master'));
   const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
+
+  // Extract active path section for sidebar
+  const pathParts = location.pathname.split('/');
+  const activeTab = pathParts[1] === 'super-admin'
+    ? (pathParts[2] || 'dashboard')
+    : (pathParts[2] || 'dashboard');
 
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -147,7 +150,6 @@ function App() {
   useEffect(() => {
     const adminToken = localStorage.getItem('admin_token');
     if (adminToken && !isAuthenticated) {
-      setIsAuthenticated(true);
       const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
       if (savedAdmin) {
         setUserName(savedAdmin.firstName || 'Shahana Kuganesan');
@@ -173,8 +175,6 @@ function App() {
     }
   };
 
-
-
   const stats = useMemo(() => {
     return {
       total: inventoryData.length,
@@ -186,13 +186,10 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'admin') {
-      // Force navigation to login page to ensure security checkpoint
       navigate('/login');
     } else if (role === 'super_admin') {
-      // Force navigation to super-admin login
       navigate('/super-admin/login');
     } else {
-      // Manager path - Force navigation to staff login for security
       window.location.href = `http://localhost:5174/staff/login`;
     }
   };
@@ -200,14 +197,13 @@ function App() {
   const handleLogin = (data) => {
     setUserName(data.firstName || 'User');
     setUserEmail(data.email);
-    setAdminRole(data.role || 'staff');
-    setIsAuthenticated(true);
+    setAdminRole(data.role || 'admin');
 
-    if (data.role === 'super_admin') {
-      setAdminRole('super_admin');
+    login(data, data.token);
+
+    if (data.role === 'super_admin' || data.role === 'superadmin') {
       navigate('/super-admin/dashboard');
     } else if (data.role === 'admin') {
-      setAdminRole('admin');
       navigate('/admin/dashboard');
     } else {
       const userParam = encodeURIComponent(JSON.stringify({ firstName: data.firstName, email: data.email, role: data.role }));
@@ -228,10 +224,8 @@ function App() {
         console.error('Logout logging failed', e);
       }
     }
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_current_log');
-    localStorage.removeItem('admin_user');
-    setIsAuthenticated(false);
+    logout();
+    setAdminRole('admin'); // Reset local state
     setShowLogoutModal(false);
     navigate('/');
   };
@@ -275,20 +269,20 @@ function App() {
         <Route path="/admin/forgot-password" element={<ForgotPassword onBack={() => navigate('/login')} />} />
         <Route path="/reset-password/:token" element={<ResetPassword onComplete={() => navigate('/login')} />} />
 
-        {/* Protected Routes */}
-        <Route path="/admin/dashboard" element={isAuthenticated ? <AdminLayout {...layoutProps}><AdminDashboard stats={stats} adminName={userName} recentInventory={inventoryData.slice(0, 4)} allInventory={inventoryData} dismantleRequests={dismantleRequests} setDismantleRequests={setDismantleRequests} refreshInventory={refreshInventory} dismantledHistory={dismantledHistory} /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/admin/login" />} />
+        {/* Protected Admin Routes */}
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'superadmin']}><AdminLayout {...layoutProps}><AdminDashboard stats={stats} adminName={userName} recentInventory={inventoryData.slice(0, 4)} allInventory={inventoryData} dismantleRequests={dismantleRequests} setDismantleRequests={setDismantleRequests} refreshInventory={refreshInventory} dismantledHistory={dismantledHistory} /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/owners" element={<ProtectedRoute allowedRoles={['admin', 'superadmin']}><AdminLayout {...layoutProps}><GymOwners /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/locations" element={<ProtectedRoute allowedRoles={['admin', 'superadmin']}><AdminLayout {...layoutProps}><Locations /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/activity-logs" element={<ProtectedRoute allowedRoles={['admin', 'superadmin']}><AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin', 'superadmin']}><AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout></ProtectedRoute>} />
 
-        {/* Super Admin Routes */}
-        <Route path="/super-admin/dashboard" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminSettings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/admins" element={isAuthenticated ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
+        {/* Protected Super Admin Routes */}
+        <Route path="/super-admin/dashboard" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout></ProtectedRoute>} />
+        <Route path="/super-admin/owners" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><GymOwners /></AdminLayout></ProtectedRoute>} />
+        <Route path="/super-admin/locations" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><Locations /></AdminLayout></ProtectedRoute>} />
+        <Route path="/super-admin/activity-logs" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout></ProtectedRoute>} />
+        <Route path="/super-admin/settings" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><SuperAdminSettings adminName={userName} setAdminName={setUserName} /></AdminLayout></ProtectedRoute>} />
+        <Route path="/super-admin/admins" element={<ProtectedRoute allowedRoles={['superadmin']}><AdminLayout {...layoutProps}><Admins /></AdminLayout></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} />} />
       </Routes>
@@ -297,5 +291,6 @@ function App() {
     </>
   );
 }
+
 
 export default App;

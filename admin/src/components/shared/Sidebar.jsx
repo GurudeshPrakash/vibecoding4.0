@@ -25,11 +25,10 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
     ];
 
     const staffMenu = [
-        { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'check-ins', label: 'Member Check-ins', icon: <CheckSquare size={20} /> },
-        { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
+        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'inventory', label: 'Inventory', icon: <Package size={20} /> },
         { id: 'members', label: 'Members', icon: <Users size={20} /> },
-        { id: 'inventory', label: 'Facility Inventory', icon: <Package size={20} /> },
+        { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
     ];
 
     const canAccess = (userRole, targetSectionRole) => {

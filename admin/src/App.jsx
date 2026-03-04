@@ -352,7 +352,6 @@ function App() {
           />
         );
         case 'members': return <Members />;
-        case 'check-ins': return <CheckIns />;
         case 'payments': return <Payments />;
         case 'inventory': return <StaffInventory inventoryData={props.inventoryData} />;
         default: return (

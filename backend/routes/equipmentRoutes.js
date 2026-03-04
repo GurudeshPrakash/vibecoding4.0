@@ -13,6 +13,7 @@ const {
 } = require('../controllers/equipmentController');
 const { protect, staffOnly, adminOnly } = require('../middleware/authMiddleware');
 const rbac = require('../middleware/rbacMiddleware');
+const upload = require('../middleware/uploadMiddleware'); // Changed to use general upload for now
 
 // Public or Protected depending on requirements
 router.get('/', protect, rbac('superadmin', 'admin', 'manager'), getAllEquipment);
@@ -24,9 +25,7 @@ router.get('/:id', getEquipmentById);
 
 // Only Staff or Admin can manage equipment
 router.post('/', protect, rbac('superadmin', 'admin', 'manager'), addEquipment);
-router.put('/:id', protect, equipmentUpload.single('photoFile'), rbac('superadmin', 'admin', 'manager'), updateEquipment); // Changed from staffOnly to allow both
-router.delete('/:id', protect, rbac('superadmin', 'admin', 'manager'), deleteEquipment); // Only Admin can delete
-router.post('/', protect, staffOnly, addEquipment);
-router.put('/:id', protect, updateEquipment); // Changed from staffOnly to allow both
-router.delete('/:id', protect, adminOnly, deleteEquipment); // Only Admin can delete
+router.put('/:id', protect, upload.single('photoFile'), rbac('superadmin', 'admin', 'manager'), updateEquipment);
+router.delete('/:id', protect, rbac('superadmin', 'admin', 'manager'), deleteEquipment);
+
 module.exports = router;

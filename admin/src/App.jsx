@@ -9,7 +9,6 @@ import Settings from './components/admin/Settings';
 import Landing from './components/shared/Landing';
 import AdminLogin from './components/admin/Login';
 import Admins from './components/admin/Admins';
-import AdminLogs from './components/admin/AdminLogs';
 import ActivityLogs from './components/admin/ActivityLogs';
 import LogoutModal from './components/shared/LogoutModal';
 import ActivityDetailModal from './components/shared/ActivityDetailModal';
@@ -26,6 +25,8 @@ import StaffInventory from './components/staff/StaffInventory';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
+import { useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AdminLayout = ({
   children,
@@ -111,11 +112,12 @@ const AdminLayout = ({
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const loginRole = 'admin'; // Hardcoded for Admin app
+  const { login, logout, isAuthenticated } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const loginRole = 'admin'; // Static for this app
 
   // Pre-load user data from localStorage for synchronous initialization
   const savedAdminData = useMemo(() => {
@@ -137,6 +139,7 @@ function App() {
     setViewRole(adminRole);
     setActiveTab('dashboard');
   }, [adminRole]);
+
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
@@ -154,15 +157,14 @@ function App() {
 
   const { notifications, setNotifications } = useNotifications(isAuthenticated, loginRole);
 
-  // Restore session handles any edge cases not caught by sync init
+  // Restore session
   useEffect(() => {
     const adminToken = localStorage.getItem('admin_token');
     if (adminToken && !isAuthenticated) {
-      setIsAuthenticated(true);
       const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
       if (savedAdmin) {
-        setUserName(savedAdmin.firstName || 'Shahana Kuganesan');
-        setUserEmail(savedAdmin.email || 'admin@gymsys.com');
+        setUserName(savedAdmin.firstName || 'User');
+        setUserEmail(savedAdmin.email || '');
         setAdminRole(savedAdmin.role || 'admin');
       }
     }
@@ -184,8 +186,6 @@ function App() {
     }
   };
 
-
-
   const stats = useMemo(() => {
     return {
       total: inventoryData.length,
@@ -197,13 +197,10 @@ function App() {
 
   const handleSelectRole = (role) => {
     if (role === 'admin') {
-      // Navigate straight to admin dashboard instead of login
       navigate('/admin/dashboard');
     } else if (role === 'super_admin') {
-      // Navigate straight to super admin dashboard instead of login
       navigate('/super-admin/dashboard');
     } else {
-      // Manager path
       window.location.href = `http://localhost:5174/staff/dashboard`;
     }
   };
@@ -214,7 +211,7 @@ function App() {
     setAdminRole(data.role || 'staff');
     setViewRole(data.role || 'staff');
     setActiveTab('dashboard');
-    setIsAuthenticated(true);
+    login(data, data.token);
     navigate('/dashboard');
   };
 
@@ -231,15 +228,11 @@ function App() {
         console.error('Logout logging failed', e);
       }
     }
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_current_log');
-    localStorage.removeItem('admin_user');
-    setIsAuthenticated(false);
+    logout();
+    setAdminRole('admin');
     setShowLogoutModal(false);
     navigate('/');
   };
-
-  const handleToggleRole = () => { };
 
   const layoutProps = {
     activeTab,
@@ -316,6 +309,7 @@ function App() {
         <Route path="/admin/login" element={<Navigate to="/login" />} />
         <Route path="/super-admin/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
         <Route path="/admin/signup" element={<Navigate to="/login" />} />
+
         <Route path="/admin/forgot-password" element={<ForgotPassword onBack={() => navigate('/login')} />} />
         <Route path="/reset-password/:token" element={<ResetPassword onComplete={() => navigate('/login')} />} />
 

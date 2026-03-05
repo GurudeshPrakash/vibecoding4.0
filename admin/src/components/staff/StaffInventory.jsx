@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import {
     Package, Search, Filter, AlertTriangle, CheckCircle2,
-    Wrench, Trash2, ChevronDown, Eye, X, Send, QrCode, Printer, Download
+    Wrench, Trash2, ChevronDown, Eye, X, Send, QrCode, Printer, Download, Plus, Upload
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../assets/logo1.png';
 import '../../style/AdminDashboard.css';
 
 const STATUS_CONFIG = {
+    'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
     'Available': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
     'Maintenance': { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)', icon: <Wrench size={12} /> },
     'Damaged': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={12} /> },
@@ -40,7 +41,7 @@ const MOCK_INVENTORY = [
 ];
 
 const CATEGORIES = ['All', 'Cardio', 'Weight Machine', 'Free Weights'];
-const STATUSES = ['All', 'Available', 'Maintenance', 'Damaged'];
+const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
 const StaffInventory = ({ inventoryData = [] }) => {
     const allItems = inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY;
@@ -54,6 +55,7 @@ const StaffInventory = ({ inventoryData = [] }) => {
     const [reportReason, setReportReason] = useState('');
     const [reportSubmitted, setReportSubmitted] = useState(false);
     const [qrItem, setQrItem] = useState(null);
+    const [reportImages, setReportImages] = useState([]);
 
     const filtered = allItems.filter(item => {
         const matchSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -75,8 +77,26 @@ const StaffInventory = ({ inventoryData = [] }) => {
         setReportItem(item);
         setNewStatus(item.status);
         setReportReason('');
+        setReportImages([]);
         setReportSubmitted(false);
         setShowReportModal(true);
+    };
+
+    const handleImageUpload = (e) => {
+        const files = Array.from(e.target.files);
+        const availableSlots = 20 - reportImages.length;
+        const newImages = files.slice(0, availableSlots).map(file => ({
+            file,
+            preview: URL.createObjectURL(file)
+        }));
+        setReportImages(prev => [...prev, ...newImages]);
+    };
+
+    const handleRemoveImage = (index) => {
+        const updatedImages = [...reportImages];
+        URL.revokeObjectURL(updatedImages[index].preview);
+        updatedImages.splice(index, 1);
+        setReportImages(updatedImages);
     };
 
     const handleSubmitReport = (e) => {
@@ -116,6 +136,19 @@ const StaffInventory = ({ inventoryData = [] }) => {
         `);
     };
 
+    const handleDownloadQR = () => {
+        const canvas = document.getElementById(`qr-code-${qrItem.id}`);
+        if (canvas) {
+            const pngUrl = canvas.toDataURL("image/png");
+            const downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl;
+            downloadLink.download = `QR_${qrItem.id}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    };
+
     const generateQRValue = (item) => {
         return `--- EQUIPMENT PROFILE ---
 NAME: ${item.name}
@@ -136,77 +169,94 @@ Digital Asset Record`;
             {/* Header */}
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1 style={{ fontSize: '1.2rem' }}>Inventory</h1>
-                    <p style={{ fontSize: '0.78rem' }}>View all gym equipment and facilities. Update status as needed.</p>
+                    <h1>Inventory</h1>
+                    <p>View all gym equipment and facilities. Update status as needed.</p>
                 </div>
             </header>
 
             {/* Stats */}
-            <section className="sa-summary-grid" style={{ marginBottom: '32px' }}>
-                <div className="live-card">
+            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Total Equipment</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.total}</h2>
+                        <span className="label">Total Equipment</span>
+                        <h2 className="value">{counts.total}</h2>
                     </div>
                 </div>
-                <div className="live-card">
+                <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Available</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.good}</h2>
+                        <span className="label">Available</span>
+                        <h2 className="value">{counts.good}</h2>
                     </div>
                 </div>
-                <div className="live-card">
+                <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>In Maintenance</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.maintenance}</h2>
+                        <span className="label">In Maintenance</span>
+                        <h2 className="value">{counts.maintenance}</h2>
                     </div>
                 </div>
-                <div className="live-card">
+                <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Damaged</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.dismantled}</h2>
+                        <span className="label">Damaged</span>
+                        <h2 className="value">{counts.dismantled}</h2>
                     </div>
                 </div>
             </section>
 
             {/* Filters */}
-            <div className="sa-card" style={{ marginBottom: '24px', padding: '16px 20px' }}>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
-                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                        <input
-                            type="text"
-                            placeholder="Search by name, ID, or zone..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            style={{ width: '100%', padding: '9px 12px 9px 36px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.7rem' }}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <Filter size={16} color="#64748B" />
-                        {CATEGORIES.map(cat => (
-                            <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                                padding: '7px 14px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600',
-                                background: categoryFilter === cat ? '#1E3A5F' : '#F1F5F9',
-                                color: categoryFilter === cat ? '#fff' : '#64748B',
-                                transition: 'all 0.2s'
-                            }}>{cat}</button>
-                        ))}
-                    </div>
+            <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ position: 'relative', width: '100%', maxWidth: '500px' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                    <input
+                        type="text"
+                        placeholder="Search by name, ID, or zone..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        style={{ width: '100%', padding: '12px 16px 12px 48px', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.85rem', background: '#F8FAFC', transition: 'all 0.2s' }}
+                    />
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                        {STATUSES.map(s => (
+                        {STATUSES.filter(s => s !== 'All').map(s => (
                             <button key={s} onClick={() => setStatusFilter(s)} style={{
-                                padding: '7px 14px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600',
-                                background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : '#F1F5F9',
+                                padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
+                                background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : 'rgba(255,255,255,0.8)',
                                 color: statusFilter === s ? (STATUS_CONFIG[s]?.color || '#334155') : '#64748B',
-                                transition: 'all 0.2s'
+                                transition: 'all 0.2s',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                             }}>{s}</button>
                         ))}
                     </div>
+                    <div style={{ width: '1px', height: '20px', background: '#E2E8F0', margin: '0 4px' }}></div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
+                            <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
+                                padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
+                                background: categoryFilter === cat ? '#1E3A5F' : 'rgba(255,255,255,0.8)',
+                                color: categoryFilter === cat ? '#fff' : '#64748B',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                            }}>{cat}</button>
+                        ))}
+                    </div>
+                    <button
+                        onClick={() => {
+                            setSearch('');
+                            setCategoryFilter('All');
+                            setStatusFilter('All');
+                        }}
+                        style={{
+                            padding: '9px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B',
+                            cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', transition: 'all 0.2s', marginLeft: '4px'
+                        }}
+                        onMouseOver={(e) => { e.target.style.background = '#F1F5F9'; e.target.style.color = '#EF4444'; }}
+                        onMouseOut={(e) => { e.target.style.background = '#fff'; e.target.style.color = '#64748B'; }}
+                    >
+                        Reset
+                    </button>
                 </div>
             </div>
 
@@ -359,7 +409,7 @@ Digital Asset Record`;
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Set Status</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                                            {['Available', 'Maintenance', 'Damaged'].map(status => (
+                                            {['Good', 'Maintenance', 'Damaged'].map(status => (
                                                 <button
                                                     key={status}
                                                     type="button"
@@ -371,9 +421,9 @@ Digital Asset Record`;
                                                         cursor: 'pointer',
                                                         fontSize: '0.65rem',
                                                         fontWeight: '600',
-                                                        color: newStatus === status ? STATUS_CONFIG[status].color : '#475569',
-                                                        background: newStatus === status ? STATUS_CONFIG[status].bg : '#F8FAFC',
-                                                        border: newStatus === status ? `1px solid ${STATUS_CONFIG[status].color}` : '1px solid #E2E8F0',
+                                                        color: newStatus === status ? (STATUS_CONFIG[status]?.color || '#475569') : '#475569',
+                                                        background: newStatus === status ? (STATUS_CONFIG[status]?.bg || '#F8FAFC') : '#F8FAFC',
+                                                        border: newStatus === status ? `1px solid ${STATUS_CONFIG[status]?.color || '#E2E8F0'}` : '1px solid #E2E8F0',
                                                         textAlign: 'center'
                                                     }}
                                                 >
@@ -393,6 +443,42 @@ Digital Asset Record`;
                                             style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.7rem', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                                         />
                                     </div>
+
+                                    {(newStatus === 'Maintenance' || newStatus === 'Damaged') && (
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Equipment Photos (Up to 20)</label>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
+                                                {reportImages.map((img, idx) => (
+                                                    <div key={idx} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                                                        <img src={img.preview} alt={`upload-${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveImage(idx)}
+                                                            style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                                                        >
+                                                            <X size={12} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                {reportImages.length < 20 && (
+                                                    <label style={{
+                                                        aspectRatio: '1/1', border: '2px dashed #E2E8F0', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', transition: 'all 0.2s', background: '#F8FAFC'
+                                                    }} onMouseOver={(e) => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#3B82F6'; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#94A3B8'; }}>
+                                                        <Plus size={20} />
+                                                        <span style={{ fontSize: '0.55rem', marginTop: '4px', fontWeight: '600' }}>Add Photo</span>
+                                                        <input
+                                                            type="file"
+                                                            multiple
+                                                            accept="image/*"
+                                                            onChange={handleImageUpload}
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                    </label>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Cancel</button>
                                         <button type="submit" style={{ flex: 2, padding: '12px', background: '#1E3A5F', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
@@ -436,7 +522,9 @@ Digital Asset Record`;
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button onClick={() => setQrItem(null)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.75rem' }}>Close</button>
+                            <button onClick={handleDownloadQR} style={{ flex: 1, padding: '12px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#3B82F6', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <Download size={16} /> Download
+                            </button>
                             <button onClick={handlePrintQR} style={{ flex: 1, padding: '12px', background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <Printer size={16} /> Print Label
                             </button>

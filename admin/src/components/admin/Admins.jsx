@@ -17,7 +17,8 @@ const LiveClock = () => {
     );
 };
 
-const Admins = () => {
+const Admins = ({ userRole = 'super_admin' }) => {
+    const isSuperAdmin = userRole === 'super_admin';
     const [viewTab, setViewTab] = useState('accounts');
     const [searchQuery, setSearchQuery] = useState('');
     const [admins, setAdmins] = useState(() => {
@@ -252,9 +253,11 @@ const Admins = () => {
                 </div>
 
                 <div className="sa-actions">
-                    <button className="icon-btn" style={{ background: 'var(--color-red)', color: 'white' }} onClick={() => { setEditingAdmin(null); resetForm(); setShowModal(true); }} title="Register New Admin">
-                        <Plus size={22} />
-                    </button>
+                    {isSuperAdmin && (
+                        <button className="icon-btn" style={{ background: 'var(--color-red)', color: 'white' }} onClick={() => { setEditingAdmin(null); resetForm(); setShowModal(true); }} title="Register New Admin">
+                            <Plus size={22} />
+                        </button>
+                    )}
 
                     <div className="sa-search-bar" style={{ width: '350px' }}>
                         <Search className="sa-search-icon" size={20} />
@@ -367,11 +370,15 @@ const Admins = () => {
                                                 </td>
                                                 <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.lastLogin || 'Never'}</td>
                                                 <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                        <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => openEdit(a)} title="Edit Details"><Edit2 size={14} /></button>
-                                                        <button className="icon-btn" style={{ width: 32, height: 32, color: a.status === 'Inactive' ? '#10B981' : '#EF4444' }} onClick={() => handleToggleStatus(a)} title={a.status === 'Inactive' ? 'Activate' : 'Disable'}><UserMinus size={14} /></button>
-                                                        <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => handleResetPassword(a.email)} title="Reset Password"><RefreshCcw size={14} /></button>
-                                                    </div>
+                                                    {isSuperAdmin ? (
+                                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                            <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => openEdit(a)} title="Edit Details"><Edit2 size={14} /></button>
+                                                            <button className="icon-btn" style={{ width: 32, height: 32, color: a.status === 'Inactive' ? '#10B981' : '#EF4444' }} onClick={() => handleToggleStatus(a)} title={a.status === 'Inactive' ? 'Activate' : 'Disable'}><UserMinus size={14} /></button>
+                                                            <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => handleResetPassword(a.email)} title="Reset Password"><RefreshCcw size={14} /></button>
+                                                        </div>
+                                                    ) : (
+                                                        <span style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>View Only</span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

@@ -2,33 +2,63 @@ import React, { useState } from 'react';
 import { Search, DollarSign, Filter, Receipt, FileText, CheckCircle2, Clock } from 'lucide-react';
 import '../../style/AdminDashboard.css';
 
-const Payments = () => {
+const Payments = ({ userRole = 'staff' }) => {
+    const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
     const [searchTerm, setSearchTerm] = useState('');
 
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
+    const [editingPayment, setEditingPayment] = useState(null);
+    const [formData, setFormData] = useState({ memberId: '', name: '', amount: '', type: 'Monthly', method: 'Cash' });
 
-    const handleProcessPayment = (e) => {
-        e.preventDefault();
-        setPaymentSuccess(true);
-        setTimeout(() => {
-            setShowPaymentModal(false);
-            setPaymentSuccess(false);
-        }, 2000);
-    };
-
-    const paymentsList = [
+    const [payments, setPayments] = useState([
         { id: 'PAY-8001', memberId: 'M-1024', name: 'Arjun Perera', amount: 'LKR 4,500', date: '2026-03-04', status: 'Completed', type: 'Monthly', method: 'Cash' },
         { id: 'PAY-8002', memberId: 'M-1056', name: 'Sarah Mendis', amount: 'LKR 45,000', date: '2026-03-04', status: 'Completed', type: 'Annual', method: 'Card' },
         { id: 'PAY-8003', memberId: 'M-1089', name: 'Dilshan Silva', amount: 'LKR 12,000', date: '2026-03-03', status: 'Pending', type: 'Quarterly', method: 'Online' },
         { id: 'PAY-8004', memberId: 'M-1102', name: 'Anjali Gunawardena', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Card' },
-        { id: 'PAY-8005', memberId: 'M-1128', name: 'Nirosha Fernando', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Cash' },
-        { id: 'PAY-8006', memberId: 'M-1142', name: 'Damith Perera', amount: 'LKR 12,000', date: '2026-03-01', status: 'Pending', type: 'Quarterly', method: 'Online' },
-        { id: 'PAY-8007', memberId: 'M-1156', name: 'Priyanka Jayasuriya', amount: 'LKR 45,000', date: '2026-02-28', status: 'Completed', type: 'Annual', method: 'Card' },
-        { id: 'PAY-8008', memberId: 'M-1170', name: 'Ruwan Kumara', amount: 'LKR 4,500', date: '2026-02-28', status: 'Completed', type: 'Monthly', method: 'Cash' },
-        { id: 'PAY-8009', memberId: 'M-1201', name: 'Ishara Madushanka', amount: 'LKR 12,000', date: '2026-02-27', status: 'Completed', type: 'Quarterly', method: 'Online' },
-        { id: 'PAY-8010', memberId: 'M-1230', name: 'Sanduni Perera', amount: 'LKR 4,500', date: '2026-02-26', status: 'Completed', type: 'Monthly', method: 'Card' },
-    ];
+        { id: 'PAY-8005', memberId: 'M-1128', name: 'Nirosha Fernando', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Cash' }
+    ]);
+
+    const handleProcessPayment = (e) => {
+        e.preventDefault();
+        if (editingPayment) {
+            setPayments(payments.map(p => p.id === editingPayment.id ? { ...p, ...formData, amount: `LKR ${formData.amount}` } : p));
+        } else {
+            const newPayment = {
+                id: `PAY-${Math.floor(8000 + Math.random() * 1000)}`,
+                ...formData,
+                amount: `LKR ${formData.amount}`,
+                date: new Date().toISOString().split('T')[0],
+                status: 'Completed'
+            };
+            setPayments([newPayment, ...payments]);
+        }
+        setPaymentSuccess(true);
+        setTimeout(() => {
+            setShowPaymentModal(false);
+            setPaymentSuccess(false);
+            setEditingPayment(null);
+            setFormData({ memberId: '', name: '', amount: '', type: 'Monthly', method: 'Cash' });
+        }, 1500);
+    };
+
+    const handleDelete = (id) => {
+        if (window.confirm('Delete this transaction record?')) {
+            setPayments(payments.filter(p => p.id !== id));
+        }
+    };
+
+    const openEdit = (payment) => {
+        setEditingPayment(payment);
+        setFormData({
+            memberId: payment.memberId,
+            name: payment.name,
+            amount: payment.amount.replace('LKR ', '').replace(',', ''),
+            type: payment.type,
+            method: payment.method
+        });
+        setShowPaymentModal(true);
+    };
 
     return (
         <div className="admin-dashboard">
@@ -39,7 +69,7 @@ const Payments = () => {
                 </div>
                 <div className="sa-actions">
                     <button
-                        onClick={() => setShowPaymentModal(true)}
+                        onClick={() => { setEditingPayment(null); setFormData({ memberId: '', name: '', amount: '', type: 'Monthly', method: 'Cash' }); setShowPaymentModal(true); }}
                         className="btn-approve"
                         style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                     >
@@ -67,7 +97,7 @@ const Payments = () => {
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Receipt /></div>
                     <div className="card-data">
                         <span className="label">Transactions Today</span>
-                        <h2 className="value">14</h2>
+                        <h2 className="value">{payments.length}</h2>
                     </div>
                 </div>
             </section>
@@ -106,7 +136,7 @@ const Payments = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {paymentsList.filter(p =>
+                            {payments.filter(p =>
                                 p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 p.memberId.toLowerCase().includes(searchTerm.toLowerCase())
@@ -146,9 +176,21 @@ const Payments = () => {
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'right' }}>
-                                        <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-                                            <FileText size={14} style={{ marginRight: '6px' }} /> View
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                            <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => { }}>
+                                                <FileText size={14} /> View
+                                            </button>
+                                            {isPowerUser && (
+                                                <>
+                                                    <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#3B82F6' }} onClick={() => openEdit(payment)}>
+                                                        Edit
+                                                    </button>
+                                                    <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#EF4444' }} onClick={() => handleDelete(payment.id)}>
+                                                        Delete
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -161,45 +203,45 @@ const Payments = () => {
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
                         <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Process New Payment</h3>
+                            <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>{editingPayment ? 'Edit Payment Record' : 'Process New Payment'}</h3>
                             <button onClick={() => setShowPaymentModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
-                                <Clock size={20} />
+                                <X size={20} />
                             </button>
                         </div>
                         <div style={{ padding: '24px' }}>
                             {paymentSuccess ? (
                                 <div style={{ textAlign: 'center', padding: '32px 0' }}>
                                     <CheckCircle2 size={48} color="#10B981" style={{ marginBottom: '16px' }} />
-                                    <h4 style={{ color: '#1E293B', marginBottom: '8px' }}>Payment Successful!</h4>
-                                    <p style={{ color: '#64748B', fontSize: '0.75rem' }}>The transaction has been recorded and receipt generated.</p>
+                                    <h4 style={{ color: '#1E293B', marginBottom: '8px' }}>{editingPayment ? 'Entry Updated!' : 'Payment Successful!'}</h4>
+                                    <p style={{ color: '#64748B', fontSize: '0.75rem' }}>The transaction has been recorded and updated.</p>
                                 </div>
                             ) : (
                                 <form onSubmit={handleProcessPayment}>
                                     <div style={{ marginBottom: '16px' }}>
-                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Member ID or Name</label>
-                                        <input type="text" placeholder="Search member..." required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
+                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Member Name</label>
+                                        <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="Search member..." required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
+                                    </div>
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Member ID</label>
+                                        <input type="text" value={formData.memberId} onChange={e => setFormData({ ...formData, memberId: e.target.value })} placeholder="M-XXXX" required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                                         <div>
                                             <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Amount (LKR)</label>
-                                            <input type="number" placeholder="0.00" required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
+                                            <input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} placeholder="0.00" required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
                                         </div>
                                         <div>
                                             <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Payment Mode</label>
-                                            <select style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem', background: '#fff' }}>
+                                            <select value={formData.method} onChange={e => setFormData({ ...formData, method: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem', background: '#fff' }}>
                                                 <option>Cash</option>
                                                 <option>Card</option>
                                                 <option>Online Transfer</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <div style={{ marginBottom: '24px' }}>
-                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Remarks</label>
-                                        <textarea placeholder="Optional notes..." rows={2} style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem', resize: 'none' }} />
-                                    </div>
                                     <div style={{ display: 'flex', gap: '12px' }}>
                                         <button type="button" onClick={() => setShowPaymentModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.75rem' }}>Cancel</button>
-                                        <button type="submit" style={{ flex: 2, padding: '12px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem' }}>Confirm Payment</button>
+                                        <button type="submit" style={{ flex: 2, padding: '12px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem' }}>{editingPayment ? 'Update' : 'Confirm Payment'}</button>
                                     </div>
                                 </form>
                             )}

@@ -61,7 +61,7 @@ const TopNav = ({
 
         // Persist to DB for auth notifs
         const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
-        const token = localStorage.getItem(`${loginRole}_token`);
+        const token = localStorage.getItem('admin_token');
         if (token) {
             const unreadNotifs = notifications.filter(n => n.unread && n.isAuthNotif);
             for (const n of unreadNotifs) {
@@ -85,7 +85,7 @@ const TopNav = ({
 
             // Mark as read in DB
             const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
-            const token = localStorage.getItem(`${loginRole}_token`);
+            const token = localStorage.getItem('admin_token');
             if (token) {
                 try {
                     await fetch(`http://localhost:5000${apiBase}/notifications/${notif.id}`, {

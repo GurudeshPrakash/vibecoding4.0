@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign, Package } from 'lucide-react';
+import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, DollarSign, Package } from 'lucide-react';
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 

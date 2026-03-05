@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, Activity, CheckSquare, DollarSign, Clock, UserCheck, UserPlus, CreditCard, ChevronRight, CheckCircle2, Wrench, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Users, Activity, CheckSquare, DollarSign, Clock, UserCheck, ChevronRight, CheckCircle2, Wrench, AlertTriangle } from 'lucide-react';
 import '../../style/AdminDashboard.css';
 
 const StaffDashboard = ({ setActiveTab }) => {

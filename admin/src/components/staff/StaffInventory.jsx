@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-    Package, Search, Filter, AlertTriangle, CheckCircle2,
-    Wrench, Trash2, ChevronDown, Eye, X, Send, QrCode, Printer, Download, Plus, Upload
+    Package, Search, AlertTriangle, CheckCircle2,
+    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../assets/logo1.png';
@@ -263,7 +263,7 @@ Digital Asset Record`;
             {/* Equipment Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {filtered.map(item => {
-                    const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Available'];
+                    const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
                     return (
                         <div key={item.id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
                             {/* Equipment Image */}
@@ -353,8 +353,8 @@ Digital Asset Record`;
                         <div style={{ padding: '24px' }}>
                             <div style={{ marginBottom: '4px', fontSize: '0.6rem', color: '#94A3B8', textTransform: 'uppercase', fontWeight: '600' }}>{selectedItem.category} • {selectedItem.area}</div>
                             <h2 style={{ margin: '0 0 8px', fontSize: '0.95rem', fontWeight: '800', color: '#1E293B' }}>{selectedItem.name}</h2>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 12px', borderRadius: '20px', fontSize: '0.62rem', fontWeight: '700', background: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Available']).bg, color: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Available']).color, marginBottom: '20px' }}>
-                                {(STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Available']).icon} {selectedItem.status}
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 12px', borderRadius: '20px', fontSize: '0.62rem', fontWeight: '700', background: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).bg, color: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).color, marginBottom: '20px' }}>
+                                {(STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).icon} {selectedItem.status}
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 {[

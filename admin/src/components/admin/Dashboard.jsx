@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -9,16 +9,10 @@ import {
     Calendar,
     ArrowUpRight,
     Package,
-    ShieldAlert,
-    ChevronDown,
     ChevronLeft,
     ChevronRight,
-    Trophy,
-    Plus,
     AlertTriangle,
-    MoreHorizontal,
     Zap,
-    Cpu,
     Users,
     DollarSign,
     CreditCard
@@ -31,12 +25,10 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer,
-    Cell,
-    ReferenceLine
+    ResponsiveContainer
 } from 'recharts';
 
-import heroImage from '../../assets/gym_man_hero.png';
+
 import '../../style/AdminDashboard.css';
 
 const MiniCalendar = () => {
@@ -234,19 +226,7 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
         { hour: '9pm', count: 110 },
     ];
 
-    const revenueTrend = [
-        { month: 'Jan', amount: 450000 },
-        { month: 'Feb', amount: 520000 },
-        { month: 'Mar', amount: 490000 },
-        { month: 'Apr', amount: 580000 },
-        { month: 'May', amount: 610000 },
-    ];
 
-    const assetDistribution = [
-        { name: 'Operational', value: stats.good || 85, color: '#10B981' },
-        { name: 'Repair', value: stats.maintenance || 12, color: '#F59E0B' },
-        { name: 'Retired', value: stats.dismantled || 5, color: '#EF4444' },
-    ];
 
     return (
         <div className="admin-dashboard">

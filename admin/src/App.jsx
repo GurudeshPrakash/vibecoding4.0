@@ -4,13 +4,18 @@ import Sidebar from './components/shared/Sidebar';
 import TopNav from './components/shared/TopNav';
 import { Zap } from 'lucide-react';
 import AdminDashboard from './components/admin/Dashboard';
-import Locations from './components/admin/Locations';
-import GymOwners from './components/admin/GymOwners';
+import Locations from './components/super-admin/Locations';
 import Settings from './components/admin/Settings';
 import Landing from './components/shared/Landing';
-import UnifiedLogin from './components/admin/Login';
-import Admins from './components/admin/Admins';
-import ActivityLogs from './components/admin/ActivityLogs';
+import Administrators from './components/super-admin/Administrators';
+import Managers from './components/super-admin/Managers';
+import StaffManagement from './components/admin/StaffManagement';
+import BranchManagement from './components/admin/BranchManagement';
+import InventoryManagement from './components/admin/InventoryManagement';
+import MembersManagement from './components/admin/MembersManagement';
+import PaymentManagement from './components/admin/PaymentManagement';
+import Reports from './components/admin/Reports';
+import ActivityLogs from './components/super-admin/AdminLogs';
 import LogoutModal from './components/shared/LogoutModal';
 import ActivityDetailModal from './components/shared/ActivityDetailModal';
 import ForgotPassword from './components/admin/ForgotPassword';
@@ -34,6 +39,8 @@ const AdminLayout = ({
   children,
   activeTab,
   setActiveTab,
+  activeSection,
+  setActiveSection,
   navigate,
   setShowLogoutModal,
   adminRole,
@@ -55,6 +62,8 @@ const AdminLayout = ({
     <Sidebar
       activeTab={activeTab}
       setActiveTab={setActiveTab}
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
       onLogoutTrigger={() => setShowLogoutModal(true)}
       adminRole={adminRole}
       viewRole={viewRole}
@@ -141,11 +150,13 @@ function App() {
   const [adminRole, setAdminRole] = useState('super_admin');
   const [viewRole, setViewRole] = useState('super_admin');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('super_admin');
 
   const loginRole = viewRole === 'super_admin' ? 'admin' : viewRole;
 
   useEffect(() => {
     // setActiveTab('dashboard'); // Optional: reset tab on role switch
+    setActiveSection(viewRole);
   }, [viewRole]);
 
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
@@ -239,6 +250,8 @@ function App() {
   const layoutProps = {
     activeTab,
     setActiveTab,
+    activeSection,
+    setActiveSection,
     navigate,
     setShowLogoutModal,
     adminRole, // REAL ACCOUNT ROLE
@@ -268,36 +281,62 @@ function App() {
       refreshInventory,
       handleViewActivityLog,
       dismantledHistory,
-      setActiveTab
+      setActiveTab,
+      setUserName
     };
 
     // Since Sidebar.jsx handles access control by locking buttons (canAccess),
     // any activeTab that successfully gets set should render its corresponding component.
-    switch (activeTab) {
-      case 'dashboard':
+    // Combine activeSection with activeTab to create a unique identifier for tabs that exist in multiple sections
+    const specificTab = `${activeSection}_${activeTab}`;
+
+    switch (specificTab) {
+      // Super Admin Level
+      case 'super_admin_dashboard':
         return (
-          <UnifiedDashboard
-            userRole={viewRole}
-            permissionsRole={adminRole}
-            adminName={props.userName}
-            stats={props.stats}
-            recentInventory={props.inventoryData}
-            dismantleRequests={props.dismantleRequests}
-            setDismantleRequests={props.setDismantleRequests}
-            refreshInventory={props.refreshInventory}
-            setActiveTab={setActiveTab}
-          />
+          <SuperAdminDashboard />
         );
-      case 'admins': return <Admins userRole={adminRole} />;
-      case 'managers': return <GymOwners userRole={adminRole} />;
-      case 'locations': return <Locations userRole={adminRole} />;
-      case 'activity-logs': return <ActivityLogs onViewLog={props.handleViewActivityLog} userRole={adminRole} />;
-      case 'reports': return <ActivityLogs onViewLog={props.handleViewActivityLog} userRole={adminRole} />;
-      case 'settings': return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
-      case 'inventory': return <StaffInventory inventoryData={props.inventoryData} userRole={adminRole} />;
-      case 'members': return <Members userRole={adminRole} />;
-      case 'payments': return <Payments userRole={adminRole} />;
-      case 'trainers': return <div style={{ padding: '40px', textAlign: 'center' }}><h2>Trainers Management</h2><p>Coming Soon</p></div>;
+      case 'super_admin_admins':
+        return <Administrators />;
+      case 'super_admin_managers':
+        return <Managers userRole={viewRole} />;
+      case 'super_admin_locations':
+        return <Locations />;
+      case 'super_admin_activity-logs':
+        return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
+      case 'super_admin_settings':
+        return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
+
+      // Admin Level
+      case 'admin_dashboard':
+        return (
+          <AdminDashboard />
+        );
+      case 'admin_locations':
+        return <BranchManagement />;
+      case 'admin_members':
+        return <MembersManagement />;
+      case 'admin_staff':
+        return <StaffManagement userRole={viewRole} />;
+      case 'admin_inventory':
+        return <InventoryManagement inventoryData={props.inventoryData} />;
+      case 'admin_payments':
+        return <PaymentManagement />;
+      case 'admin_reports':
+        return <Reports />;
+
+      // Staff Level
+      case 'staff_dashboard':
+        return (
+          <StaffDashboard />
+        );
+      case 'staff_inventory':
+        return <StaffInventory inventoryData={props.inventoryData} userRole={adminRole} />;
+      case 'staff_members':
+        return <Members userRole={adminRole} />;
+      case 'staff_payments':
+        return <Payments userRole={adminRole} />;
+
       default:
         return (
           <UnifiedDashboard

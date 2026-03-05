@@ -14,7 +14,7 @@ import {
     AlertCircle,
     Key
 } from 'lucide-react';
-import '../../style/SuperAdminSettings.css';
+import '../../style/super-admin/SuperAdminSettings.css';
 
 const SuperAdminSettings = ({ adminName, setAdminName }) => {
     const [activeTab, setActiveTab] = useState('Account');

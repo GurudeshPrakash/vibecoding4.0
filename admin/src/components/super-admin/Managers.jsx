@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, Mail, Search, Plus, Loader2, X, Trash2, Edit2, Shield, Eye, EyeOff, Users, ClipboardList, Activity, ArrowUpRight, CheckCircle2, AlertCircle, RefreshCcw, UserMinus, UserPlus, MapPin, ArrowLeft, Clock } from 'lucide-react';
-import '../../style/SuperAdminDashboard.css';
+import '../../style/super-admin/Managers.css';
 
 const LiveClock = () => {
     const [time, setTime] = useState(new Date());
@@ -16,7 +16,7 @@ const LiveClock = () => {
     );
 };
 
-const GymManagers = ({ userRole = 'admin' }) => {
+const Managers = ({ userRole = 'super_admin' }) => {
     const isSuperAdmin = userRole === 'super_admin';
     const isAdmin = userRole === 'admin';
 
@@ -334,11 +334,6 @@ const GymManagers = ({ userRole = 'admin' }) => {
                         </div>
                     )}
                 </div>
-                {isLocked && (
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.1)', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {/* Visual indicator of locking can be added here if needed, but the UI changes already signal it */}
-                    </div>
-                )}
             </div>
         );
     };
@@ -347,7 +342,7 @@ const GymManagers = ({ userRole = 'admin' }) => {
         <div className="super-admin-dashboard" style={{ paddingBottom: '100px' }}>
             <header className="sa-header">
                 <div className="sa-welcome">
-                    <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>Unified Command Center</h1>
+                    <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>Managers</h1>
                     <p style={{ margin: 0, marginTop: '4px' }}>Comprehensive management of System Managers and Branch Staff.</p>
                 </div>
 
@@ -371,7 +366,7 @@ const GymManagers = ({ userRole = 'admin' }) => {
                 </div>
             ) : (
                 <div style={{ marginTop: '32px' }}>
-                    {renderTable('System Managers (Admins)', 'Manager')}
+                    {renderTable('System Managers', 'Manager')}
                     {renderTable('Branch Operations (Staff)', 'Staff')}
                 </div>
             )}
@@ -459,4 +454,4 @@ const GymManagers = ({ userRole = 'admin' }) => {
     );
 };
 
-export default GymManagers;
+export default Managers;

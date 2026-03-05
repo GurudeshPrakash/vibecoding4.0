@@ -8,7 +8,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
     const superAdminMenu = [
         { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'admins', label: 'Admin Management', icon: <ShieldCheck size={20} /> },
-        { id: 'managers', label: 'Manager Management', icon: <Users size={20} /> },
+        { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
         { id: 'locations', label: 'Location Management', icon: <MapPin size={20} /> },
         { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
@@ -16,10 +16,10 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
 
     const adminMenu = [
         { id: 'dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'locations', label: 'Branches', icon: <MapPin size={20} /> },
-        { id: 'members', label: 'Members', icon: <Users size={20} /> },
         { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
-        { id: 'inventory', label: 'Inventory', icon: <Package size={20} /> },
+        { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
+        { id: 'inventory', label: 'Inventory Management', icon: <Package size={20} /> },
+        { id: 'members', label: 'Members Management', icon: <Users size={20} /> },
         { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
         { id: 'reports', label: 'Reports', icon: <ClipboardList size={20} /> },
     ];

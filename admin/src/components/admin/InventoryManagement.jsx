@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
 import {
     Package, Search, AlertTriangle, CheckCircle2,
-    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus
+    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus, Trash2
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../assets/logo1.png';
 import '../../style/admin/InventoryManagement.css';
+
+const ADMIN_BRANCHES = [
+    { _id: 'b1', name: 'Colombo City Gym' },
+    { _id: 'b2', name: 'Kandy Fitness Center' },
+    { _id: 'b3', name: 'Galle Power Hub' },
+    { _id: 'b4', name: 'Negombo Fitness' },
+    { _id: 'b5', name: 'Kurunegala Gym' },
+    { _id: 'b6', name: 'Jaffna Fitness' },
+];
 
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
@@ -15,36 +24,35 @@ const STATUS_CONFIG = {
 };
 
 const MOCK_INVENTORY = [
-    { id: 'TM-001', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-001', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'TM-002', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-002', lastMaintenance: '2025-12-01', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EB-001', name: 'Upright Stationary Bike', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Matrix', model: 'U50', serial: 'SN-EB-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LP-001', name: '45-Degree Leg Press', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LP', serial: 'SN-LP-001', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CC-001', name: 'Dual Cable Crossover', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Precor', model: 'FTS-Glide', serial: 'SN-CC-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
-    { id: 'RM-001', name: 'Concept2 RowErg', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RM-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'FB-001', name: 'Adjustable Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-FB-001', lastMaintenance: '2025-11-20', nextMaintenance: '2026-05-20', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'SM-001', name: 'Pro Smith Machine', category: 'Strength', status: 'Dismantled', area: 'Strength Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-001', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
-    { id: 'DB-001', name: 'Dumbbell Set (5kg-50kg)', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Rubber Hex', serial: 'SN-DB-SET-01', lastMaintenance: '2026-01-05', nextMaintenance: '2026-07-05', photo: 'https://images.unsplash.com/photo-1586401100295-7a8096fd231a?auto=format&fit=crop&q=80&w=800' },
-    { id: 'BC-001', name: 'Olympic Barbell', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Ohio Bar', serial: 'SN-BC-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-08-10', photo: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EL-001', name: 'Elliptical Trainer E7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-001', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CH-001', name: 'Chest Press Machine', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Matrix', model: 'G7-S13', serial: 'SN-CH-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LD-001', name: 'Lat Pulldown Station', category: 'Strength', status: 'Maintenance', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LD', serial: 'SN-LD-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1591940746222-e8d2f7f00ce2?auto=format&fit=crop&q=80&w=800' },
-    { id: 'KB-001', name: 'Kettlebell Set (4kg-32kg)', category: 'Free Weights', status: 'Good', area: 'Functional Area', brand: 'Eleiko', model: 'Training KB', serial: 'SN-KB-SET-01', lastMaintenance: '2026-02-20', nextMaintenance: '2026-08-20', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'PR-001', name: 'Power Rack System', category: 'Strength', status: 'Good', area: 'Power Zone', brand: 'Rogue', model: 'R-3', serial: 'SN-PR-001', lastMaintenance: '2026-01-10', nextMaintenance: '2026-07-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'TM-204-01', name: 'Pro-Series Treadmill G7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T Elevation', serial: 'SN-TM-2024-001X', mfgYear: '2024', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EB-102-05', name: 'Matrix Upright Bike U50', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Matrix', model: 'U50 V2', serial: 'SN-EB-2023-112B', mfgYear: '2023', lastMaintenance: '2025-12-01', nextMaintenance: '2026-02-28', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LP-305-12', name: 'Plate-Loaded Leg Press', category: 'Weight Machine', status: 'Good', area: 'Leg Zone', brand: 'Hammer Strength', model: 'MTS Leg Press', serial: 'SN-LP-2022-998C', mfgYear: '2022', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CB-501-03', name: 'Cable Crossover Machine', category: 'Weight Machine', status: 'Good', area: 'Free Weights', brand: 'Precor', model: 'FTS Glide', serial: 'SN-CB-2023-441D', mfgYear: '2023', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
-    { id: 'RW-107-02', name: 'Concept2 Rowing Machine', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RW-2024-220A', mfgYear: '2024', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'BN-210-08', name: 'Olympic Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-BN-2022-105B', mfgYear: '2022', lastMaintenance: '2025-11-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'SM-404-01', name: 'Smith Machine Pro', category: 'Weight Machine', status: 'Maintenance', area: 'Power Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-2021-889F', mfgYear: '2021', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EL-601-04', name: 'Elliptical Cross Trainer', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-2023-312G', mfgYear: '2023', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
+    { id: 'TM-001', branchId: 'b1', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-001', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
+    { id: 'TM-002', branchId: 'b1', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-002', lastMaintenance: '2025-12-01', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
+    { id: 'EB-001', branchId: 'b2', name: 'Upright Stationary Bike', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Matrix', model: 'U50', serial: 'SN-EB-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
+    { id: 'LP-001', branchId: 'b3', name: '45-Degree Leg Press', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LP', serial: 'SN-LP-001', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
+    { id: 'CC-001', branchId: 'b4', name: 'Dual Cable Crossover', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Precor', model: 'FTS-Glide', serial: 'SN-CC-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
+    { id: 'RM-001', branchId: 'b5', name: 'Concept2 RowErg', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RM-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
+    { id: 'FB-001', branchId: 'b6', name: 'Adjustable Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-FB-001', lastMaintenance: '2025-11-20', nextMaintenance: '2026-05-20', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
+    { id: 'SM-001', branchId: 'b1', name: 'Pro Smith Machine', category: 'Strength', status: 'Damaged', area: 'Strength Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-001', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
+    { id: 'DB-001', branchId: 'b2', name: 'Dumbbell Set (5kg-50kg)', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Rubber Hex', serial: 'SN-DB-SET-01', lastMaintenance: '2026-01-05', nextMaintenance: '2026-07-05', photo: 'https://images.unsplash.com/photo-1586401100295-7a8096fd231a?auto=format&fit=crop&q=80&w=800' },
+    { id: 'BC-001', branchId: 'b3', name: 'Olympic Barbell', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Ohio Bar', serial: 'SN-BC-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-08-10', photo: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&q=80&w=800' },
+    { id: 'EL-001', branchId: 'b4', name: 'Elliptical Trainer E7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-001', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
+    { id: 'CH-001', branchId: 'b5', name: 'Chest Press Machine', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Matrix', model: 'G7-S13', serial: 'SN-CH-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80&w=800' },
+    { id: 'LD-001', branchId: 'b6', name: 'Lat Pulldown Station', category: 'Strength', status: 'Maintenance', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LD', serial: 'SN-LD-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1591940746222-e8d2f7f00ce2?auto=format&fit=crop&q=80&w=800' },
 ];
 
 const CATEGORIES = ['All', 'Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
-const InventoryManagement = ({ inventoryData = [] }) => {
-    const allItems = inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY;
+const InventoryManagement = () => {
+    const [inventory, setInventory] = useState(() => {
+        const saved = localStorage.getItem('admin_inventory_db');
+        return saved ? JSON.parse(saved) : MOCK_INVENTORY;
+    });
+
+    const [activeBranchId, setActiveBranchId] = useState(() => {
+        const context = localStorage.getItem('selected_branch_context');
+        return context ? JSON.parse(context)._id : 'b1';
+    });
+
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
@@ -57,7 +65,9 @@ const InventoryManagement = ({ inventoryData = [] }) => {
     const [qrItem, setQrItem] = useState(null);
     const [reportImages, setReportImages] = useState([]);
 
-    const filtered = allItems.filter(item => {
+    const branchItems = inventory.filter(i => i.branchId === activeBranchId);
+
+    const filtered = branchItems.filter(item => {
         const matchSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
             item.id?.toLowerCase().includes(search.toLowerCase()) ||
             item.area?.toLowerCase().includes(search.toLowerCase());
@@ -67,10 +77,38 @@ const InventoryManagement = ({ inventoryData = [] }) => {
     });
 
     const counts = {
-        total: allItems.length,
-        good: allItems.filter(i => i.status === 'Good').length,
-        maintenance: allItems.filter(i => i.status === 'Maintenance').length,
-        dismantled: allItems.filter(i => i.status === 'Dismantled').length,
+        total: branchItems.length,
+        good: branchItems.filter(i => i.status === 'Good' || i.status === 'Available').length,
+        maintenance: branchItems.filter(i => i.status === 'Maintenance').length,
+        damaged: branchItems.filter(i => i.status === 'Damaged' || i.status === 'Dismantled').length,
+    };
+
+    const handleAddEquipment = () => {
+        const name = prompt('Enter Equipment Name:');
+        if (!name) return;
+        const newId = `EQ-${Math.floor(1000 + Math.random() * 9000)}`;
+        const newItem = {
+            id: newId,
+            branchId: activeBranchId,
+            name,
+            category: 'Strength',
+            status: 'Good',
+            area: 'General Area',
+            brand: 'Standard',
+            serial: `SN-${newId}`,
+            lastMaintenance: new Date().toISOString().split('T')[0],
+            photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800'
+        };
+        const updated = [...inventory, newItem];
+        setInventory(updated);
+        localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
+    };
+
+    const handleRemoveEquipment = (id) => {
+        if (!window.confirm('Remove this equipment from inventory?')) return;
+        const updated = inventory.filter(i => i.id !== id);
+        setInventory(updated);
+        localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
     };
 
     const handleOpenReport = (item) => {
@@ -168,8 +206,11 @@ Digital Asset Record`;
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
                     <h1>Inventory Management</h1>
-                    <p>View all gym equipment and facilities. Update status as needed.</p>
+                    <p>Manage branch-specific equipment and monitor conditions.</p>
                 </div>
+                <button onClick={handleAddEquipment} className="sm-btn-add" style={{ height: 'fit-content' }}>
+                    <Plus size={18} /> Add Equipment
+                </button>
             </header>
 
             <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)' }}>
@@ -177,33 +218,57 @@ Digital Asset Record`;
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
                     <div className="card-data">
                         <span className="label">Total Equipment</span>
-                        <h2 className="value">{counts.total}</h2>
+                        <h2 className="value" style={{ color: '#000' }}>{counts.total}</h2>
                     </div>
                 </div>
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
                         <span className="label">Available</span>
-                        <h2 className="value">{counts.good}</h2>
+                        <h2 className="value" style={{ color: '#000' }}>{counts.good}</h2>
                     </div>
                 </div>
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
                     <div className="card-data">
                         <span className="label">In Maintenance</span>
-                        <h2 className="value">{counts.maintenance}</h2>
+                        <h2 className="value" style={{ color: '#000' }}>{counts.maintenance}</h2>
                     </div>
                 </div>
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
                         <span className="label">Damaged</span>
-                        <h2 className="value">{counts.dismantled}</h2>
+                        <h2 className="value" style={{ color: '#000' }}>{counts.damaged}</h2>
                     </div>
                 </div>
             </section>
 
-            <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* Branch Navigation */}
+                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', borderBottom: '1px solid #E2E8F0' }}>
+                    {ADMIN_BRANCHES.map(branch => (
+                        <button
+                            key={branch._id}
+                            onClick={() => setActiveBranchId(branch._id)}
+                            style={{
+                                padding: '10px 20px',
+                                borderRadius: '12px',
+                                border: 'none',
+                                background: activeBranchId === branch._id ? 'var(--color-red)' : 'transparent',
+                                color: activeBranchId === branch._id ? '#fff' : '#64748B',
+                                fontWeight: '700',
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {branch.name}
+                        </button>
+                    ))}
+                </div>
+
                 <div style={{ position: 'relative', width: '100%', maxWidth: '500px' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                     <input
@@ -300,24 +365,30 @@ Digital Asset Record`;
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '8px' }}>
+                                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                                     <button
                                         onClick={() => setSelectedItem(item)}
-                                        style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                        style={{ flex: '1 1 60px', padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                                     >
-                                        <Eye size={14} /> View
+                                        <Eye size={12} /> View
                                     </button>
                                     <button
                                         onClick={() => setQrItem(item)}
-                                        style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                        style={{ flex: '1 1 60px', padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                                     >
-                                        <QrCode size={14} /> QR
+                                        <QrCode size={12} /> QR
                                     </button>
                                     <button
                                         onClick={() => handleOpenReport(item)}
-                                        style={{ flex: 1, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                        style={{ flex: '1 1 60px', padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                                     >
-                                        <Wrench size={14} /> Update
+                                        <Wrench size={12} /> Update
+                                    </button>
+                                    <button
+                                        onClick={() => handleRemoveEquipment(item.id)}
+                                        style={{ flex: '1 1 60px', padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                                    >
+                                        <Trash2 size={12} /> Remove
                                     </button>
                                 </div>
                             </div>

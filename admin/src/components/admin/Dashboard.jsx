@@ -1,32 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-    LayoutDashboard,
     CheckCircle2,
     Clock,
     Wrench,
     Activity,
     Calendar,
-    ArrowUpRight,
     Package,
     ChevronLeft,
     ChevronRight,
     AlertTriangle,
-    Zap,
     Users,
     DollarSign,
-    CreditCard
+    ArrowUpRight
 } from 'lucide-react';
-import {
-    ComposedChart,
-    Bar,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
-} from 'recharts';
+
 
 
 import '../../style/admin/AdminDashboard.css';
@@ -181,7 +168,6 @@ const MiniCalendar = () => {
 };
 
 const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleRequests = [], setDismantleRequests, refreshInventory, userRole = 'admin' }) => {
-    const navigate = useNavigate();
     const isRestricted = userRole === 'staff';
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [adminComment, setAdminComment] = useState('');
@@ -216,17 +202,6 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
             setIsProcessing(false);
         }
     };
-
-    const peakHoursData = [
-        { hour: '6am', count: 45 },
-        { hour: '9am', count: 120 },
-        { hour: '12pm', count: 85 },
-        { hour: '3pm', count: 95 },
-        { hour: '6pm', count: 180 },
-        { hour: '9pm', count: 110 },
-    ];
-
-
 
     return (
         <div className="admin-dashboard">

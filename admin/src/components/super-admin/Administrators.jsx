@@ -35,6 +35,10 @@ const Administrators = () => {
     const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_admins_db'));
     const [showModal, setShowModal] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState(null);
+    const [staff, setStaff] = useState(() => {
+        const saved = localStorage.getItem('admin_staff_db');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
@@ -108,6 +112,8 @@ const Administrators = () => {
     useEffect(() => {
         fetchAdmins();
         fetchBranches();
+        const savedStaff = localStorage.getItem('admin_staff_db');
+        if (savedStaff) setStaff(JSON.parse(savedStaff));
     }, []);
 
     const handleChange = (e) => {
@@ -328,6 +334,7 @@ const Administrators = () => {
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Email</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Staff</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Last Login</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
@@ -355,6 +362,14 @@ const Administrators = () => {
                                                 </td>
                                                 <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>
                                                     {a.allBranchAccess ? 'All Branches' : (branches.find(b => b._id === a.branchId)?.name || 'Default Branch')}
+                                                </td>
+                                                <td style={{ padding: '16px 24px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <Users size={12} color="var(--color-red)" />
+                                                        <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>
+                                                            {a.allBranchAccess ? staff.length : staff.filter(s => s.branchId === a.branchId).length}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td style={{ padding: '16px 24px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

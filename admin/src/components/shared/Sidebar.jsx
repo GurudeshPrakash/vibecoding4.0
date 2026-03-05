@@ -6,7 +6,7 @@ import '../../style/Sidebar.css';
 const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
-        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} /> },
         { id: 'managers', label: 'Managers', icon: <Users size={20} /> },
         { id: 'locations', label: 'Locations', icon: <MapPin size={20} /> },
@@ -25,7 +25,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
     ];
 
     const staffMenu = [
-        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'inventory', label: 'Inventory', icon: <Package size={20} /> },
         { id: 'members', label: 'Members', icon: <Users size={20} /> },
         { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },

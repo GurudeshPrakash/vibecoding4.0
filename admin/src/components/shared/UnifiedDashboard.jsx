@@ -39,7 +39,7 @@ const UnifiedDashboard = (props) => {
             {/* 3. STAFF SECTION */}
             {userRole === 'staff' && (
                 <section id="staff-section">
-                    <StaffDashboard />
+                    <StaffDashboard setActiveTab={setActiveTab} />
                 </section>
             )}
         </div>

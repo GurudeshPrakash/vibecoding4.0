@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import * as Recharts from 'recharts';
 
-import '../../style/SuperAdminDashboard.css';
+import '../../style/super-admin/SuperAdminDashboard.css';
 
 const LiveClock = () => {
     const [time, setTime] = useState(new Date());

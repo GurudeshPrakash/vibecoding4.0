@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, CheckSquare, DollarSign, Package } from 'lucide-react';
+import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, DollarSign, Package } from 'lucide-react';
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
@@ -7,27 +7,27 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
 
     const superAdminMenu = [
         { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'admins', label: 'Administrators', icon: <ShieldCheck size={20} /> },
-        { id: 'managers', label: 'Managers', icon: <Users size={20} /> },
-        { id: 'locations', label: 'Locations', icon: <MapPin size={20} /> },
+        { id: 'admins', label: 'Admin Management', icon: <ShieldCheck size={20} /> },
+        { id: 'managers', label: 'Manager Management', icon: <Users size={20} /> },
+        { id: 'locations', label: 'Location Management', icon: <MapPin size={20} /> },
         { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
     ];
 
     const adminMenu = [
         { id: 'dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'inventory', label: 'Asset Management', icon: <Package size={20} /> },
-        { id: 'managers', label: 'Staff Management', icon: <Users size={20} /> },
+        { id: 'locations', label: 'Branches', icon: <MapPin size={20} /> },
         { id: 'members', label: 'Members', icon: <Users size={20} /> },
-        { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
-        { id: 'trainers', label: 'Trainers', icon: <Users size={20} /> },
+        { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
+        { id: 'inventory', label: 'Inventory', icon: <Package size={20} /> },
+        { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
         { id: 'reports', label: 'Reports', icon: <ClipboardList size={20} /> },
     ];
 
     const staffMenu = [
         { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'inventory', label: 'Inventory', icon: <Package size={20} /> },
-        { id: 'members', label: 'Members', icon: <Users size={20} /> },
+        { id: 'inventory', label: 'Inventory Management', icon: <Package size={20} /> },
+        { id: 'members', label: 'Members Management', icon: <Users size={20} /> },
         { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
     ];
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import logo from '../../assets/logo1.png';
-import '../../style/AdminAuth.css';
+import '../../style/admin/AdminAuth.css';
 
 const ForgotPassword = ({ onBack }) => {
     const [email, setEmail] = useState('');

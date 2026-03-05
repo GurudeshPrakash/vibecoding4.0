@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Search, Filter, Plus, User, Mail, Phone, MapPin, MoreHorizontal, CheckCircle2, XCircle, Eye } from 'lucide-react';
-import '../../style/staff/StaffDashboard.css';
+import '../../style/admin/MembersManagement.css';
 
-const Members = () => {
+const MembersManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const membersList = [
@@ -27,7 +27,7 @@ const Members = () => {
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1>Members</h1>
+                    <h1>Members Management</h1>
                     <p>Manage branch members, subscriptions, and profiles.</p>
                 </div>
             </header>
@@ -124,4 +124,4 @@ const Members = () => {
     );
 };
 
-export default Members;
+export default MembersManagement;

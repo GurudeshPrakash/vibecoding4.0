@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, Mail, Search, Plus, Loader2, X, Trash2, Edit2, Shield, Eye, EyeOff, Users, ClipboardList, Activity, ArrowUpRight, CheckCircle2, AlertCircle, RefreshCcw, UserMinus, UserPlus, ArrowLeft, Clock } from 'lucide-react';
-import '../../style/SuperAdminDashboard.css';
+import '../../style/super-admin/Administrators.css';
 import AdminLogs from './AdminLogs';
 
 const LiveClock = () => {
@@ -17,7 +17,7 @@ const LiveClock = () => {
     );
 };
 
-const Admins = () => {
+const Administrators = () => {
     const [viewTab, setViewTab] = useState('accounts');
     const [searchQuery, setSearchQuery] = useState('');
     const [admins, setAdmins] = useState(() => {
@@ -126,7 +126,6 @@ const Admins = () => {
             : 'http://localhost:5000/api/admin/admins';
         const method = editingAdmin ? 'PUT' : 'POST';
 
-        // Prepare submission data
         const submitData = {
             ...formData,
             password: formData.tempPassword,
@@ -155,7 +154,6 @@ const Admins = () => {
             }
         } catch (error) {
             console.warn('Network error, applying changes to mock database:', error.message);
-            // APPLY TO MOCK DB
             const savedMock = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
             if (editingAdmin) {
                 const updated = savedMock.map(a => a._id === editingAdmin._id ? { ...a, ...submitData } : a);
@@ -211,7 +209,6 @@ const Admins = () => {
     const handleResetPassword = async (email) => {
         if (!window.confirm(`Send password reset email to ${email}?`)) return;
         alert(`Invitation reset sent to ${email}`);
-        // In a real app, you'd call an API endpoint here
     };
 
     const openEdit = (a) => {
@@ -246,7 +243,7 @@ const Admins = () => {
             <header className="sa-header">
                 <div className="sa-welcome">
                     <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        Admin Management
+                        Administrators
                     </h1>
                     <p style={{ margin: 0, marginTop: '4px' }}>Manage and monitor all administrators.</p>
                 </div>
@@ -505,4 +502,4 @@ const Admins = () => {
     );
 };
 
-export default Admins;
+export default Administrators;

@@ -289,10 +289,17 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
     useEffect(() => {
         const fetchLiveStats = () => {
             const raw = localStorage.getItem('sa_live_mock_database');
+            const staffDb = JSON.parse(localStorage.getItem('admin_staff_db') || '[]');
+            const adminsDb = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
+
             if (raw) {
                 try {
                     const parsed = JSON.parse(raw);
-                    // Ensure we always have 12-month revenue-based format as requested
+                    // Update dynamic counts from actual databases
+                    parsed.totalStaff = staffDb.length;
+                    parsed.activeStaff = staffDb.filter(s => s.status === 'Active').length;
+                    parsed.totalAdmins = adminsDb.length;
+
                     if (parsed.memberGrowth && parsed.memberGrowth.length !== 12) {
                         parsed.memberGrowth = statsState.memberGrowth;
                     }
@@ -366,113 +373,43 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
         <div className="super-admin-dashboard" style={{ opacity: isLocked ? 0.95 : 1 }}>
             <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                 <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div className="admin-greeting-inline" style={{ marginBottom: '6px' }}>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 600, color: '#ef4444' }}>Insight Mode: </span>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1a1a1a' }}>{isLocked ? 'Restricted View' : adminName}</span>
-                    </div>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Command Analytics</h1>
-                </div>
-
-                <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <button
-                        className="add-admin-btn"
-                        onClick={() => { if (!isLocked) navigate('/super-admin/owners', { state: { openModal: true } }); }}
-                        disabled={isLocked}
-                        style={{
-                            background: isLocked ? '#9ca3af' : '#ff0000',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '12px 28px',
-                            borderRadius: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '14px',
-                            cursor: isLocked ? 'not-allowed' : 'pointer',
-                            boxShadow: isLocked ? 'none' : '0 8px 20px rgba(255,0,0,0.25)',
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            opacity: isLocked ? 0.8 : 1
-                        }}
-                    >
-                        <UserPlus size={24} />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span style={{ opacity: 0.85 }}>{isLocked ? 'Locked' : 'Add New'}</span>
-                            <span>Manager</span>
-                        </div>
-                    </button>
-
-                    <button
-                        className="add-branch-btn"
-                        onClick={() => { if (!isLocked) navigate('/super-admin/locations', { state: { openModal: true } }); }}
-                        disabled={isLocked}
-                        style={{
-                            background: '#fff',
-                            color: isLocked ? '#9ca3af' : '#ff0000',
-                            border: `2px solid ${isLocked ? '#9ca3af' : '#ff0000'}`,
-                            padding: '10px 28px',
-                            borderRadius: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '14px',
-                            cursor: isLocked ? 'not-allowed' : 'pointer',
-                            boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            opacity: isLocked ? 0.7 : 1
-                        }}
-                    >
-                        <Building2 size={24} />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.8rem', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span style={{ color: '#666', opacity: 0.7 }}>{isLocked ? 'Locked' : 'Add New'}</span>
-                            <span>Branch</span>
-                        </div>
-                    </button>
-
-                    <form className="sa-search-bar" onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: '#F3F4F6', borderRadius: '16px', padding: '0 20px', border: '1px solid #E5E7EB', height: '54px', width: '340px', transition: 'all 0.3s ease' }}>
-                        <Search className="sa-search-icon" size={22} color="#9CA3AF" style={{ marginRight: '14px' }} />
-                        <div style={{ height: '28px', width: '1px', background: '#D1D5DB', marginRight: '18px' }}></div>
-                        <input
-                            type="text"
-                            placeholder="Search Data Stream..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '1rem', fontWeight: 700, color: '#111827' }}
-                        />
-                    </form>
+                    <h1>Command Analytics</h1>
                 </div>
             </header>
 
             <section className="sa-summary-grid">
-                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('managers'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
                             <Users />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Members</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalMembers?.toLocaleString() || '1,240'}</h2>
+                            <span className="label" style={{ margin: 0 }}>TOTAL STAFF</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalStaff || '05'}</h2>
                         </div>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('managers'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
-                            <ShieldCheck />
+                            <Activity />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Active Members</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMembers?.toLocaleString() || '1,192'}</h2>
+                            <span className="label" style={{ margin: 0 }}>ACTIVE MEMBERS</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMembers?.toLocaleString() || '0'}</h2>
                         </div>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer', borderLeft: '3px solid var(--color-red)' }}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer'}}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
                             <ShieldCheck />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>System Admins</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>05</h2>
+                            <span className="label" style={{ margin: 0 }}>SYSTEM ADMINS</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{String(statsState?.totalAdmins || 3).padStart(2, '0')}</h2>
                         </div>
                     </div>
                 </div>
@@ -483,7 +420,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                             <Building2 />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Active Branches</span>
+                            <span className="label" style={{ margin: 0 }}>ACTIVE BRANCHES</span>
                             <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeGyms || '12'}</h2>
                         </div>
                     </div>
@@ -495,8 +432,8 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                             <DollarSign />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Monthly Revenue</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.monthlyRevenue / 1000000).toFixed(1)}M</h2>
+                            <span className="label" style={{ margin: 0 }}>MONTHLY REVENUE</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.monthlyRevenue || 0).toFixed(1)}M</h2>
                         </div>
                     </div>
                 </div>
@@ -507,8 +444,8 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                             <CreditCard />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Pending Payments</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.pendingPayments / 1000).toFixed(0)}K</h2>
+                            <span className="label" style={{ margin: 0 }}>PENDING PAYMENTS</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR OK</h2>
                         </div>
                     </div>
                 </div>
@@ -567,6 +504,42 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                         </div >
                     </div >
 
+                    {/* Branch Performance Table - Sync with Admin Dashboard */}
+                    <div className="sa-card">
+                        <div className="sa-card-header">
+                            <h3>Branch Performance</h3>
+                        </div>
+                        <div className="sa-table-container">
+                            <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#F9FAFB' }}>
+                                        <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Branch Name</th>
+                                        <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Total Members</th>
+                                        <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Today Check-ins</th>
+                                        <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Revenue (LKR)</th>
+                                        <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase', textAlign: 'center' }}>Equipment Issues</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[
+                                        { branch: 'Colombo City Gym', members: 450, checkins: 120, revenue: '1.2M', issues: 3 },
+                                        { branch: 'Kandy Fitness Center', members: 320, checkins: 85, revenue: '850K', issues: 1 },
+                                        { branch: 'Galle Power Hub', members: 210, checkins: 45, revenue: '450K', issues: 0 },
+                                        { branch: 'Negombo Fitness', members: 180, checkins: 30, revenue: '380K', issues: 2 },
+                                    ].map((row, idx) => (
+                                        <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)' }}>{row.branch}</td>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 600 }}>{row.members}</td>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 600 }}>{row.checkins}</td>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 600, color: '#10B981' }}>{row.revenue}</td>
+                                            <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 600, color: row.issues > 0 ? '#EF4444' : '#10B981', textAlign: 'center' }}>{row.issues}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                         <div className="sa-card">
                             <div className="sa-card-header">
@@ -614,31 +587,28 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
 
                 <aside className="sa-sidebar-col">
                     <MiniCalendar />
-
-                    <div className="sa-card" style={{ background: '#111827', color: '#fff', padding: '0', overflow: 'hidden' }}>
-                        <div className="sa-card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 20px' }}>
+                    <div className="sa-card">
+                        <div className="sa-card-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Zap size={20} color="#FF0000" />
-                                <h3 style={{ fontSize: '1rem' }}>Quick Terminal</h3>
+                                <AlertCircle size={20} color="var(--color-red)" />
+                                <h3>Branch Alerts</h3>
                             </div>
                         </div>
-                        <div className="sa-quick-actions">
-                            <button className="sa-action-btn" onClick={() => { setActiveTab('admins'); navigate('/dashboard'); }}>
-                                <ShieldCheck />
-                                <span>Admins</span>
-                            </button>
-                            <button className="sa-action-btn" onClick={() => { setActiveTab('managers'); navigate('/dashboard'); }}>
-                                <Users />
-                                <span>Managers</span>
-                            </button>
-                            <button className="sa-action-btn" onClick={() => { setActiveTab('locations'); navigate('/dashboard'); }}>
-                                <Building2 />
-                                <span>Locations</span>
-                            </button>
-                            <button className="sa-action-btn" onClick={() => { setActiveTab('activity-logs'); navigate('/dashboard'); }}>
-                                <ClipboardList />
-                                <span>Logs</span>
-                            </button>
+                        <div className="alerts-stack" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className="alert-item-branch" style={{ padding: '14px', background: '#FFF5F5', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '4px solid #EF4444' }}>
+                                <AlertCircle size={20} color="#EF4444" />
+                                <div>
+                                    <span style={{ fontWeight: 800, fontSize: '0.78rem', display: 'block' }}>3 Assets Need Repair</span>
+                                    <p style={{ margin: 0, fontSize: '0.62rem', color: '#64748B' }}>Dismantle requests pending</p>
+                                </div>
+                            </div>
+                            <div className="alert-item-branch warning" style={{ padding: '14px', background: '#FFFBEB', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '4px solid #F59E0B' }}>
+                                <Clock size={20} color="#F59E0B" />
+                                <div>
+                                    <span style={{ fontWeight: 800, fontSize: '0.78rem', display: 'block' }}>14 Fees Overdue</span>
+                                    <p style={{ margin: 0, fontSize: '0.62rem', color: '#64748B' }}>Follow up required</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </aside>

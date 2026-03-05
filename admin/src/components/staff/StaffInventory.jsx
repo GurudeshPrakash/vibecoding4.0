@@ -40,7 +40,7 @@ const MOCK_INVENTORY = [
     { id: 'EL-601-04', name: 'Elliptical Cross Trainer', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-2023-312G', mfgYear: '2023', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
 ];
 
-const CATEGORIES = ['All', 'Cardio', 'Weight Machine', 'Free Weights'];
+const CATEGORIES = ['Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
 const StaffInventory = ({ inventoryData = [] }) => {

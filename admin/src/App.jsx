@@ -325,7 +325,7 @@ function App() {
           />
         );
         case 'staff': return <StaffManagement userRole={viewRole} />;
-        case 'locations': return <BranchManagement />;
+        case 'locations': return <BranchManagement setActiveTab={setActiveTab} />;
         case 'inventory': return <InventoryManagement inventoryData={props.inventoryData} />;
         case 'members': return <MembersManagement />;
         case 'payments': return <PaymentManagement />;

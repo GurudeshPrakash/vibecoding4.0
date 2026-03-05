@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, MapPin, ArrowLeft, Calendar, User, Package, Clock, Search, Plus, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
-import '../../style/SuperAdminDashboard.css';
+import '../../style/super-admin/SuperAdminDashboard.css';
 
 const checkStatus = (hours, now) => {
   if (!hours) return 'Closed';

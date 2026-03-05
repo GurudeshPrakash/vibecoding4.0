@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, DollarSign, Filter, Receipt, FileText, CheckCircle2, Clock } from 'lucide-react';
-import '../../style/AdminDashboard.css';
+import '../../style/staff/StaffDashboard.css';
 
 const Payments = () => {
     const [searchTerm, setSearchTerm] = useState('');

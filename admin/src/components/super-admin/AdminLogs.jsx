@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Shield, Clock, Loader2, Calendar } from 'lucide-react';
-import '../../style/SuperAdminDashboard.css';
+import '../../style/super-admin/SuperAdminDashboard.css';
 
 const AdminLogs = ({ embedded = false }) => {
     const [logs, setLogs] = useState(() => {

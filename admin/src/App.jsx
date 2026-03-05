@@ -4,13 +4,18 @@ import Sidebar from './components/shared/Sidebar';
 import TopNav from './components/shared/TopNav';
 import { Zap } from 'lucide-react';
 import AdminDashboard from './components/admin/Dashboard';
-import Locations from './components/admin/Locations';
-import GymOwners from './components/admin/GymOwners';
+import Locations from './components/super-admin/Locations';
 import Settings from './components/admin/Settings';
 import Landing from './components/shared/Landing';
-import UnifiedLogin from './components/admin/Login';
-import Admins from './components/admin/Admins';
-import ActivityLogs from './components/admin/ActivityLogs';
+import Administrators from './components/super-admin/Administrators';
+import Managers from './components/super-admin/Managers';
+import StaffManagement from './components/admin/StaffManagement';
+import BranchManagement from './components/admin/BranchManagement';
+import InventoryManagement from './components/admin/InventoryManagement';
+import MembersManagement from './components/admin/MembersManagement';
+import PaymentManagement from './components/admin/PaymentManagement';
+import Reports from './components/admin/Reports';
+import ActivityLogs from './components/super-admin/AdminLogs';
 import LogoutModal from './components/shared/LogoutModal';
 import ActivityDetailModal from './components/shared/ActivityDetailModal';
 import ForgotPassword from './components/admin/ForgotPassword';
@@ -287,8 +292,8 @@ function App() {
             setActiveTab={setActiveTab}
           />
         );
-        case 'admins': return <Admins />;
-        case 'managers': return <GymOwners userRole={viewRole} />;
+        case 'admins': return <Administrators />;
+        case 'managers': return <Managers userRole={viewRole} />;
         case 'locations': return <Locations />;
         case 'activity-logs': return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
         case 'settings': return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
@@ -319,11 +324,12 @@ function App() {
             setActiveTab={setActiveTab}
           />
         );
-        case 'inventory': return <StaffInventory inventoryData={props.inventoryData} />;
-        case 'managers': return <GymOwners userRole={viewRole} />;
-        case 'members': return <Members />;
-        case 'locations': return <Locations />;
-        case 'reports': return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
+        case 'staff': return <StaffManagement userRole={viewRole} />;
+        case 'locations': return <BranchManagement />;
+        case 'inventory': return <InventoryManagement inventoryData={props.inventoryData} />;
+        case 'members': return <MembersManagement />;
+        case 'payments': return <PaymentManagement />;
+        case 'reports': return <Reports />;
         default: return (
           <UnifiedDashboard
             userRole={viewRole}

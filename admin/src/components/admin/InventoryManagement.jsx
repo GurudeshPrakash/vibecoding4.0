@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../assets/logo1.png';
-import '../../style/staff/StaffDashboard.css';
+import '../../style/admin/InventoryManagement.css';
 
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
@@ -43,7 +43,7 @@ const MOCK_INVENTORY = [
 const CATEGORIES = ['All', 'Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
-const StaffInventory = ({ inventoryData = [] }) => {
+const InventoryManagement = ({ inventoryData = [] }) => {
     const allItems = inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY;
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
@@ -102,8 +102,7 @@ const StaffInventory = ({ inventoryData = [] }) => {
     const handleSubmitReport = (e) => {
         e.preventDefault();
         if (!reportReason.trim()) return;
-        // In production, send to backend API
-        console.log('Dismantle report submitted for:', reportItem?.id, 'Reason:', reportReason);
+        console.log('Update report submitted for:', reportItem?.id, 'Reason:', reportReason);
         setReportSubmitted(true);
     };
 
@@ -166,15 +165,13 @@ Digital Asset Record`;
 
     return (
         <div className="admin-dashboard">
-            {/* Header */}
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1>Inventory</h1>
+                    <h1>Inventory Management</h1>
                     <p>View all gym equipment and facilities. Update status as needed.</p>
                 </div>
             </header>
 
-            {/* Stats */}
             <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)' }}>
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
@@ -206,7 +203,6 @@ Digital Asset Record`;
                 </div>
             </section>
 
-            {/* Filters */}
             <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ position: 'relative', width: '100%', maxWidth: '500px' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
@@ -260,13 +256,11 @@ Digital Asset Record`;
                 </div>
             </div>
 
-            {/* Equipment Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {filtered.map(item => {
                     const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
                     return (
                         <div key={item.id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-                            {/* Equipment Image */}
                             <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
                                 <img
                                     src={item.photo}
@@ -286,7 +280,6 @@ Digital Asset Record`;
                                 </div>
                             </div>
 
-                            {/* Info */}
                             <div style={{ padding: '16px' }}>
                                 <div style={{ marginBottom: '4px', fontSize: '0.58rem', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                     {item.category} • {item.area}
@@ -385,7 +378,6 @@ Digital Asset Record`;
                 </div>
             )}
 
-            {/* Report Issue Modal */}
             {showReportModal && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
@@ -437,7 +429,7 @@ Digital Asset Record`;
                                         <textarea
                                             value={reportReason}
                                             onChange={e => setReportReason(e.target.value)}
-                                            placeholder="Describe the issue in detail (condition, severity, what happened)..."
+                                            placeholder="Describe the issue in detail..."
                                             rows={4}
                                             required
                                             style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.7rem', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
@@ -463,7 +455,7 @@ Digital Asset Record`;
                                                 {reportImages.length < 20 && (
                                                     <label style={{
                                                         aspectRatio: '1/1', border: '2px dashed #E2E8F0', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', transition: 'all 0.2s', background: '#F8FAFC'
-                                                    }} onMouseOver={(e) => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#3B82F6'; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#94A3B8'; }}>
+                                                    }}>
                                                         <Plus size={20} />
                                                         <span style={{ fontSize: '0.55rem', marginTop: '4px', fontWeight: '600' }}>Add Photo</span>
                                                         <input
@@ -491,7 +483,6 @@ Digital Asset Record`;
                     </div>
                 </div>
             )}
-            {/* QR Modal */}
             {qrItem && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', padding: '24px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
@@ -536,4 +527,4 @@ Digital Asset Record`;
     );
 };
 
-export default StaffInventory;
+export default InventoryManagement;

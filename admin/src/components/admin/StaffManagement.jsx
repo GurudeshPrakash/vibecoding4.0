@@ -244,9 +244,6 @@ const StaffManagement = () => {
             {/* ── Page Header ──────────────────────────────────────────────── */}
             <div className="sm-page-header">
                 <div className="sm-page-title-block">
-                    <div className="sm-page-icon">
-                        <Users size={22} color="var(--color-red)" />
-                    </div>
                     <div>
                         <h1 className="sm-page-title">Staff Management</h1>
                         <p className="sm-page-subtitle">

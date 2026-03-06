@@ -1,182 +1,251 @@
 import React, { useState } from 'react';
-import {
-  User,
-  Bell,
-  Shield,
-  Settings as SettingsIcon,
-  CreditCard,
-  Camera,
-  Globe,
-  Clock,
-  Lock
-} from 'lucide-react';
-import '../../style/AdminSettings.css';
+import { User, Bell, Shield, Globe, CreditCard, Camera, Save, Lock, LogOut, Check } from 'lucide-react';
+import '../../style/admin/AdminSettings.css';
 
-const Settings = ({ adminName, setAdminName }) => {
+const Settings = ({
+  adminName,
+  setAdminName,
+  profileImage,
+  setProfileImage
+}) => {
   const [activeTab, setActiveTab] = useState('Account');
+  const [email, setEmail] = useState('admin@gym.com');
+  const [password, setPassword] = useState('********');
+  const [localProfileImage, setLocalProfileImage] = useState(null);
+
+  const [preferences, setPreferences] = useState({
+    notifications: true,
+    language: 'English',
+    timezone: 'UTC+5:30 (Colombo)',
+    dateFormat: 'DD/MM/YYYY',
+    timeFormat: '12-hour'
+  });
+
+  const [notifSettings, setNotifSettings] = useState({
+    systemAlerts: true,
+    payments: true,
+    maintenance: false
+  });
+
+  const [security, setSecurity] = useState({
+    twoStep: false,
+    currentPassword: '',
+    newPassword: ''
+  });
+
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = (section) => {
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      alert(`${section} settings updated successfully!`);
+    }, 600);
+  };
 
   const tabs = [
-    { id: 'Account', icon: <User size={18} /> },
-    { id: 'Notifications', icon: <Bell size={18} /> },
-    { id: 'Security', icon: <Shield size={18} /> },
-    { id: 'Preferences', icon: <SettingsIcon size={18} /> },
-    { id: 'Billing', icon: <CreditCard size={18} /> }
+    { id: 'Account', icon: <User size={14} /> },
+    { id: 'Notifications', icon: <Bell size={14} /> },
+    { id: 'Security', icon: <Shield size={14} /> },
+    { id: 'Preferences', icon: <Globe size={14} /> },
+    { id: 'Billing', icon: <CreditCard size={14} /> }
   ];
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLocalProfileImage(reader.result);
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'Account':
         return (
-          <div className="settings-section account-layout">
-            <div className="profile-details">
-              <div className="form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  value={adminName}
-                  onChange={(e) => setAdminName(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Email Address</label>
-                <input type="email" defaultValue="admin@gymsys.com" />
-              </div>
-              <div className="form-group">
-                <label>Password</label>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <input type="password" defaultValue="********" disabled />
-                  <button className="btn-secondary">Change</button>
+          <div className="settings-content-card">
+            <div className="profile-split">
+              <div className="profile-left">
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>Full Name</label>
+                  <input type="text" value={adminName} onChange={(e) => setAdminName(e.target.value)} placeholder="Full Name" style={{ fontSize: '0.78rem', padding: '10px' }} />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>Email Address</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Address" style={{ fontSize: '0.78rem', padding: '10px' }} />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>Password</label>
+                  <div className="input-with-action">
+                    <input type="password" value={password} disabled placeholder="Current Password" style={{ fontSize: '0.78rem', padding: '10px' }} />
+                    <button
+                      className="text-action-btn"
+                      onClick={() => {
+                        setActiveTab('Security');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      style={{ fontSize: '0.7rem', fontWeight: 700 }}
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+                <div className="profile-actions-bottom">
+                  <button
+                    className="btn-save"
+                    onClick={() => handleSave('Profile')}
+                    disabled={saving}
+                    style={{ fontSize: '0.72rem', padding: '8px 16px' }}
+                  >
+                    {saving ? 'Saving...' : <><Save size={14} /> Update Profile</>}
+                  </button>
                 </div>
               </div>
-              <div style={{ marginTop: '40px' }}>
-                <button className="btn-primary">Save Changes</button>
+              <div className="profile-right">
+                <div className="profile-avatar-container">
+                  <div className="large-avatar-frame" style={{ width: '120px', height: '120px' }}>
+                    {(localProfileImage || profileImage) ? <img src={localProfileImage || profileImage} alt="Profile" className="settings-avatar-img" /> : <User size={40} color="var(--color-text-dim)" />}
+                  </div>
+                  <label className="edit-photo-btn" style={{ fontSize: '0.65rem', padding: '6px 12px' }}>
+                    <Camera size={12} /> Edit Photo
+                    <input type="file" onChange={handleImageUpload} style={{ display: 'none' }} />
+                  </label>
+                </div>
               </div>
-            </div>
-            <div className="profile-picture-section">
-              <div className="profile-pic-container">
-                <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=FF0000&color=fff&size=200`} alt="Profile" />
-              </div>
-              <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Camera size={16} /> Edit Photo
-              </button>
             </div>
           </div>
         );
       case 'Notifications':
         return (
-          <div className="settings-section settings-list">
-            <div className="settings-item">
-              <div className="settings-item-info">
-                <h4>System Alerts</h4>
-                <p>Get notified about system updates and maintenance.</p>
+          <div className="settings-content-card">
+            <h3 className="section-title-professional" style={{ fontSize: '0.9rem' }}>Notifications</h3>
+            <div className="options-list-wide">
+              {['System Alerts', 'Payment Notifications', 'Maintenance Alerts'].map((item, idx) => (
+                <div className="settings-option" key={idx}>
+                  <div className="option-info">
+                    <h4 style={{ fontSize: '0.78rem' }}>{item}</h4>
+                    <p style={{ fontSize: '0.68rem' }}>Configure your preferences for {item.toLowerCase()}.</p>
+                  </div>
+                  <label className="toggle-switch">
+                    <input type="checkbox" defaultChecked={idx < 2} />
+                    <span className="slider"></span>
+                  </label>
+                </div>
+              ))}
+              <div className="profile-actions-bottom">
+                <button
+                  className="btn-save"
+                  onClick={() => handleSave('Notification')}
+                  disabled={saving}
+                  style={{ fontSize: '0.72rem', padding: '8px 16px' }}
+                >
+                  {saving ? 'Saving...' : <><Save size={14} /> Save Alerts</>}
+                </button>
               </div>
-              <label className="switch">
-                <input type="checkbox" defaultChecked />
-                <span className="slider"></span>
-              </label>
-            </div>
-            <div className="settings-item">
-              <div className="settings-item-info">
-                <h4>Payment Notifications</h4>
-                <p>Receive alerts for pending and successful payments.</p>
-              </div>
-              <label className="switch">
-                <input type="checkbox" defaultChecked />
-                <span className="slider"></span>
-              </label>
-            </div>
-            <div className="settings-item">
-              <div className="settings-item-info">
-                <h4>Maintenance Notifications</h4>
-                <p>Be informed when hardware or facility maintenance is scheduled.</p>
-              </div>
-              <label className="switch">
-                <input type="checkbox" />
-                <span className="slider"></span>
-              </label>
             </div>
           </div>
         );
       case 'Security':
         return (
-          <div className="settings-section">
-            <div className="security-card">
-              <div className="settings-item" style={{ border: 'none', padding: 0 }}>
-                <div className="settings-item-info">
-                  <h4>Two-Step Verification</h4>
-                  <p>Add an extra layer of security to your account.</p>
+          <div className="settings-content-card">
+            <h3 className="section-title-professional" style={{ fontSize: '0.9rem' }}>Security Settings</h3>
+            <div className="options-list-wide">
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>Current Password</label>
+                  <input
+                    type="password"
+                    placeholder="Current"
+                    style={{ fontSize: '0.78rem', padding: '10px' }}
+                  />
                 </div>
-                <label className="switch">
-                  <input type="checkbox" />
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>New Password</label>
+                  <input
+                    type="password"
+                    placeholder="New"
+                    style={{ fontSize: '0.78rem', padding: '10px' }}
+                  />
+                </div>
+              </div>
+              <div className="settings-option" style={{ marginTop: '20px' }}>
+                <div className="option-info">
+                  <h4 style={{ fontSize: '0.78rem' }}>Two-Step Verification</h4>
+                  <p style={{ fontSize: '0.68rem' }}>Add an extra layer of security to your account</p>
+                </div>
+                <label className="toggle-switch">
+                  <input type="checkbox" checked={security.twoStep} onChange={() => setSecurity(s => ({ ...s, twoStep: !s.twoStep }))} />
                   <span className="slider"></span>
                 </label>
               </div>
-            </div>
-            <div className="settings-list">
-              <div className="settings-item">
-                <div className="settings-item-info">
-                  <h4>Password Management</h4>
-                  <p>Last changed 3 months ago</p>
-                </div>
-                <button className="btn-secondary">Update Password</button>
-              </div>
-              <div className="settings-item">
-                <div className="settings-item-info">
-                  <h4>Active Sessions</h4>
-                  <p>Manage devices currently logged into your account</p>
-                </div>
-                <span className="danger-text">Logout from all devices</span>
+              <div className="profile-actions-bottom" style={{ gap: '12px' }}>
+                <button
+                  className="btn-save"
+                  onClick={() => handleSave('Security')}
+                  disabled={saving}
+                  style={{ fontSize: '0.72rem', padding: '8px 16px' }}
+                >
+                  {saving ? 'Updating...' : <><Save size={14} /> Update Security</>}
+                </button>
               </div>
             </div>
           </div>
         );
       case 'Preferences':
         return (
-          <div className="settings-section">
-            <div className="form-group" style={{ maxWidth: '400px' }}>
-              <label><Globe size={14} style={{ marginRight: '8px' }} /> Language</label>
-              <select defaultValue="en">
-                <option value="en">English (US)</option>
-                <option value="en-gb">English (UK)</option>
-                <option value="si">Sinhala</option>
-                <option value="ta">Tamil</option>
-              </select>
-            </div>
-            <div className="form-group" style={{ maxWidth: '400px' }}>
-              <label><Clock size={14} style={{ marginRight: '8px' }} /> Timezone</label>
-              <select defaultValue="SL">
-                <option value="SL">Sri Lanka (GMT+5:30)</option>
-                <option value="UTC">UTC (GMT+0:00)</option>
-              </select>
-            </div>
-            <div className="form-group" style={{ maxWidth: '400px' }}>
-              <label>Date Format</label>
-              <select defaultValue="DD/MM/YYYY">
-                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-              </select>
+          <div className="settings-content-card">
+            <h3 className="section-title-professional" style={{ fontSize: '0.9rem' }}>Global Preferences</h3>
+            <div className="options-list-wide">
+              <div className="form-group">
+                <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>Time Zone</label>
+                <select className="simple-select-full" value={preferences.timezone} onChange={(e) => setPreferences(p => ({ ...p, timezone: e.target.value }))} style={{ fontSize: '0.78rem', padding: '10px' }}>
+                  <option>UTC+5:30 (Colombo)</option>
+                  <option>UTC+0:00 (GMT)</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label style={{ fontSize: '0.7rem', fontWeight: 700 }}>Default Language</label>
+                <select className="simple-select-full" value={preferences.language} onChange={(e) => setPreferences(p => ({ ...p, language: e.target.value }))} style={{ fontSize: '0.78rem', padding: '10px' }}>
+                  <option>English</option>
+                  <option>Tamil</option>
+                  <option>Sinhala</option>
+                </select>
+              </div>
+              <div className="profile-actions-bottom">
+                <button
+                  className="btn-save"
+                  onClick={() => handleSave('Preference')}
+                  disabled={saving}
+                  style={{ fontSize: '0.72rem', padding: '8px 16px' }}
+                >
+                  {saving ? 'Saving...' : <><Save size={14} /> Save Preferences</>}
+                </button>
+              </div>
             </div>
           </div>
         );
       case 'Billing':
         return (
-          <div className="settings-section">
-            <div className="security-card" style={{ background: '#F9FAFB' }}>
-              <div className="settings-item-info">
-                <h4 style={{ color: 'var(--color-ash)', fontSize: '0.75rem', letterSpacing: '0.1em' }}>CURRENT PLAN</h4>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginTop: '8px', color: 'var(--color-text)' }}>Enterprise Professional</h3>
-                <p style={{ marginTop: '12px', fontSize: '0.9rem' }}>Next billing date: <strong>April 01, 2026</strong></p>
-              </div>
-            </div>
-            <div className="settings-list">
-              <div className="settings-item">
-                <div className="settings-item-info">
-                  <h4>Payment Methods</h4>
-                  <p>Visa ending in 4242</p>
+          <div className="settings-content-card">
+            <h3 className="section-title-professional" style={{ fontSize: '0.9rem' }}>Billing & Invoices</h3>
+            <div className="options-list-wide">
+              <div className="billing-summary">
+                <div className="billing-item" style={{ fontSize: '0.75rem' }}>
+                  <span>Current Plan</span>
+                  <strong>Enterprise Super Admin</strong>
                 </div>
-                <button className="btn-secondary">Manage</button>
               </div>
+              <button
+                className="btn-save-outline"
+                onClick={() => alert('Redirecting to Billing Portal...')}
+                style={{ fontSize: '0.72rem', padding: '8px 16px' }}
+              >
+                <CreditCard size={14} /> Manage Billing
+              </button>
             </div>
           </div>
         );
@@ -187,24 +256,26 @@ const Settings = ({ adminName, setAdminName }) => {
 
   return (
     <div className="settings-page">
-      <header className="settings-header">
-        <h1>Settings</h1>
-        <p>Manage your account settings and preferences</p>
+      <header className="content-header">
+        <h1 className="page-title" style={{ fontSize: '1.4rem', fontWeight: 800 }}>Settings</h1>
+        <p className="page-subtitle" style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>Manage your account settings and preferences</p>
       </header>
 
-      <nav className="settings-nav">
+      <div className="settings-tabs" style={{ gap: '10px', marginBottom: '24px' }}>
         {tabs.map(tab => (
-          <div
+          <button
             key={tab.id}
-            className={`settings-nav-item ${activeTab === tab.id ? 'active' : ''}`}
+            className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
+            style={{ fontSize: '0.75rem', padding: '8px 16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}
           >
+            {tab.icon}
             {tab.id}
-          </div>
+          </button>
         ))}
-      </nav>
+      </div>
 
-      <div className="settings-content">
+      <div className="settings-container-new">
         {renderContent()}
       </div>
     </div>
@@ -212,3 +283,4 @@ const Settings = ({ adminName, setAdminName }) => {
 };
 
 export default Settings;
+

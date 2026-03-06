@@ -23,15 +23,20 @@ export const apiRequest = async (endpoint, method = 'GET', body = null, token = 
         config.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    try {
+        const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
-    // Safety check for non-JSON responses (404s, etc)
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.indexOf("application/json") !== -1) {
-        const data = await response.json();
-        return { ok: response.ok, status: response.status, data };
-    } else {
-        const text = await response.text();
-        return { ok: response.ok, status: response.status, data: { message: text } };
+        // Safety check for non-JSON responses (404s, etc)
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json();
+            return { ok: response.ok, status: response.status, data };
+        } else {
+            const text = await response.text();
+            return { ok: response.ok, status: response.status, data: { message: text } };
+        }
+    } catch (error) {
+        console.error('API Request Failed:', error.message);
+        return { ok: false, status: 0, data: { message: 'Network error or backend is down' } };
     }
 };

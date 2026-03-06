@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle2, Loader2, ShieldCheck, XCircle } from 'lucide-react';
 import logo from '../../assets/logo1.png';
-import '../../style/AdminAuth.css';
+import '../../style/admin/AdminAuth.css';
 
 const ResetPassword = ({ token, onComplete }) => {
     const [password, setPassword] = useState('');
@@ -36,7 +36,7 @@ const ResetPassword = ({ token, onComplete }) => {
         setError('');
 
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/reset-password/${token}`, {
+            const response = await fetch(`http://localhost:5000/api/shared/reset-password/${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password })

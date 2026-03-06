@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, ShieldCheck, ShieldAlert } from 'lucide-react';
 import logo from '../../assets/logo1.png';
-import '../../style/AdminAuth.css';
+import '../../style/admin/AdminAuth.css';
 
 const SuperAdminLogin = ({ onLogin, onBack }) => {
     const [email, setEmail] = useState('');

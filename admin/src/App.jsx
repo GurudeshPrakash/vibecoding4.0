@@ -2,15 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/shared/Sidebar';
 import TopNav from './components/shared/TopNav';
+import { Zap } from 'lucide-react';
 import AdminDashboard from './components/admin/Dashboard';
-import Locations from './components/admin/Locations';
-import GymOwners from './components/admin/GymOwners';
+import Locations from './components/super-admin/Locations';
 import Settings from './components/admin/Settings';
 import Landing from './components/shared/Landing';
-import AdminLogin from './components/admin/Login';
-import Admins from './components/admin/Admins';
-import AdminLogs from './components/admin/AdminLogs';
-import ActivityLogs from './components/admin/ActivityLogs';
+import Administrators from './components/super-admin/Administrators';
+import Managers from './components/super-admin/Managers';
+import StaffManagement from './components/admin/StaffManagement';
+import BranchManagement from './components/admin/BranchManagement';
+import InventoryManagement from './components/admin/InventoryManagement';
+import MembersManagement from './components/admin/MembersManagement';
+import PaymentManagement from './components/admin/PaymentManagement';
+import Reports from './components/admin/Reports';
+import ActivityLogs from './components/super-admin/AdminLogs';
 import LogoutModal from './components/shared/LogoutModal';
 import ActivityDetailModal from './components/shared/ActivityDetailModal';
 import ForgotPassword from './components/admin/ForgotPassword';
@@ -18,16 +23,28 @@ import ResetPassword from './components/admin/ResetPassword';
 import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
 import SuperAdminSettings from './components/super-admin/SuperAdminSettings';
+import StaffDashboard from './components/staff/StaffDashboard';
+import CheckIns from './components/staff/CheckIns';
+import Payments from './components/staff/Payments';
+import Members from './components/staff/Members';
+import StaffInventory from './components/staff/StaffInventory';
+import UnifiedDashboard from './components/shared/UnifiedDashboard';
 
 import { useEquipmentData } from './hooks/useEquipmentData';
 import { useNotifications } from './hooks/useNotifications';
+import { useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AdminLayout = ({
   children,
   activeTab,
+  setActiveTab,
   navigate,
   setShowLogoutModal,
   adminRole,
+  viewRole,
+  setViewRole,
+  setAdminRole,
   userName,
   userEmail,
   adminId,
@@ -37,14 +54,17 @@ const AdminLayout = ({
   notifications,
   setNotifications,
   loginRole,
-  handleViewActivityLog,
-  onToggleRole
+  handleViewActivityLog
 }) => (
-  <div className={`app-layout ${adminRole === 'super_admin' ? 'is-super-admin' : ''}`}>
-    <Sidebar activeTab={activeTab} setActiveTab={(tab) => {
-      const prefix = adminRole === 'super_admin' ? '/super-admin' : '/admin';
-      navigate(`${prefix}/${tab}`);
-    }} onLogoutTrigger={() => setShowLogoutModal(true)} adminRole={adminRole} />
+  <div className={`app-layout ${viewRole === 'super_admin' ? 'is-super-admin' : ''}`}>
+    <Sidebar
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      onLogoutTrigger={() => setShowLogoutModal(true)}
+      adminRole={adminRole}
+      viewRole={viewRole}
+      setViewRole={setViewRole}
+    />
 
     <main className="main-container">
       <TopNav
@@ -54,66 +74,65 @@ const AdminLayout = ({
         adminId={adminId}
         profileImage={profileImage}
         setProfileImage={setProfileImage}
-        setActiveTab={(tab) => {
-          const prefix = adminRole === 'super_admin' ? '/super-admin' : '/admin';
-          navigate(`${prefix}/${tab}`);
-        }}
+        setActiveTab={setActiveTab}
         onLogoutTrigger={() => setShowLogoutModal(true)}
-        role="Administrator"
+        role={viewRole === 'super_admin' ? 'Super Admin' : viewRole === 'admin' ? 'Administrator' : 'Staff'}
         notifications={notifications}
         setNotifications={setNotifications}
         loginRole={loginRole}
         onViewLog={handleViewActivityLog}
-        onToggleRole={onToggleRole}
         adminRole={adminRole}
+        viewRole={viewRole}
       />
 
       <div className="content-area">
         {children}
       </div>
 
-      {onToggleRole && (
-        <button
-          onClick={onToggleRole}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            background: 'var(--color-red, #ff0000)',
-            color: '#fff',
-            border: '3px solid #ffaa00',
-            borderRadius: '24px',
-            padding: '10px 24px',
-            fontSize: '0.9rem',
-            fontWeight: '800',
-            cursor: 'pointer',
-            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
-            zIndex: 9999,
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.4)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)'; }}
-        >
-          Switch to {adminRole === 'super_admin' ? 'Admin View' : 'Super Admin View'}
-        </button>
-      )}
+      {/* Floating Role Switcher - Always available for simulation */}
+      <button
+        onClick={() => {
+          const nextRoles = { 'super_admin': 'admin', 'admin': 'staff', 'staff': 'super_admin' };
+          const newRole = nextRoles[viewRole] || 'admin';
+          setViewRole(newRole);
+          setActiveTab('dashboard');
+        }}
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: '#FF0000',
+          color: '#FFFFFF',
+          border: 'none',
+          padding: '12px 24px',
+          borderRadius: '16px',
+          cursor: 'pointer',
+          zIndex: 1000,
+          fontWeight: 800,
+          boxShadow: '0 8px 24px rgba(255, 0, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          fontSize: '0.85rem'
+        }}
+      >
+        <Zap size={18} fill="#FFD700" color="#FFD700" strokeWidth={3} />
+        <span>Switch to {viewRole === 'super_admin' ? 'Admin' : viewRole === 'admin' ? 'Staff' : 'Super Admin'} View</span>
+      </button>
+
     </main>
   </div>
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [adminRole, setAdminRole] = useState('super_admin'); // Start as super_admin by default for testing
-  const loginRole = 'admin'; // Hardcoded for Admin app
+  const simulatedAuthenticated = true;
+  const { login, logout, isAuthenticated: originalIsAuthenticated } = useAuth();
+  const isAuthenticated = simulatedAuthenticated || originalIsAuthenticated;
+
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Extract active path section for sidebar
-  const pathParts = location.pathname.split('/');
-  const activeTab = pathParts[1] === 'super-admin'
-    ? (pathParts[2] || 'dashboard')
-    : (pathParts[2] || 'dashboard');
 
   // Pre-load user data from localStorage for synchronous initialization
   const savedAdminData = useMemo(() => {
@@ -124,8 +143,18 @@ function App() {
     }
   }, []);
 
-  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || (isAuthenticated ? 'Shahana Kuganesan' : 'Vibe Master'));
-  const [userEmail, setUserEmail] = useState(savedAdminData.email || (isAuthenticated ? '' : 'master@vibecoding.com'));
+  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || 'Vibe Master');
+  const [userEmail, setUserEmail] = useState(savedAdminData.email || 'master@vibecoding.com');
+  const [adminRole, setAdminRole] = useState('super_admin');
+  const [viewRole, setViewRole] = useState('super_admin');
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const loginRole = viewRole === 'super_admin' ? 'admin' : viewRole;
+
+  useEffect(() => {
+    // setActiveTab('dashboard'); // Optional: reset tab on role switch
+  }, [viewRole]);
+
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
@@ -143,15 +172,14 @@ function App() {
 
   const { notifications, setNotifications } = useNotifications(isAuthenticated, loginRole);
 
-  // Restore session handles any edge cases not caught by sync init
+  // Restore session
   useEffect(() => {
     const adminToken = localStorage.getItem('admin_token');
     if (adminToken && !isAuthenticated) {
-      setIsAuthenticated(true);
       const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
       if (savedAdmin) {
-        setUserName(savedAdmin.firstName || 'Shahana Kuganesan');
-        setUserEmail(savedAdmin.email || 'admin@gymsys.com');
+        setUserName(savedAdmin.firstName || 'User');
+        setUserEmail(savedAdmin.email || '');
         setAdminRole(savedAdmin.role || 'admin');
       }
     }
@@ -173,8 +201,6 @@ function App() {
     }
   };
 
-
-
   const stats = useMemo(() => {
     return {
       total: inventoryData.length,
@@ -185,34 +211,17 @@ function App() {
   }, [inventoryData, dismantledHistory]);
 
   const handleSelectRole = (role) => {
-    if (role === 'admin') {
-      // Force navigation to login page to ensure security checkpoint
-      navigate('/login');
-    } else if (role === 'super_admin') {
-      // Force navigation to super-admin login
-      navigate('/super-admin/login');
-    } else {
-      // Manager path - Force navigation to staff login for security
-      window.location.href = `http://localhost:5174/staff/login`;
-    }
+    navigate('/login');
   };
 
   const handleLogin = (data) => {
     setUserName(data.firstName || 'User');
     setUserEmail(data.email);
     setAdminRole(data.role || 'staff');
-    setIsAuthenticated(true);
-
-    if (data.role === 'super_admin') {
-      setAdminRole('super_admin');
-      navigate('/super-admin/dashboard');
-    } else if (data.role === 'admin') {
-      setAdminRole('admin');
-      navigate('/admin/dashboard');
-    } else {
-      const userParam = encodeURIComponent(JSON.stringify({ firstName: data.firstName, email: data.email, role: data.role }));
-      window.location.href = `http://localhost:5174/staff/dashboard?token=${data.token}&user=${userParam}&logId=${data.logId}`;
-    }
+    setViewRole(data.role || 'staff');
+    setActiveTab('dashboard');
+    login(data, data.token);
+    navigate('/dashboard');
   };
 
   const handleLogout = async () => {
@@ -228,29 +237,21 @@ function App() {
         console.error('Logout logging failed', e);
       }
     }
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_current_log');
-    localStorage.removeItem('admin_user');
-    setIsAuthenticated(false);
+    logout();
+    setAdminRole('admin');
     setShowLogoutModal(false);
     navigate('/');
   };
 
-  const handleToggleRole = () => {
-    const newRole = adminRole === 'super_admin' ? 'admin' : 'super_admin';
-    setAdminRole(newRole);
-    if (newRole === 'super_admin') {
-      navigate('/super-admin/dashboard');
-    } else {
-      navigate('/admin/dashboard');
-    }
-  };
-
   const layoutProps = {
     activeTab,
+    setActiveTab,
     navigate,
     setShowLogoutModal,
-    adminRole,
+    adminRole: viewRole, // DRIVE SIDEBAR WITH SIMULATED ROLE
+    viewRole,
+    setViewRole,
+    setAdminRole,
     userName,
     userEmail,
     adminId,
@@ -261,36 +262,136 @@ function App() {
     setNotifications,
     loginRole,
     handleViewActivityLog,
-    onToggleRole: handleToggleRole
+    handleLogoutTrigger: () => setShowLogoutModal(true)
+  };
+
+  const renderDynamicTabContent = () => {
+    const props = {
+      userName,
+      stats,
+      inventoryData,
+      dismantleRequests,
+      setDismantleRequests,
+      refreshInventory,
+      handleViewActivityLog,
+      dismantledHistory,
+      setActiveTab
+    };
+
+    const targetRole = viewRole;
+
+    if (targetRole === 'super_admin') {
+      switch (activeTab) {
+        case 'dashboard': return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
+        case 'admins': return <Administrators />;
+        case 'staff': return <StaffManagement userRole={viewRole} />;
+        case 'locations': return <Locations />;
+        case 'activity-logs': return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
+        case 'settings': return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
+        default: return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
+      }
+    } else if (targetRole === 'admin') {
+      switch (activeTab) {
+        case 'dashboard': return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
+        case 'staff': return <StaffManagement userRole={viewRole} />;
+        case 'locations': return <BranchManagement setActiveTab={setActiveTab} />;
+        case 'inventory': return <InventoryManagement inventoryData={props.inventoryData} />;
+        case 'members': return <MembersManagement />;
+        case 'payments': return <PaymentManagement />;
+        case 'reports': return <Reports />;
+        default: return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
+      }
+    } else {
+      switch (activeTab) {
+        case 'dashboard': return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
+        case 'members': return <Members />;
+        case 'payments': return <Payments />;
+        case 'inventory': return <StaffInventory inventoryData={props.inventoryData} />;
+        default: return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
+      }
+    }
   };
 
   return (
     <>
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Landing onSelectRole={handleSelectRole} />} />
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} onGoToSignUp={(view) => navigate(`/admin/${view}`)} />} />
-        <Route path="/admin/login" element={<Navigate to="/login" />} />
-        <Route path="/super-admin/login" element={isAuthenticated ? <Navigate to="/super-admin/dashboard" /> : <SuperAdminLogin onLogin={handleLogin} onBack={() => navigate('/')} />} />
-        <Route path="/admin/signup" element={<Navigate to="/login" />} />
-        <Route path="/admin/forgot-password" element={<ForgotPassword onBack={() => navigate('/login')} />} />
-        <Route path="/reset-password/:token" element={<ResetPassword onComplete={() => navigate('/login')} />} />
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/login" element={<Navigate to="/dashboard" />} />
 
-        {/* Protected Routes */}
-        <Route path="/admin/dashboard" element={isAuthenticated ? <AdminLayout {...layoutProps}><AdminDashboard stats={stats} adminName={userName} recentInventory={inventoryData.slice(0, 4)} allInventory={inventoryData} dismantleRequests={dismantleRequests} setDismantleRequests={setDismantleRequests} refreshInventory={refreshInventory} dismantledHistory={dismantledHistory} /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/admin/login" />} />
-        <Route path="/admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><Settings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/admin/login" />} />
+        {/* Dashboards and Management */}
+        <Route path="/dashboard" element={
+          <AdminLayout {...layoutProps}>
+            {renderDynamicTabContent()}
+          </AdminLayout>
+        } />
 
-        {/* Super Admin Routes */}
-        <Route path="/super-admin/dashboard" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminDashboard adminName={userName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/owners" element={isAuthenticated ? <AdminLayout {...layoutProps}><GymOwners /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/locations" element={isAuthenticated ? <AdminLayout {...layoutProps}><Locations /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/activity-logs" element={isAuthenticated ? <AdminLayout {...layoutProps}><ActivityLogs onViewLog={handleViewActivityLog} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/settings" element={isAuthenticated ? <AdminLayout {...layoutProps}><SuperAdminSettings adminName={userName} setAdminName={setUserName} /></AdminLayout> : <Navigate to="/super-admin/login" />} />
-        <Route path="/super-admin/admins" element={isAuthenticated ? <AdminLayout {...layoutProps}><Admins /></AdminLayout> : <Navigate to={isAuthenticated ? "/admin/dashboard" : "/login"} />} />
-
-        <Route path="*" element={<Navigate to={`/${adminRole === 'super_admin' ? 'super-admin' : 'admin'}/dashboard`} />} />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
       <ActivityDetailModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} log={selectedLog} />

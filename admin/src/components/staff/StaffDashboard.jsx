@@ -32,9 +32,9 @@ const StaffDashboard = ({ setActiveTab }) => {
     ];
 
     const equipmentSummary = [
-        { status: 'Available', count: 61, color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
-        { status: 'Maintenance', count: 3, color: '#f59e0bff', bg: 'rgba(245, 158, 11, 0.1)', icon: <Clock size={16} /> },
-        { status: 'Damaged', count: 0, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={16} /> },
+        { status: 'Available', count: 18, color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
+        { status: 'Maintenance', count: 4, color: '#f59e0bff', bg: 'rgba(245, 158, 11, 0.1)', icon: <Clock size={16} /> },
+        { status: 'Damaged', count: 1, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={16} /> },
     ];
 
     const expiringMembers = [
@@ -103,14 +103,14 @@ const StaffDashboard = ({ setActiveTab }) => {
                     <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare /></div>
                     <div className="card-data">
                         <span className="label">Total Equipment</span>
-                        <h2 className="value">64</h2>
+                        <h2 className="value">23</h2>
                     </div>
                 </div>
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0bff' }}><Clock /></div>
                     <div className="card-data">
                         <span className="label">Equipment Under Maintenance</span>
-                        <h2 className="value">03</h2>
+                        <h2 className="value">04</h2>
                     </div>
                 </div>
                 <div className="live-card">
@@ -129,7 +129,7 @@ const StaffDashboard = ({ setActiveTab }) => {
                         <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Recent Check-ins</h3>
                         <button
                             onClick={() => handleNavigation('members')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
@@ -181,7 +181,7 @@ const StaffDashboard = ({ setActiveTab }) => {
                         <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Equipment Status Summary</h3>
                         <button
                             onClick={() => handleNavigation('inventory')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
@@ -217,7 +217,7 @@ const StaffDashboard = ({ setActiveTab }) => {
                         </h3>
                         <button
                             onClick={() => handleNavigation('members')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
@@ -269,7 +269,7 @@ const StaffDashboard = ({ setActiveTab }) => {
                         <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Pending Payments</h3>
                         <button
                             onClick={() => handleNavigation('payments')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >

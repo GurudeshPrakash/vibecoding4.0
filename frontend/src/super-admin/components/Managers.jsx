@@ -284,35 +284,31 @@ const Managers = ({ userRole = 'super_admin' }) => {
                 <div className="sa-table-container">
                     <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#F9FAFB' }}>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>No</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Identity</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Email Address</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Role</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Branch</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase', textAlign: 'right' }}>Management</th>
+                            <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--color-red)' }}>
+                                <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Staff Name</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filtered.map((m, index) => (
-                                <tr key={m._id} style={{ borderBottom: '1px solid var(--border-color)', opacity: isLocked ? 0.85 : 1 }}>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>{String(index + 1).padStart(2, '0')}</td>
+                                <tr key={m._id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <div style={{ width: 32, height: 32, borderRadius: '8px', background: isLocked ? '#f3f4f6' : 'rgba(255,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Shield size={14} color={isLocked ? '#9ca3af' : 'var(--color-red)'} />
+                                                <Users size={14} color={isLocked ? '#9ca3af' : 'var(--color-red)'} />
                                             </div>
                                             <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>{m.firstName} {m.lastName}</span>
                                         </div>
                                     </td>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{m.email}</td>
+                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>{branches.find(b => b._id === m.branchId)?.name || 'Central Center'}</td>
                                     <td style={{ padding: '16px 24px' }}>
                                         <span style={{ fontSize: '0.6rem', fontWeight: 800, color: isLocked ? '#6b7280' : 'var(--color-red)', background: isLocked ? '#f3f4f6' : 'rgba(255,0,0,0.08)', padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
                                             {m.role}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>{branches.find(b => b._id === m.branchId)?.name || 'Central Center'}</td>
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <div style={{ width: 8, height: 8, borderRadius: '50%', background: m.status === 'Inactive' ? '#EF4444' : '#10B981' }} />
@@ -344,8 +340,8 @@ const Managers = ({ userRole = 'super_admin' }) => {
         <div className="super-admin-dashboard" style={{ paddingBottom: '100px' }}>
             <header className="sa-header">
                 <div className="sa-welcome">
-                    <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>Managers</h1>
-                    <p style={{ margin: 0, marginTop: '4px' }}>Comprehensive management of System Managers and Branch Staff.</p>
+                    <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>Staff Management</h1>
+                    <p style={{ margin: 0, marginTop: '4px' }}>Comprehensive management of Branch Staff and Trainers.</p>
                 </div>
 
                 <div className="sa-actions">

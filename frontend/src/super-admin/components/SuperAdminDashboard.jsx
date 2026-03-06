@@ -251,37 +251,42 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
             }
         }
         return {
-            totalMembers: 0,
-            activeMembers: 0,
-            newMembersToday: 0,
-            activeGyms: 0,
-            acGyms: 0,
-            nonAcGyms: 0,
-            monthlyRevenue: 0,
-            pendingPayments: 0,
+            totalBranches: 24,
+            totalAdmins: 4,
+            totalStaff: 156,
+            totalMembers: 4850,
+            totalTrainers: 82,
+            totalRevenue: 12.5,
+            activeMemberships: 4200,
             revenueTrend: [
-                { month: 'Jan', revenue: 0 },
-                { month: 'Feb', revenue: 0 },
-                { month: 'Mar', revenue: 0 },
-                { month: 'Apr', revenue: 0 },
-                { month: 'May', revenue: 0 },
-                { month: 'Jun', revenue: 0 },
+                { month: 'Jan', revenue: 8.5 },
+                { month: 'Feb', revenue: 9.2 },
+                { month: 'Mar', revenue: 10.8 },
+                { month: 'Apr', revenue: 11.5 },
+                { month: 'May', revenue: 12.1 },
+                { month: 'Jun', revenue: 12.5 },
             ],
             memberGrowth: [
-                { name: 'Jan', members: 85000 },
-                { name: 'Feb', members: 160000 },
-                { name: 'Mar', members: 245000 },
-                { name: 'Apr', members: 190000 },
-                { name: 'May', members: 320000 },
-                { name: 'Jun', members: 280000 },
-                { name: 'Jul', members: 450000 },
-                { name: 'Aug', members: 410000 },
-                { name: 'Sep', members: 580000 },
-                { name: 'Oct', members: 520000 },
-                { name: 'Nov', members: 710000 },
-                { name: 'Dec', members: 850000 },
+                { name: 'Jan', members: 3200 },
+                { name: 'Feb', members: 3500 },
+                { name: 'Mar', members: 3850 },
+                { name: 'Apr', members: 4100 },
+                { name: 'May', members: 4450 },
+                { name: 'Jun', members: 4850 },
             ],
-            recentActivities: []
+            branchPerformance: [
+                { name: 'Colombo 07', performance: 95 },
+                { name: 'Kandy Central', performance: 88 },
+                { name: 'Galle Fort', performance: 82 },
+                { name: 'Negombo Beach', performance: 75 },
+                { name: 'Jaffna Town', performance: 70 },
+            ],
+            recentActivities: [
+                { id: 1, user: 'John Doe', action: 'registered as a new member', time: '2 mins ago', type: 'member' },
+                { id: 2, user: 'Branch Admin', action: 'completed a payment', time: '15 mins ago', type: 'payment' },
+                { id: 3, user: 'Super Admin', action: 'added a new staff member', time: '1 hour ago', type: 'staff' },
+                { id: 4, user: 'System', action: 'created a new branch: Kalutara', time: '3 hours ago', type: 'branch' },
+            ]
         };
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -378,27 +383,15 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 </div>
             </header>
 
-            <section className="sa-summary-grid">
-                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+            <section className="sa-summary-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
-                            <Users />
+                            <Building2 size={24} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>Total Branches</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalStaff || '05'}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
-                            <Activity />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Admins</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMembers?.toLocaleString() || '0'}</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalBranches || '24'}</h2>
                         </div>
                     </div>
                 </div>
@@ -406,23 +399,35 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
-                            <ShieldCheck />
+                            <ShieldCheck size={24} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Staffs</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{String(statsState?.totalAdmins || 3).padStart(2, '0')}</h2>
+                            <span className="label" style={{ margin: 0 }}>Total Admins</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalAdmins || '4'}</h2>
                         </div>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
-                            <Building2 />
+                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
+                            <Users size={24} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>ACTIVE BRANCHES</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeGyms || '12'}</h2>
+                            <span className="label" style={{ margin: 0 }}>Total Staff</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalStaff || '0'}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('members'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
+                            <Users size={24} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span className="label" style={{ margin: 0 }}>Total Members</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalMembers?.toLocaleString() || '0'}</h2>
                         </div>
                     </div>
                 </div>
@@ -430,11 +435,23 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 <div className="sa-stat-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6', margin: 0 }}>
-                            <DollarSign />
+                            <Zap size={24} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>MONTHLY REVENUE</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.monthlyRevenue || 0).toFixed(1)}M</h2>
+                            <span className="label" style={{ margin: 0 }}>Total Trainers</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalTrainers || '0'}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="sa-stat-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
+                            <DollarSign size={24} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span className="label" style={{ margin: 0 }}>Total Revenue</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.totalRevenue || 0).toFixed(1)}M</h2>
                         </div>
                     </div>
                 </div>
@@ -442,11 +459,11 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 <div className="sa-stat-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
-                            <CreditCard />
+                            <CreditCard size={24} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>PENDING PAYMENTS</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR OK</h2>
+                            <span className="label" style={{ margin: 0 }}>Active Members</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMemberships || '0'}</h2>
                         </div>
                     </div>
                 </div>
@@ -458,10 +475,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                         <div className="sa-card-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <TrendingUp size={22} color="#FF0000" />
-                                <h3>Network Expansion</h3>
-                            </div>
-                            <div className="sa-card-meta">
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-red)' }}>LIVE TRACKING</span>
+                                <h3>Membership Growth</h3>
                             </div>
                         </div>
                         <div style={{ height: '240px', minHeight: '240px', width: '100%', marginTop: '10px' }}>
@@ -544,13 +558,14 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                         <div className="sa-card">
                             <div className="sa-card-header">
-                                <h3>Revenue Stream</h3>
+                                <h3>Monthly Revenue</h3>
                             </div>
-                            <div style={{ height: '200px', width: '100%' }}>
+                            <div style={{ height: '220px', width: '100%' }}>
                                 <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <Recharts.BarChart data={revenueData}>
                                         <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                                         <Recharts.XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
+                                        <Recharts.YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} tickFormatter={(val) => `LKR ${val}M`} />
                                         <Recharts.Tooltip cursor={{ fill: 'rgba(0,0,0,0.02)' }} contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px' }} />
                                         <Recharts.Bar dataKey="revenue" fill="#FF0000" radius={[4, 4, 0, 0]} />
                                     </Recharts.BarChart>
@@ -560,26 +575,16 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
 
                         <div className="sa-card">
                             <div className="sa-card-header">
-                                <h3>Gym Distribution</h3>
+                                <h3>Branch Performance</h3>
                             </div>
-                            <div style={{ height: '200px', width: '100%' }}>
+                            <div style={{ height: '220px', width: '100%' }}>
                                 <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                                    <Recharts.PieChart>
-                                        <Recharts.Pie
-                                            data={gymRatioData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={8}
-                                            dataKey="value"
-                                        >
-                                            {gymRatioData.map((entry, index) => (
-                                                <Recharts.Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Recharts.Pie>
+                                    <Recharts.RadarChart cx="50%" cy="50%" outerRadius="80%" data={statsState.branchPerformance}>
+                                        <Recharts.PolarGrid stroke="rgba(0,0,0,0.05)" />
+                                        <Recharts.PolarAngleAxis dataKey="name" tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
+                                        <Recharts.Radar name="Performance" dataKey="performance" stroke="#FF0000" fill="#FF0000" fillOpacity={0.6} />
                                         <Recharts.Tooltip contentStyle={{ borderRadius: '12px', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }} />
-                                    </Recharts.PieChart>
+                                    </Recharts.RadarChart>
                                 </Recharts.ResponsiveContainer>
                             </div>
                         </div>

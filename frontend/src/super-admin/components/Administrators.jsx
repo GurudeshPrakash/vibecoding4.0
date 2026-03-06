@@ -80,9 +80,10 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                 setAdmins(JSON.parse(savedMock));
             } else {
                 const defaultMocks = [
-                    { _id: 'mock1', firstName: 'Shahana', lastName: 'Kuganesan', email: 'shaha@vibecoding.com', phone: '+94 77 123 4567', role: 'Admin', status: 'Active', lastLogin: 'Today, 10:45 AM', allBranchAccess: true },
-                    { _id: 'mock2', firstName: 'Admin', lastName: 'User', email: 'admin@gymsys.com', phone: '+94 77 999 0000', role: 'Admin', status: 'Active', lastLogin: 'Yesterday, 04:30 PM', branchId: 'b1' },
-                    { _id: 'mock3', firstName: 'Branch', lastName: 'Head', email: 'head@fitpro.lk', phone: '+94 71 555 1111', role: 'Branch Admin', status: 'Inactive', lastLogin: '2 days ago', branchId: 'b2' }
+                    { _id: 'adm1', firstName: 'Shahana', lastName: 'Kuganesan', email: 'shaha@vibecoding.com', phone: '+94 77 123 4567', role: 'Admin', status: 'Active', lastLogin: 'Today, 10:45 AM', assignedBranches: ['Colombo 01', 'Colombo 02', 'Colombo 03', 'Colombo 04', 'Colombo 05', 'Colombo 06'] },
+                    { _id: 'adm2', firstName: 'Prakash', lastName: 'Gurudesh', email: 'prakash@gymsys.com', phone: '+94 77 999 0000', role: 'Admin', status: 'Active', lastLogin: 'Yesterday, 04:30 PM', assignedBranches: ['Kandy 01', 'Kandy 02', 'Kandy 03', 'Kandy 04', 'Kandy 05', 'Kandy 06'] },
+                    { _id: 'adm3', firstName: 'Sarah', lastName: 'Perera', email: 'sarah@powerworld.lk', phone: '+94 71 555 1111', role: 'Admin', status: 'Active', lastLogin: '2 days ago', assignedBranches: ['Galle 01', 'Galle 02', 'Galle 03', 'Galle 04', 'Galle 05', 'Galle 06'] },
+                    { _id: 'adm4', firstName: 'Amila', lastName: 'Silva', email: 'amila@fitpro.lk', phone: '+94 71 222 3333', role: 'Admin', status: 'Active', lastLogin: '1 week ago', assignedBranches: ['Negombo 01', 'Negombo 02', 'Negombo 03', 'Negombo 04', 'Negombo 05', 'Negombo 06'] }
                 ];
                 setAdmins(defaultMocks);
                 localStorage.setItem('mock_admins_db', JSON.stringify(defaultMocks));
@@ -334,23 +335,15 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                                 <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                     <thead>
                                         <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--color-red)' }}>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>No</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Name</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Admin Name</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Email</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Role</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Staff</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Status</th>
-                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Last Login</th>
+                                            <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Assigned Branches</th>
                                             <th style={{ padding: '16px 24px', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {filteredAdmins.map((a, index) => (
                                             <tr key={a._id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>
-                                                    {String(index + 1).padStart(2, '0')}
-                                                </td>
                                                 <td style={{ padding: '16px 24px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                         <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(255,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -361,28 +354,16 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                                                 </td>
                                                 <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.email}</td>
                                                 <td style={{ padding: '16px 24px' }}>
-                                                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--color-red)', background: 'rgba(255,0,0,0.08)', padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase' }}>
-                                                        {a.role || 'Admin'}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>
-                                                    {a.allBranchAccess ? 'All Branches' : (branches.find(b => b._id === a.branchId)?.name || 'Default Branch')}
-                                                </td>
-                                                <td style={{ padding: '16px 24px' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                        <Users size={12} color="var(--color-red)" />
-                                                        <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>
-                                                            {a.allBranchAccess ? staff.length : staff.filter(s => s.branchId === a.branchId).length}
-                                                        </span>
+                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                        {a.assignedBranches ? a.assignedBranches.map((b, i) => (
+                                                            <span key={i} style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text)', background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px' }}>
+                                                                {b}
+                                                            </span>
+                                                        )) : (
+                                                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)' }}>No branches assigned</span>
+                                                        )}
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '16px 24px' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: a.status === 'Inactive' ? '#EF4444' : '#10B981' }} />
-                                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: a.status === 'Inactive' ? '#EF4444' : '#10B981' }}>{a.status || 'Active'}</span>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{a.lastLogin || 'Never'}</td>
                                                 <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                                                     {isSuperAdmin ? (
                                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -437,7 +418,7 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                                 {/* Basic Info */}
                                 <div style={{ gridColumn: 'span 2' }}>
                                     <h4 style={{ margin: '0 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Basic Information</h4>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
                                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)' }}>First Name <span style={{ color: 'red' }}>*</span></label>
                                             <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} placeholder="e.g. John" />
@@ -471,20 +452,19 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assign Branch</label>
-                                            <select
-                                                name="branchId"
-                                                value={formData.branchId}
-                                                onChange={handleChange}
-                                                disabled={formData.allBranchAccess}
-                                                style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: formData.allBranchAccess ? '#edf2f7' : '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}
-                                            >
-                                                <option value="">Select Branch...</option>
-                                                {branches.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
-                                            </select>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
-                                                <input type="checkbox" id="aba" name="allBranchAccess" checked={formData.allBranchAccess} onChange={handleChange} style={{ cursor: 'pointer' }} />
-                                                <label htmlFor="aba" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)', cursor: 'pointer' }}>All Branch Access</label>
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assign Branches (6 Branches)</label>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: '#F9FAFB', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', maxHeight: '150px', overflowY: 'auto' }}>
+                                                {['Colombo 01', 'Colombo 02', 'Colombo 03', 'Colombo 04', 'Colombo 05', 'Colombo 06', 'Kandy 01', 'Kandy 02', 'Kandy 03', 'Kandy 04', 'Kandy 05', 'Kandy 06', 'Galle 01', 'Galle 02', 'Galle 03', 'Galle 04', 'Galle 05', 'Galle 06'].map(b => (
+                                                    <div key={b} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <input type="checkbox" checked={formData.assignedBranches?.includes(b)} onChange={(e) => {
+                                                            const newBranches = e.target.checked
+                                                                ? [...(formData.assignedBranches || []), b]
+                                                                : (formData.assignedBranches || []).filter(item => item !== b);
+                                                            setFormData({ ...formData, assignedBranches: newBranches });
+                                                        }} />
+                                                        <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>{b}</span>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>

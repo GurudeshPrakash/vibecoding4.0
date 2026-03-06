@@ -23,6 +23,8 @@ import ResetPassword from './admin/components/ResetPassword';
 import SuperAdminDashboard from './super-admin/components/SuperAdminDashboard';
 import SuperAdminLogin from './super-admin/components/SuperAdminLogin';
 import SuperAdminSettings from './super-admin/components/SuperAdminSettings';
+import SuperAdminMembers from './super-admin/components/SuperAdminMembers';
+import SuperAdminReports from './super-admin/components/SuperAdminReports';
 import StaffDashboard from './staff/components/StaffDashboard';
 import CheckIns from './staff/components/CheckIns';
 import Payments from './staff/components/Payments';
@@ -303,9 +305,11 @@ function App() {
       case 'super_admin_staff':
         return <Managers userRole={viewRole} />;
       case 'super_admin_locations':
-        return <Locations />;
-      case 'super_admin_activity-logs':
-        return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
+        return <Locations userRole={viewRole} />;
+      case 'super_admin_members':
+        return <SuperAdminMembers />;
+      case 'super_admin_reports':
+        return <SuperAdminReports />;
       case 'super_admin_settings':
         return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
 

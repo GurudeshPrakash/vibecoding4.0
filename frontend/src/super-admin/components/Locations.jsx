@@ -262,19 +262,27 @@ const Locations = ({ userRole = 'admin' }) => {
                 <option value="Non-AC">Non-AC</option>
               </select>
             </div>
-            <div>
+            <div style={{ gridColumn: 'span 1' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Status</label>
               <select name="status" value={formData.status} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Assign Manager <span style={{ color: '#666', fontWeight: 500 }}>(Optional)</span></label>
-              <select name="managerId" value={formData.managerId} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
-                <option value="">Select Manager...</option>
-                <option value="m1">Prakash S.</option>
-                <option value="m2">Kamal P.</option>
+            <div style={{ gridColumn: 'span 1' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Branch Phone</label>
+              <input type="text" name="adminPhone" value={formData.adminPhone} onChange={handleChange} placeholder="e.g. +94 11 234 5678" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+            </div>
+            <div style={{ gridColumn: 'span 1' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Opening Hours</label>
+              <input type="text" name="operatingHours" value={formData.operatingHours} onChange={handleChange} placeholder="e.g. 6:00 AM - 10:00 PM" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+            </div>
+            <div style={{ gridColumn: 'span 1' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Assign Admin</label>
+              <select name="adminName" value={formData.adminName} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
+                <option value="">Select Admin...</option>
+                <option value="Shahana K.">Shahana K.</option>
+                <option value="Kamal P.">Kamal P.</option>
               </select>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
@@ -303,9 +311,9 @@ const Locations = ({ userRole = 'admin' }) => {
       <header className="sa-header">
         <div className="sa-welcome">
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            Location Management
+            Branch Management
           </h1>
-          <p style={{ marginTop: '4px' }}>Manage and monitor all gym locations.</p>
+          <p style={{ marginTop: '4px' }}>Manage and monitor all Power World gym branches.</p>
         </div>
 
         <div className="sa-actions">
@@ -365,29 +373,52 @@ const Locations = ({ userRole = 'admin' }) => {
         </div>
       </section>
 
-      <div className="sa-card" style={{ border: 'none', background: 'transparent', padding: 0 }}>
+      <div className="sa-card" style={{ padding: '0', overflow: 'hidden' }}>
         {isLoading ? (
           <div style={{ padding: '100px', textAlign: 'center' }}><Loader2 className="animate-spin" size={40} color="var(--color-red)" /></div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '32px' }}>
-            {filteredGyms.map(gym => {
-              const status = checkStatus(gym.operatingHours, currentTime);
-              return (
-                <div key={gym.id} className="sa-stat-card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer', border: '1px solid var(--border-color)' }} onClick={() => setSelectedGym(gym)}>
-                  <img src={gym.photo} alt={gym.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-                  <div style={{ padding: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1rem' }}>{gym.name}</h3>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: status === 'Open' ? '#10B981' : '#EF4444', boxShadow: `0 0 10px ${status === 'Open' ? '#10B981' : '#EF4444'}` }}></div>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><MapPin size={14} /> {gym.location}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--color-text-dim)', fontWeight: 600 }}><Clock size={14} /> {gym.operatingHours}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="sa-table-container">
+            <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--color-red)' }}>
+                  <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Branch Name</th>
+                  <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Location</th>
+                  <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Phone Number</th>
+                  <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Opening Hours</th>
+                  <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase' }}>Assigned Admin</th>
+                  <th style={{ padding: '16px 24px', fontSize: '0.65rem', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredGyms.map(gym => (
+                  <tr key={gym.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '8px', background: 'rgba(255,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Building2 size={16} color="var(--color-red)" />
+                        </div>
+                        <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>{gym.name}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{gym.location}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{gym.adminPhone || gym.phone || '+94 77 123 4567'}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>{gym.operatingHours}</td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)', background: 'rgba(255,0,0,0.08)', padding: '4px 10px', borderRadius: '6px' }}>
+                        {gym.adminName || 'Shahana K.'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button className="icon-btn" onClick={() => setSelectedGym(gym)} title="View Details"><ArrowRight size={14} /></button>
+                        <button className="icon-btn" onClick={() => { setEditingBranch(gym); setFormData(gym); setShowModal(true); }} title="Edit"><Edit2 size={14} /></button>
+                        <button className="icon-btn" style={{ color: '#EF4444' }} onClick={() => handleDelete(gym.id)} title="Delete"><Trash2 size={14} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

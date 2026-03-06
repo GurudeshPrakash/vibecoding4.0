@@ -103,24 +103,26 @@ const AdminLayout = ({
         }}
         style={{
           position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          background: 'var(--primary-color, #0a1128)',
-          color: 'var(--brand-yellow, #fdb813)',
-          border: '2px solid var(--brand-yellow, #fdb813)',
-          padding: '10px 15px',
-          borderRadius: '25px',
+          bottom: '24px',
+          right: '24px',
+          background: '#FF0000',
+          color: '#FFFFFF',
+          border: 'none',
+          padding: '12px 24px',
+          borderRadius: '16px',
           cursor: 'pointer',
           zIndex: 1000,
-          fontWeight: 'bold',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+          fontWeight: 800,
+          boxShadow: '0 8px 24px rgba(255, 0, 0, 0.3)',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          fontSize: '0.85rem'
         }}
       >
-        <Zap size={16} />
-        Switch to {viewRole === 'super_admin' ? 'Admin' : viewRole === 'admin' ? 'Staff' : 'Super Admin'} View
+        <Zap size={18} fill="#FFD700" color="#FFD700" strokeWidth={3} />
+        <span>Switch to {viewRole === 'super_admin' ? 'Admin' : viewRole === 'admin' ? 'Staff' : 'Super Admin'} View</span>
       </button>
 
     </main>
@@ -297,8 +299,8 @@ function App() {
           <SuperAdminDashboard />
         );
       case 'super_admin_admins':
-        return <Administrators />;
-      case 'super_admin_managers':
+        return <Administrators userRole={viewRole} />;
+      case 'super_admin_staff':
         return <Managers userRole={viewRole} />;
       case 'super_admin_locations':
         return <Locations />;

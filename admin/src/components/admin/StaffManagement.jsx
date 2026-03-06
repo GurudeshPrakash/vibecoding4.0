@@ -1,454 +1,637 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Phone, Mail, Search, Plus, Loader2, X, Trash2, Edit2, Shield, Eye, EyeOff, Users, ClipboardList, Activity, ArrowUpRight, CheckCircle2, AlertCircle, RefreshCcw, UserMinus, UserPlus, MapPin, ArrowLeft, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Loader2, X, Edit2, Users, Plus, Trash2,
+    Eye,
+    Phone, MapPin, Calendar, CheckCircle2, XCircle,
+    ChevronDown
+} from 'lucide-react';
 import '../../style/admin/StaffManagement.css';
 
-const LiveClock = () => {
-    const [time, setTime] = useState(new Date());
-    useEffect(() => {
-        const timer = setInterval(() => setTime(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
-    return (
-        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>
-            {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-        </span>
-    );
+// ─── Admin has exactly 6 branches, each with exactly 1 staff ─────────────────
+const ADMIN_BRANCHES = [
+    { _id: 'b1', name: 'Colombo City Gym' },
+    { _id: 'b2', name: 'Kandy Fitness Center' },
+    { _id: 'b3', name: 'Galle Power Hub' },
+    { _id: 'b4', name: 'Negombo Fitness' },
+    { _id: 'b5', name: 'Kurunegala Gym' },
+    { _id: 'b6', name: 'Jaffna Fitness' },
+];
+
+// ─── Default mock staff — exactly 1 per branch (6 total) ─────────────────────
+const DEFAULT_STAFF = [
+    { _id: 's1', staffId: 'STF-0001', firstName: 'Niluka', lastName: 'Perera', phone: '+94 77 111 2233', branchId: 'b1', joinDate: '2024-01-15', status: 'Active', nic: '958822334V', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80' },
+    { _id: 's2', staffId: 'STF-9763', firstName: 'Mithula', lastName: 'Kuganesan', phone: '+94 76 112 7146', branchId: 'b2', joinDate: '2024-03-10', status: 'Active', nic: '985533445V', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' },
+    { _id: 's3', staffId: 'STF-5987', firstName: 'Sugirtha', lastName: 'Kuganesan', phone: '+94 76 112 7146', branchId: 'b3', joinDate: '2023-11-05', status: 'Active', nic: '974455667V', photo: 'https://images.unsplash.com/photo-1531123897727-8f129e16fd3c?w=400&q=80' },
+    { _id: 's4', staffId: 'STF-9750', firstName: 'Vithushi', lastName: 'Kuganesan', phone: '+94 76 112 7146', branchId: 'b4', joinDate: '2025-01-20', status: 'Active', nic: '996677889V', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80' },
+    { _id: 's5', staffId: 'STF-7115', firstName: 'Guru', lastName: 'Praksh', phone: '+94 76 112 7146', branchId: 'b5', joinDate: '2024-08-01', status: 'Active', nic: '921100223V', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
+    { _id: 's6', staffId: 'STF-7980', firstName: 'Kuganesan', lastName: 'Kandasamy', phone: '+94 76 112 7146', branchId: 'b6', joinDate: '2024-05-12', status: 'Active', nic: '752233445V', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80' },
+];
+
+// ─── Colour palette for avatars ───────────────────────────────────────────────
+const AVATAR_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
+const getAvatarColor = (name = '') => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+
+// ─── Edit-only form shape (no email / role) ───────────────────────────────────
+const makeEditForm = (member) => ({
+    firstName: member?.firstName || '',
+    lastName: member?.lastName || '',
+    phone: member?.phone || '',
+    nic: member?.nic || '',
+    branchId: member?.branchId || '',
+    joinDate: member?.joinDate || '',
+    status: member?.status || 'Active',
+});
+
+const EMPTY_FORM = {
+    firstName: '',
+    lastName: '',
+    phone: '',
+    nic: '',
+    branchId: '',
+    joinDate: new Date().toISOString().split('T')[0],
+    status: 'Active',
 };
 
-const StaffManagement = ({ userRole = 'admin' }) => {
-    const isSuperAdmin = userRole === 'super_admin';
-    const isAdmin = userRole === 'admin';
+// ─── Status Badge ─────────────────────────────────────────────────────────────
+const StatusBadge = ({ status }) => (
+    <span className={`sm-status-badge ${status === 'Active' ? 'sm-status-active' : 'sm-status-inactive'}`}>
+        <span className="sm-status-dot" />
+        {status}
+    </span>
+);
 
-    const canModify = (targetRole) => {
-        if (isSuperAdmin) return true;
-        if (isAdmin && targetRole === 'Staff') return true;
-        return false;
-    };
+// ─── Detail row for View modal ────────────────────────────────────────────────
+const FieldRow = ({ label, value, icon }) => (
+    <div className="sm-field-row">
+        <span className="sm-field-label">{label}</span>
+        <div className="sm-field-value">
+            {icon && <span className="sm-field-icon">{icon}</span>}
+            <span>{value || '—'}</span>
+        </div>
+    </div>
+);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [managers, setManagers] = useState(() => {
-        const saved = localStorage.getItem('mock_managers_db');
-        return saved ? JSON.parse(saved) : [];
-    });
-    const [branches, setBranches] = useState(() => {
-        const saved = localStorage.getItem('mock_branches_db');
-        return saved ? JSON.parse(saved) : [
-            { _id: 'b1', name: 'Colombo City Gym' },
-            { _id: 'b2', name: 'Kandy Fitness Center' },
-            { _id: 'b3', name: 'Galle Power Hub' }
-        ];
-    });
-    const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_managers_db'));
-    const [showModal, setShowModal] = useState(false);
-    const [modalRole, setModalRole] = useState('Staff');
 
-    const [editingManager, setEditingManager] = useState(null);
-    const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        role: 'Staff',
-        branchId: '',
-        assignedArea: '',
-        sendInvite: true,
-        tempPassword: Math.random().toString(36).slice(-8).toUpperCase()
-    });
+// ─── Toast ────────────────────────────────────────────────────────────────────
+const Toast = ({ message, type = 'success', visible }) => (
+    <div className={`sm-toast sm-toast-${type} ${visible ? 'sm-toast-show' : ''}`}>
+        <CheckCircle2 size={16} />
+        <span>{message}</span>
+    </div>
+);
 
-    const fetchManagers = async () => {
-        if (managers.length === 0) setIsLoading(true);
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════════
+const StaffManagement = () => {
+    // ── State ────────────────────────────────────────────────────────────────
+    const [staff, setStaff] = useState(() => {
         try {
-            const token = localStorage.getItem('admin_token');
-            const response = await fetch('http://localhost:5000/api/admin/staff', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setManagers(data);
-                localStorage.setItem('mock_managers_db', JSON.stringify(data));
-            }
-        } catch (error) {
-            console.warn('Backend reachability issue, using mock data:', error.message);
-            const savedMock = localStorage.getItem('mock_managers_db');
-            if (savedMock) {
-                setManagers(JSON.parse(savedMock));
-            } else {
-                const defaultMocks = [
-                    { _id: 'm1', firstName: 'Prakash', lastName: 'Gurudesh', email: 'prakash@fitpro.lk', phone: '+94 77 555 1234', role: 'Manager', status: 'Active', lastLogin: 'Today, 09:15 AM', branchId: 'b1', assignedArea: 'Colombo North' },
-                    { _id: 'm2', firstName: 'Sarah', lastName: 'Perera', email: 'sarah@powerworld.com', phone: '+94 71 888 2222', role: 'Manager', status: 'Active', lastLogin: 'Yesterday, 05:45 PM', branchId: 'b2', assignedArea: 'Kandy Central' },
-                    { _id: 'm3', firstName: 'Kamal', lastName: 'Silva', email: 'kamal@vibecoding.lk', phone: '+94 71 000 3333', role: 'Staff', status: 'Inactive', lastLogin: '3 days ago', branchId: 'b3', assignedArea: 'Galle Coastal' }
-                ];
-                setManagers(defaultMocks);
-                localStorage.setItem('mock_managers_db', JSON.stringify(defaultMocks));
-            }
-        } finally {
-            setIsLoading(false);
-        }
+            const saved = localStorage.getItem('admin_staff_db');
+            return saved ? JSON.parse(saved) : DEFAULT_STAFF;
+        } catch { return DEFAULT_STAFF; }
+    });
+
+    const [isLoading, setIsLoading] = useState(false);
+
+
+    const [modalMode, setModalMode] = useState(null); // 'edit' | 'view'
+    const [selectedStaff, setSelectedStaff] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [formErrors, setFormErrors] = useState({});
+
+
+    const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+    const formRef = useRef(null);
+
+    // ── Persist ──────────────────────────────────────────────────────────────
+    const persist = (updated) => {
+        setStaff(updated);
+        try { localStorage.setItem('admin_staff_db', JSON.stringify(updated)); } catch { }
     };
 
-    const fetchBranches = async () => {
-        try {
-            const token = localStorage.getItem('admin_token');
-            const response = await fetch('http://localhost:5000/api/admin/branches', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setBranches(data);
-                localStorage.setItem('mock_branches_db', JSON.stringify(data));
-            }
-        } catch (error) {
-            setBranches([
-                { _id: 'b1', name: 'Colombo City Gym' },
-                { _id: 'b2', name: 'Kandy Fitness Center' },
-                { _id: 'b3', name: 'Galle Power Hub' }
-            ]);
-        }
+    // ── Toast helper ─────────────────────────────────────────────────────────
+    const showToast = (message, type = 'success') => {
+        setToast({ visible: true, message, type });
+        setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
     };
 
+    // ── Fetch from backend (mock fallback) ───────────────────────────────────
     useEffect(() => {
-        fetchManagers();
-        fetchBranches();
+        const fetchStaff = async () => {
+            try {
+                const token = localStorage.getItem('admin_token');
+                const res = await fetch('http://localhost:5000/api/admin/staff', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    persist(data);
+                }
+            } catch { /* fallback to localStorage / mock */ } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchStaff();
     }, []);
 
+
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    const getBranchName = (branchId) =>
+        ADMIN_BRANCHES.find(b => b._id === branchId)?.name || 'Unassigned';
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '—';
+        try { return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+        catch { return dateStr; }
+    };
+
+    // ── Modal handlers ───────────────────────────────────────────────────────
+    const openAdd = () => {
+        setFormData(EMPTY_FORM);
+        setFormErrors({});
+        setModalMode('add');
+    };
+
+    const openEdit = (member) => {
+        setSelectedStaff(member);
+        setFormData(makeEditForm(member));
+        setFormErrors({});
+        setModalMode('edit');
+    };
+
+    const openView = (member) => {
+        setSelectedStaff(member);
+        setModalMode('view');
+    };
+
+    const deleteStaff = (id) => {
+        if (window.confirm('Are you sure you want to remove this staff member? This will free up the branch assignment.')) {
+            const updated = staff.filter(s => s._id !== id);
+            persist(updated);
+            showToast('Staff removed successfully');
+        }
+    };
+
+    const closeModal = () => {
+        setModalMode(null);
+        setSelectedStaff(null);
+        setFormErrors({});
+    };
+
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }));
     };
 
-    const handleSubmit = async (e) => {
+    // ── Validation (edit only, no email / role) ───────────────────────────────
+    const validate = () => {
+        const errors = {};
+        if (!formData.firstName.trim()) errors.firstName = 'First name is required';
+        if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
+        if (!formData.branchId) errors.branchId = 'Branch assignment is required';
+        if (!formData.joinDate) errors.joinDate = 'Join date is required';
+        return errors;
+    };
+
+    // ── Save edit ────────────────────────────────────────────────────────────
+    const handleSubmit = (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('admin_token');
-        const url = editingManager
-            ? `http://localhost:5000/api/admin/staff/${editingManager._id}`
-            : 'http://localhost:5000/api/admin/staff';
-        const method = editingManager ? 'PUT' : 'POST';
+        const errors = validate();
+        if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
 
-        const submitData = {
-            ...formData,
-            role: editingManager ? editingManager.role : modalRole,
-            password: formData.tempPassword,
-            status: editingManager ? editingManager.status : 'Active',
-            lastLogin: editingManager ? editingManager.lastLogin : 'Never'
-        };
-
-        try {
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(submitData)
-            });
-
-            if (response.ok) {
-                setShowModal(false);
-                setEditingManager(null);
-                resetForm();
-                fetchManagers();
-            } else {
-                const errorData = await response.json();
-                alert(errorData.message || 'Failed to save user');
-            }
-        } catch (error) {
-            console.warn('Network error, applying changes to mock database:', error.message);
-            const savedMock = JSON.parse(localStorage.getItem('mock_managers_db') || '[]');
-            if (editingManager) {
-                const updated = savedMock.map(m => m._id === editingManager._id ? { ...m, ...submitData } : m);
-                localStorage.setItem('mock_managers_db', JSON.stringify(updated));
-            } else {
-                const newItem = { ...submitData, _id: 'mock_m_' + Date.now() };
-                savedMock.push(newItem);
-                localStorage.setItem('mock_managers_db', JSON.stringify(savedMock));
-            }
-            setShowModal(false);
-            setEditingManager(null);
-            resetForm();
-            fetchManagers();
+        if (modalMode === 'add') {
+            const newStaff = {
+                ...formData,
+                _id: `s${Date.now()}`,
+                staffId: `STF-${Math.floor(1000 + Math.random() * 9000)}`,
+            };
+            persist([...staff, newStaff]);
+            showToast('Staff added successfully!');
+        } else {
+            persist(staff.map(s => s._id === selectedStaff._id ? { ...s, ...formData } : s));
+            showToast('Staff details updated successfully!');
         }
+        closeModal();
     };
 
-    const resetForm = () => {
-        setFormData({
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            role: 'Staff',
-            branchId: '',
-            assignedArea: '',
-            sendInvite: true,
-            tempPassword: Math.random().toString(36).slice(-8).toUpperCase()
-        });
-        setShowPassword(false);
+
+
+    // ── Stats ─────────────────────────────────────────────────────────────────
+    const stats = {
+        total: staff.length,
+        active: staff.filter(s => s.status === 'Active').length,
+        inactive: staff.filter(s => s.status === 'Inactive').length,
+        branches: ADMIN_BRANCHES.length,
     };
 
-    const handleToggleStatus = async (manager) => {
-        if (!canModify(manager.role)) return;
-        const token = localStorage.getItem('admin_token');
-        const newStatus = manager.status === 'Inactive' ? 'Active' : 'Inactive';
-        if (!window.confirm(`Are you sure you want to change status for ${manager.firstName} to ${newStatus}?`)) return;
+    // ── Loading ───────────────────────────────────────────────────────────────
+    if (isLoading) return (
+        <div className="sm-loading-screen">
+            <Loader2 size={40} className="sm-spin" color="var(--color-red)" />
+            <span>Loading staff data…</span>
+        </div>
+    );
 
-        try {
-            const response = await fetch(`http://localhost:5000/api/admin/staff/${manager._id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ ...manager, status: newStatus })
-            });
-            if (response.ok) fetchManagers();
-        } catch (error) {
-            const savedMock = JSON.parse(localStorage.getItem('mock_managers_db') || '[]');
-            const updated = savedMock.map(m => m._id === manager._id ? { ...m, status: newStatus } : m);
-            localStorage.setItem('mock_managers_db', JSON.stringify(updated));
-            fetchManagers();
-        }
-    };
+    return (
+        <div className="sm-page">
+            <Toast message={toast.message} type={toast.type} visible={toast.visible} />
 
-    const handleResetPassword = async (m) => {
-        if (!canModify(m.role)) return;
-        if (!window.confirm(`Send password reset email to ${m.email}?`)) return;
-        alert(`Invitation reset sent to ${m.email}`);
-    };
-
-    const openEdit = (m) => {
-        if (!canModify(m.role)) return;
-        setEditingManager(m);
-        setFormData({
-            firstName: m.firstName || '',
-            lastName: m.lastName || '',
-            email: m.email || '',
-            phone: m.phone || '',
-            role: m.role || 'Staff',
-            branchId: m.branchId || '',
-            assignedArea: m.assignedArea || '',
-            sendInvite: false,
-            tempPassword: ''
-        });
-        setShowModal(true);
-    };
-
-    const openAdd = (role) => {
-        if (!canModify(role)) return;
-        setEditingManager(null);
-        setModalRole(role);
-        resetForm();
-        setShowModal(true);
-    };
-
-    const renderTable = (title, roleFilter) => {
-        const filtered = Array.isArray(managers) ? managers.filter(m => {
-            const isRoleMatch = m.role?.toLowerCase() === roleFilter.toLowerCase();
-            const isSearchMatch = `${m.firstName} ${m.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                m.email.toLowerCase().includes(searchQuery.toLowerCase());
-            return isRoleMatch && isSearchMatch;
-        }) : [];
-
-        const isLocked = !canModify(roleFilter);
-
-        return (
-            <div className="sa-card" style={{ padding: '0', overflow: 'hidden', marginBottom: '32px', position: 'relative' }}>
-                <div style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', background: isLocked ? '#f8f9fa' : 'white' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: 40, height: 40, borderRadius: '10px', background: isLocked ? '#e5e7eb' : 'rgba(255,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Users size={20} color={isLocked ? '#9ca3af' : 'var(--color-red)'} />
-                        </div>
-                        <div>
-                            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>{title}</h3>
-                            <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--color-text-dim)' }}>{filtered.length} total members listed</p>
-                        </div>
+            {/* ── Page Header ──────────────────────────────────────────────── */}
+            <div className="sm-page-header">
+                <div className="sm-page-title-block">
+                    <div className="sm-page-icon">
+                        <Users size={22} color="var(--color-red)" />
                     </div>
-                    <button
-                        className="icon-btn"
-                        style={{ background: isLocked ? '#d1d5db' : 'var(--color-red)', color: 'white', cursor: isLocked ? 'not-allowed' : 'pointer', opacity: isLocked ? 0.7 : 1 }}
-                        onClick={() => openAdd(roleFilter)}
-                        disabled={isLocked}
-                        title={isLocked ? "Access Restricted" : `Add New ${roleFilter}`}
-                    >
-                        {isLocked ? <Shield size={18} /> : <Plus size={18} />}
-                    </button>
+                    <div>
+                        <h1 className="sm-page-title">Staff Management</h1>
+                        <p className="sm-page-subtitle">
+                            Assign and manage staff for your 6 branches.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="sa-table-container">
-                    <table className="sa-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                {staff.length < 6 && (
+                    <button className="sm-btn-add" onClick={openAdd}>
+                        <Plus size={18} />
+                        Add Staff
+                    </button>
+                )}
+            </div>
+
+            {/* ── Summary Cards ────────────────────────────────────────────── */}
+            <div className="sm-stats-grid">
+                {[
+                    { label: 'Total Staff', value: stats.total, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)', icon: <Users size={20} color="#3B82F6" /> },
+                    { label: 'Active', value: stats.active, color: '#10B981', bg: 'rgba(16,185,129,0.08)', icon: <CheckCircle2 size={20} color="#10B981" /> },
+                    { label: 'Inactive', value: stats.inactive, color: '#EF4444', bg: 'rgba(239,68,68,0.08)', icon: <XCircle size={20} color="#EF4444" /> },
+                    { label: 'Assigned Branches', value: stats.branches, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', icon: <MapPin size={20} color="#F59E0B" /> },
+                ].map((card, i) => (
+                    <div key={i} className="sm-stat-card">
+                        <div className="sm-stat-icon" style={{ background: card.bg }}>{card.icon}</div>
+                        <div className="sm-stat-body">
+                            <span className="sm-stat-label">{card.label}</span>
+                            <span className="sm-stat-value" style={{ color: card.color }}>{card.value}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+
+
+            {/* ── Staff Table ───────────────────────────────────────────────── */}
+            <div className="sm-card sm-table-card">
+                <div className="sm-table-scroll">
+                    <table className="sm-table">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#F9FAFB' }}>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>No</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Identity</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Email Address</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Role</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Branch</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '12px 24px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-dim)', textTransform: 'uppercase', textAlign: 'right' }}>Management</th>
+                            <tr>
+                                {['Staff ID', 'Name', 'Branch', 'Phone Number', 'Status', 'Actions'].map((col, i) => (
+                                    <th key={i} className={i === 5 ? 'sm-th-right' : ''}>{col}</th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map((m, index) => (
-                                <tr key={m._id} style={{ borderBottom: '1px solid var(--border-color)', opacity: isLocked ? 0.85 : 1 }}>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)' }}>{String(index + 1).padStart(2, '0')}</td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div style={{ width: 32, height: 32, borderRadius: '8px', background: isLocked ? '#f3f4f6' : 'rgba(255,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Shield size={14} color={isLocked ? '#9ca3af' : 'var(--color-red)'} />
-                                            </div>
-                                            <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>{m.firstName} {m.lastName}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>{m.email}</td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <span style={{ fontSize: '0.6rem', fontWeight: 800, color: isLocked ? '#6b7280' : 'var(--color-red)', background: isLocked ? '#f3f4f6' : 'rgba(255,0,0,0.08)', padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
-                                            {m.role}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>{branches.find(b => b._id === m.branchId)?.name || 'Central Center'}</td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: m.status === 'Inactive' ? '#EF4444' : '#10B981' }} />
-                                            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: m.status === 'Inactive' ? '#EF4444' : '#10B981' }}>{m.status || 'Active'}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                                            <button className="icon-btn" style={{ width: 28, height: 28, cursor: isLocked ? 'not-allowed' : 'pointer' }} onClick={() => openEdit(m)} disabled={isLocked}><Edit2 size={12} /></button>
-                                            <button className="icon-btn" style={{ width: 28, height: 28, cursor: isLocked ? 'not-allowed' : 'pointer', color: m.status === 'Inactive' ? '#10B981' : '#EF4444' }} onClick={() => handleToggleStatus(m)} disabled={isLocked}><UserMinus size={12} /></button>
-                                            <button className="icon-btn" style={{ width: 28, height: 28, cursor: isLocked ? 'not-allowed' : 'pointer' }} onClick={() => handleResetPassword(m)} disabled={isLocked}><RefreshCcw size={12} /></button>
+                            {staff.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="sm-empty-row">
+                                        <div className="sm-empty-state">
+                                            <Users size={36} color="#CBD5E1" />
+                                            <span>No staff members found.</span>
+                                            <small>Try adjusting your search or filters.</small>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                staff.map((member) => {
+                                    const avatarColor = getAvatarColor(member.firstName);
+                                    return (
+                                        <tr key={member._id} className="sm-tr">
+                                            {/* Staff ID */}
+                                            <td>
+                                                <span className="sm-id-pill">{member.staffId}</span>
+                                            </td>
+                                            {/* Name */}
+                                            <td>
+                                                <div className="sm-name-cell">
+                                                    <div
+                                                        className="sm-avatar"
+                                                        style={{
+                                                            background: member.photo ? 'none' : `${avatarColor}18`,
+                                                            color: avatarColor,
+                                                            cursor: 'pointer',
+                                                            overflow: 'hidden',
+                                                            border: '2px solid #fff',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onClick={() => openView(member)}
+                                                    >
+                                                        {member.photo ? (
+                                                            <img src={member.photo} alt={member.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        ) : (
+                                                            `${member.firstName.charAt(0)}${member.lastName.charAt(0)}`
+                                                        )}
+                                                    </div>
+                                                    <span className="sm-name">{member.firstName} {member.lastName}</span>
+                                                </div>
+                                            </td>
+                                            {/* Branch */}
+                                            <td>
+                                                <span className="sm-branch-tag">
+                                                    <MapPin size={11} />
+                                                    {getBranchName(member.branchId)}
+                                                </span>
+                                            </td>
+                                            {/* Phone */}
+                                            <td className="sm-phone">{member.phone || '—'}</td>
+                                            {/* Status */}
+                                            <td><StatusBadge status={member.status} /></td>
+                                            {/* Actions */}
+                                            <td className="sm-actions-cell">
+                                                <div className="sm-action-btns">
+                                                    {/* View */}
+                                                    <button
+                                                        className="sm-action-btn sm-btn-view"
+                                                        title="View Details"
+                                                        onClick={() => openView(member)}
+                                                    >
+                                                        <Eye size={14} />
+                                                        <span>View</span>
+                                                    </button>
+                                                    {/* Edit */}
+                                                    <button
+                                                        className="sm-action-btn sm-btn-edit"
+                                                        title="Edit Staff"
+                                                        onClick={() => openEdit(member)}
+                                                    >
+                                                        <Edit2 size={14} />
+                                                        <span>Edit</span>
+                                                    </button>
+                                                    {/* Delete */}
+                                                    <button
+                                                        className="sm-action-btn sm-btn-deactivate"
+                                                        title="Remove Staff"
+                                                        onClick={() => deleteStaff(member._id)}
+                                                    >
+                                                        <Trash2 size={14} />
+                                                        <span>Remove</span>
+                                                    </button>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
-                    {filtered.length === 0 && (
-                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-dim)', fontWeight: 600, fontSize: '0.8rem' }}>
-                            No {roleFilter.toLowerCase()}s recorded in this category.
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    return (
-        <div className="super-admin-dashboard" style={{ paddingBottom: '100px' }}>
-            <header className="sa-header">
-                <div className="sa-welcome">
-                    <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>Staff Management</h1>
-                    <p style={{ margin: 0, marginTop: '4px' }}>Comprehensive management of Branch Staff.</p>
                 </div>
 
-                <div className="sa-actions">
-                    <div className="sa-search-bar" style={{ width: '400px' }}>
-                        <Search className="sa-search-icon" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Unified search across all team members..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                {staff.length > 0 && (
+                    <div className="sm-table-footer">
+                        <span>
+                            Showing <strong>{staff.length}</strong> staff
+                            member{staff.length !== 1 ? 's' : ''}
+                        </span>
                     </div>
-                </div>
-            </header>
+                )}
+            </div>
 
-            {isLoading ? (
-                <div style={{ padding: '100px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-                    <Loader2 className="animate-spin" size={40} color="var(--color-red)" />
-                    <span style={{ color: 'var(--color-text-dim)', fontWeight: 600 }}>Syncing Management Infrastructure...</span>
-                </div>
-            ) : (
-                <div style={{ marginTop: '32px' }}>
-                    {renderTable('Branch Operations (Staff)', 'Staff')}
-                </div>
-            )}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* ADD / EDIT MODAL                                               */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {(modalMode === 'add' || modalMode === 'edit') && (
+                <div className="sm-overlay" onClick={(e) => e.target === e.currentTarget && closeModal()}>
+                    <div className="sm-modal sm-modal-form" ref={formRef}>
 
-            {showModal && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div className="sa-card" style={{ maxWidth: '650px', width: '100%', padding: '32px', background: '#FFFFFF', boxShadow: '0 30px 60px rgba(0,0,0,0.2)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(255,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <UserPlus size={22} color="var(--color-red)" />
+                        {/* Header */}
+                        <div className="sm-modal-header">
+                            <div className="sm-modal-title-row">
+                                <div className="sm-modal-icon-wrap">
+                                    {modalMode === 'add' ? <Plus size={20} color="var(--color-red)" /> : <Edit2 size={20} color="var(--color-red)" />}
                                 </div>
-                                <h2 style={{ fontSize: '1.2rem', fontWeight: 900, margin: 0 }}>
-                                    {editingManager ? `Update ${editingManager.role}` : `Provision New ${modalRole}`}
-                                </h2>
+                                <div>
+                                    <h2 className="sm-modal-title">
+                                        {modalMode === 'add' ? 'Add New Staff' : 'Edit Staff Details'}
+                                    </h2>
+                                    <p className="sm-modal-subtitle">
+                                        {modalMode === 'add'
+                                            ? 'Fill in the details to assign a staff member to a branch.'
+                                            : `Editing — ${selectedStaff.firstName} ${selectedStaff.lastName}`}
+                                    </p>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} style={{ background: '#f5f5fa', border: 'none', borderRadius: '10px', width: 36, height: 36, cursor: 'pointer' }}><X size={18} /></button>
+                            <button className="sm-modal-close" onClick={closeModal}><X size={18} /></button>
                         </div>
 
-                        <form onSubmit={handleSubmit}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                                <div style={{ gridColumn: 'span 2' }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700 }}>First Name *</label>
-                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB' }} />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700 }}>Last Name *</label>
-                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB' }} />
-                                        </div>
-                                    </div>
-                                </div>
+                        {/* Form */}
+                        <form onSubmit={handleSubmit} className="sm-form" noValidate>
+                            <div className="sm-form-grid">
 
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700 }}>Corporate Email *</label>
-                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB' }} />
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700 }}>Contact Number</label>
-                                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB' }} />
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700 }}>Assigned Center</label>
-                                    <select name="branchId" value={formData.branchId} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB' }}>
-                                        <option value="">Select Location...</option>
-                                        {branches.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700 }}>Operational Area</label>
-                                    <input type="text" name="assignedArea" value={formData.assignedArea} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB' }} />
-                                </div>
-
-                                {!editingManager && (
-                                    <div style={{ gridColumn: 'span 2', background: '#F9FAFB', padding: '16px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>
-                                                <span style={{ display: 'block', fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>INITIAL PASSWORD</span>
-                                                <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--color-red)' }}>{formData.tempPassword}</span>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <input type="checkbox" id="invite" name="sendInvite" checked={formData.sendInvite} onChange={handleChange} />
-                                                <label htmlFor="invite" style={{ fontSize: '0.7rem', fontWeight: 700 }}>SEND INVITE</label>
-                                            </div>
-                                        </div>
+                                {modalMode === 'edit' && (
+                                    <div className="sm-form-group sm-half">
+                                        <label className="sm-label">Staff ID</label>
+                                        <input className="sm-input sm-input-readonly" value={selectedStaff.staffId} readOnly />
                                     </div>
                                 )}
+
+                                {/* Join Date */}
+                                <div className="sm-form-group sm-half">
+                                    <label className="sm-label">Join Date <span className="sm-req">*</span></label>
+                                    <input
+                                        type="date"
+                                        name="joinDate"
+                                        className={`sm-input ${formErrors.joinDate ? 'sm-input-error' : ''}`}
+                                        value={formData.joinDate}
+                                        onChange={handleChange}
+                                    />
+                                    {formErrors.joinDate && <span className="sm-error-msg">{formErrors.joinDate}</span>}
+                                </div>
+
+                                {/* First Name */}
+                                <div className="sm-form-group sm-half">
+                                    <label className="sm-label">First Name <span className="sm-req">*</span></label>
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        className={`sm-input ${formErrors.firstName ? 'sm-input-error' : ''}`}
+                                        placeholder="e.g. Amal"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                    />
+                                    {formErrors.firstName && <span className="sm-error-msg">{formErrors.firstName}</span>}
+                                </div>
+
+                                {/* Last Name */}
+                                <div className="sm-form-group sm-half">
+                                    <label className="sm-label">Last Name <span className="sm-req">*</span></label>
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        className={`sm-input ${formErrors.lastName ? 'sm-input-error' : ''}`}
+                                        placeholder="e.g. Perera"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                    />
+                                    {formErrors.lastName && <span className="sm-error-msg">{formErrors.lastName}</span>}
+                                </div>
+
+                                {/* Phone */}
+                                <div className="sm-form-group sm-half">
+                                    <label className="sm-label">Phone Number</label>
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        className="sm-input"
+                                        placeholder="+94 77 000 0000"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+
+                                {/* NIC Number */}
+                                <div className="sm-form-group sm-half">
+                                    <label className="sm-label">NIC Number</label>
+                                    <input
+                                        type="text"
+                                        name="nic"
+                                        className="sm-input"
+                                        placeholder="e.g. 950000000V"
+                                        value={formData.nic}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+
+                                {/* Branch Assignment */}
+                                <div className="sm-form-group sm-half">
+                                    <label className="sm-label">
+                                        Assigned Branch <span className="sm-req">*</span>
+                                    </label>
+                                    <div className="sm-select-wrap">
+                                        <select
+                                            name="branchId"
+                                            className={`sm-input ${formErrors.branchId ? 'sm-input-error' : ''}`}
+                                            value={formData.branchId}
+                                            onChange={handleChange}
+                                        >
+                                            <option value="">Select a Branch</option>
+                                            {ADMIN_BRANCHES.map(branch => {
+                                                const isAssigned = staff.some(s =>
+                                                    s.branchId === branch._id && (modalMode === 'add' || s._id !== selectedStaff?._id)
+                                                );
+                                                return (
+                                                    <option
+                                                        key={branch._id}
+                                                        value={branch._id}
+                                                        disabled={isAssigned}
+                                                        style={isAssigned ? { color: '#94A3B8' } : {}}
+                                                    >
+                                                        {branch.name} {isAssigned ? '— Assigned' : ''}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                        <ChevronDown size={14} className="sm-select-caret" />
+                                    </div>
+                                    {formErrors.branchId && <span className="sm-error-msg">{formErrors.branchId}</span>}
+                                </div>
+
+
                             </div>
 
-                            <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
-                                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'white', fontWeight: 800, cursor: 'pointer' }}>Cancel</button>
-                                <button type="submit" style={{ flex: 2, padding: '12px', borderRadius: '10px', border: 'none', background: 'var(--color-red)', color: 'white', fontWeight: 800, cursor: 'pointer' }}>
-                                    {editingManager ? 'Update Credentials' : `Provision ${modalRole}`}
+                            <div className="sm-modal-footer">
+                                <button type="button" className="sm-btn-ghost" onClick={closeModal}>Cancel</button>
+                                <button type="submit" className="sm-btn-primary">
+                                    {modalMode === 'add' ? 'Add Staff' : 'Save Changes'}
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* VIEW MODAL                                                     */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {modalMode === 'view' && selectedStaff && (() => {
+                const avatarColor = getAvatarColor(selectedStaff.firstName);
+                return (
+                    <div className="sm-overlay" onClick={(e) => e.target === e.currentTarget && closeModal()}>
+                        <div className="sm-modal sm-modal-view" style={{ borderRadius: '32px' }}>
+                            {/* Improved Profile View Layout */}
+                            <div
+                                className="sm-view-banner"
+                                style={{
+                                    background: `linear-gradient(180deg, ${avatarColor}dd, ${avatarColor}aa)`,
+                                    height: '240px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '40px 20px',
+                                    textAlign: 'center'
+                                }}
+                            >
+                                <div className="sm-view-avatar" style={{
+                                    width: '120px',
+                                    height: '120px',
+                                    borderRadius: '50%',
+                                    border: '6px solid #fff',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                                    marginBottom: '16px',
+                                    overflow: 'hidden',
+                                    background: '#fff'
+                                }}>
+                                    {selectedStaff.photo ? (
+                                        <img src={selectedStaff.photo} alt={selectedStaff.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <div style={{ color: avatarColor, fontSize: '2.5rem', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
+                                            {selectedStaff.firstName.charAt(0)}{selectedStaff.lastName.charAt(0)}
+                                        </div>
+                                    )}
+                                </div>
+                                <h2 className="sm-view-name" style={{ margin: '0', fontSize: '1.6rem', color: '#fff', fontWeight: 900 }}>{selectedStaff.firstName} {selectedStaff.lastName}</h2>
+                                <span className="sm-view-id" style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '100px', fontSize: '0.8rem', fontWeight: 700, marginTop: '8px' }}>{selectedStaff.staffId}</span>
+
+                                <button className="sm-modal-close" onClick={closeModal} style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(0,0,0,0.1)', border: 'none', color: '#fff' }}>
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="sm-view-body" style={{ padding: '24px 32px 32px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                                    <StatusBadge status={selectedStaff.status} />
+                                </div>
+
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h3 className="sm-view-section-title">Staff Details</h3>
+                                    <div className="sm-view-fields">
+                                        <FieldRow label="Staff ID" value={selectedStaff.staffId} icon={<Shield size={13} />} />
+                                        <FieldRow label="Full Name" value={`${selectedStaff.firstName} ${selectedStaff.lastName}`} icon={<Users size={13} />} />
+                                        <FieldRow label="Branch" value={getBranchName(selectedStaff.branchId)} icon={<MapPin size={13} />} />
+                                        <FieldRow label="Phone Number" value={selectedStaff.phone} icon={<Phone size={13} />} />
+                                        <FieldRow label="NIC Number" value={selectedStaff.nic} icon={<Shield size={13} />} />
+                                        <FieldRow label="Join Date" value={formatDate(selectedStaff.joinDate)} icon={<Calendar size={13} />} />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button
+                                        className="sm-btn-primary"
+                                        style={{ flex: 1 }}
+                                        onClick={() => { closeModal(); openEdit(selectedStaff); }}
+                                    >
+                                        <Edit2 size={16} /> Edit Profile
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 };

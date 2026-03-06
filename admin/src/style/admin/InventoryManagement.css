@@ -1039,3 +1039,26 @@
     font-weight: 800;
     color: var(--color-text);
 }
+
+/* New Inventory Management Styles */
+.sm-btn-add {
+    background: #FF0000;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.15);
+}
+
+.sm-btn-add:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 0, 0, 0.2);
+}

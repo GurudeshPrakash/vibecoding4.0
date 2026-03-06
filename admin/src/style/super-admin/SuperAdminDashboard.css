@@ -610,30 +610,83 @@
     color: var(--color-red);
 }
 
+/* Branch Performance Table */
+.sa-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+    background: #FFFFFF;
+}
+
+.sa-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.sa-table th {
+    padding: 14px 24px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1.5px solid var(--border-color);
+    background: #F9FAFB;
+}
+
+.sa-table td {
+    padding: 18px 24px;
+    font-size: 0.85rem;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sa-table tr:hover td {
+    background: #F8FAFC;
+}
+
+/* Branch Alerts */
+.alerts-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.alert-item-branch {
+    padding: 14px;
+    background: #FFF5F5;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #EF4444;
+    transition: all 0.2s ease;
+}
+
+.alert-item-branch.warning {
+    background: #FFFBEB;
+    border-left-color: #F59E0B;
+}
+
+.alert-item-branch:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Fixes for Sidebar */
+.sa-sidebar-col>.sa-card:last-child {
+    min-height: auto;
+}
+
 .sa-sidebar-col {
     display: flex;
     flex-direction: column;
-    gap: 32px;
-}
-
-@media (max-width: 1400px) {
-    .sa-summary-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    gap: 24px;
 }
 
 @media (max-width: 1200px) {
     .sa-dashboard-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .sa-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .sa-summary-grid {
         grid-template-columns: 1fr;
     }
 }

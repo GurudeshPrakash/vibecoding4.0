@@ -1,0 +1,74 @@
+﻿node.exe : [31mΓ£ù[39m 
+Build failed in 1.17s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ([31mΓ£  
+  ù[39m Build failed in 1   
+ .17s:String) [], RemoteE    
+xception
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+[31merror during build:
+[31m[vite:esbuild] 
+Transform failed with 1 
+error:
+D:/Project/VibeCoding4.0.2/ad
+min/src/components/super-admi
+n/Administrators.jsx:513:0: 
+ERROR: Unexpected 
+"export"[31m
+file: [36mD:/Project/VibeCod
+ing4.0.2/admin/src/components
+/super-admin/Administrators.j
+sx:513:0[31m
+[33m
+[33mUnexpected "export"[33m
+511 |  };
+512 |  
+513 |  export default 
+Administrators;
+    |  ^
+514 |  
+[31m
+    at failureErrorWithLog (D
+:\Project\VibeCoding4.0.2\adm
+in\node_modules\esbuild\lib\m
+ain.js:1467:15)
+    at D:\Project\VibeCoding4
+.0.2\admin\node_modules\esbui
+ld\lib\main.js:736:50
+    at 
+responseCallbacks.<computed> 
+(D:\Project\VibeCoding4.0.2\a
+dmin\node_modules\esbuild\lib
+\main.js:603:9)
+    at handleIncomingPacket (
+D:\Project\VibeCoding4.0.2\ad
+min\node_modules\esbuild\lib\
+main.js:658:12)
+    at Socket.readFromStdout 
+(D:\Project\VibeCoding4.0.2\a
+dmin\node_modules\esbuild\lib
+\main.js:581:7)
+    at Socket.emit 
+(node:events:508:28)
+    at addChunk (node:interna
+l/streams/readable:559:12)
+    at 
+readableAddChunkPushByteMode 
+(node:internal/streams/readab
+le:510:3)
+    at Readable.push (node:in
+ternal/streams/readable:390:5
+)
+    at Pipe.onStreamRead (nod
+e:internal/stream_base_common
+s:189:23)[39m

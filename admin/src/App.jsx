@@ -39,6 +39,8 @@ const AdminLayout = ({
   children,
   activeTab,
   setActiveTab,
+  activeSection,
+  setActiveSection,
   navigate,
   setShowLogoutModal,
   adminRole,
@@ -60,6 +62,8 @@ const AdminLayout = ({
     <Sidebar
       activeTab={activeTab}
       setActiveTab={setActiveTab}
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
       onLogoutTrigger={() => setShowLogoutModal(true)}
       adminRole={adminRole}
       viewRole={viewRole}
@@ -148,11 +152,13 @@ function App() {
   const [adminRole, setAdminRole] = useState('super_admin');
   const [viewRole, setViewRole] = useState('super_admin');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('super_admin');
 
   const loginRole = viewRole === 'super_admin' ? 'admin' : viewRole;
 
   useEffect(() => {
     // setActiveTab('dashboard'); // Optional: reset tab on role switch
+    setActiveSection(viewRole);
   }, [viewRole]);
 
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
@@ -246,10 +252,12 @@ function App() {
   const layoutProps = {
     activeTab,
     setActiveTab,
+    activeSection,
+    setActiveSection,
     navigate,
     setShowLogoutModal,
-    adminRole: viewRole, // DRIVE SIDEBAR WITH SIMULATED ROLE
-    viewRole,
+    adminRole, // REAL ACCOUNT ROLE
+    viewRole,  // SIMULATED VIEW ROLE
     setViewRole,
     setAdminRole,
     userName,
@@ -275,16 +283,67 @@ function App() {
       refreshInventory,
       handleViewActivityLog,
       dismantledHistory,
-      setActiveTab
+      setActiveTab,
+      setUserName
     };
 
-    const targetRole = viewRole;
+    // Since Sidebar.jsx handles access control by locking buttons (canAccess),
+    // any activeTab that successfully gets set should render its corresponding component.
+    // Combine activeSection with activeTab to create a unique identifier for tabs that exist in multiple sections
+    const specificTab = `${activeSection}_${activeTab}`;
 
-    if (targetRole === 'super_admin') {
-      switch (activeTab) {
-        case 'dashboard': return (
+    switch (specificTab) {
+      // Super Admin Level
+      case 'super_admin_dashboard':
+        return (
+          <SuperAdminDashboard />
+        );
+      case 'super_admin_admins':
+        return <Administrators userRole={viewRole} />;
+      case 'super_admin_staff':
+        return <Managers userRole={viewRole} />;
+      case 'super_admin_locations':
+        return <Locations />;
+      case 'super_admin_activity-logs':
+        return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
+      case 'super_admin_settings':
+        return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
+
+      // Admin Level
+      case 'admin_dashboard':
+        return (
+          <AdminDashboard />
+        );
+      case 'admin_locations':
+        return <BranchManagement />;
+      case 'admin_members':
+        return <MembersManagement />;
+      case 'admin_staff':
+        return <StaffManagement userRole={viewRole} />;
+      case 'admin_inventory':
+        return <InventoryManagement inventoryData={props.inventoryData} />;
+      case 'admin_payments':
+        return <PaymentManagement />;
+      case 'admin_reports':
+        return <Reports />;
+
+      // Staff Level
+      case 'staff_dashboard':
+        return (
+          <StaffDashboard />
+        );
+      case 'staff_inventory':
+        return <StaffInventory inventoryData={props.inventoryData} userRole={adminRole} />;
+      case 'staff_members':
+        return <Members userRole={adminRole} />;
+      case 'staff_payments':
+        return <Payments userRole={adminRole} />;
+
+      default:
+        return (
           <UnifiedDashboard
             userRole={viewRole}
+            permissionsRole={adminRole}
             adminName={props.userName}
             stats={props.stats}
             recentInventory={props.inventoryData}
@@ -294,87 +353,6 @@ function App() {
             setActiveTab={setActiveTab}
           />
         );
-        case 'admins': return <Administrators />;
-        case 'staff': return <StaffManagement userRole={viewRole} />;
-        case 'locations': return <Locations />;
-        case 'activity-logs': return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
-        case 'settings': return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
-        default: return (
-          <UnifiedDashboard
-            userRole={viewRole}
-            adminName={props.userName}
-            stats={props.stats}
-            recentInventory={props.inventoryData}
-            dismantleRequests={props.dismantleRequests}
-            setDismantleRequests={props.setDismantleRequests}
-            refreshInventory={props.refreshInventory}
-            setActiveTab={setActiveTab}
-          />
-        );
-      }
-    } else if (targetRole === 'admin') {
-      switch (activeTab) {
-        case 'dashboard': return (
-          <UnifiedDashboard
-            userRole={viewRole}
-            adminName={props.userName}
-            stats={props.stats}
-            recentInventory={props.inventoryData}
-            dismantleRequests={props.dismantleRequests}
-            setDismantleRequests={props.setDismantleRequests}
-            refreshInventory={props.refreshInventory}
-            setActiveTab={setActiveTab}
-          />
-        );
-        case 'staff': return <StaffManagement userRole={viewRole} />;
-        case 'locations': return <BranchManagement setActiveTab={setActiveTab} />;
-        case 'inventory': return <InventoryManagement inventoryData={props.inventoryData} />;
-        case 'members': return <MembersManagement />;
-        case 'payments': return <PaymentManagement />;
-        case 'reports': return <Reports />;
-        default: return (
-          <UnifiedDashboard
-            userRole={viewRole}
-            adminName={props.userName}
-            stats={props.stats}
-            recentInventory={props.inventoryData}
-            dismantleRequests={props.dismantleRequests}
-            setDismantleRequests={props.setDismantleRequests}
-            refreshInventory={props.refreshInventory}
-            setActiveTab={setActiveTab}
-          />
-        );
-      }
-    } else {
-      switch (activeTab) {
-        case 'dashboard': return (
-          <UnifiedDashboard
-            userRole={viewRole}
-            adminName={props.userName}
-            stats={props.stats}
-            recentInventory={props.inventoryData}
-            dismantleRequests={props.dismantleRequests}
-            setDismantleRequests={props.setDismantleRequests}
-            refreshInventory={props.refreshInventory}
-            setActiveTab={setActiveTab}
-          />
-        );
-        case 'members': return <Members />;
-        case 'payments': return <Payments />;
-        case 'inventory': return <StaffInventory inventoryData={props.inventoryData} />;
-        default: return (
-          <UnifiedDashboard
-            userRole={viewRole}
-            adminName={props.userName}
-            stats={props.stats}
-            recentInventory={props.inventoryData}
-            dismantleRequests={props.dismantleRequests}
-            setDismantleRequests={props.setDismantleRequests}
-            refreshInventory={props.refreshInventory}
-            setActiveTab={setActiveTab}
-          />
-        );
-      }
     }
   };
 

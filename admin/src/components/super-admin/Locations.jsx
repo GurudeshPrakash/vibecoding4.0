@@ -28,7 +28,9 @@ const checkStatus = (hours, now) => {
   }
 };
 
-const Locations = () => {
+const Locations = ({ userRole = 'admin' }) => {
+  const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
+  const isSuperAdmin = userRole === 'super_admin';
   const [selectedGym, setSelectedGym] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTime] = useState(new Date());
@@ -173,10 +175,12 @@ const Locations = () => {
             <h1>{selectedGym.name}</h1>
             <p><MapPin size={16} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> {selectedGym.location}</p>
           </div>
-          <div className="sa-actions">
-            <button className="icon-btn" onClick={() => { setEditingBranch(selectedGym); setFormData({ ...selectedGym, photo: selectedGym.photo }); setShowModal(true); }}><Edit2 size={20} /></button>
-            <button className="icon-btn" style={{ color: '#EF4444' }} onClick={() => handleDelete(selectedGym.id)}><Trash2 size={20} /></button>
-          </div>
+          {isPowerUser && (
+            <div className="sa-actions">
+              <button className="icon-btn" onClick={() => { setEditingBranch(selectedGym); setFormData({ ...selectedGym, photo: selectedGym.photo }); setShowModal(true); }}><Edit2 size={20} /></button>
+              <button className="icon-btn" style={{ color: '#EF4444' }} onClick={() => handleDelete(selectedGym.id)}><Trash2 size={20} /></button>
+            </div>
+          )}
         </header>
 
         <div className="sa-dashboard-layout" style={{ gridTemplateColumns: '1fr 1.5fr', gap: '32px' }}>
@@ -305,9 +309,11 @@ const Locations = () => {
         </div>
 
         <div className="sa-actions">
-          <button className="icon-btn" style={{ background: 'var(--color-red)', color: 'white' }} onClick={() => { setEditingBranch(null); setFormData({ name: '', city: '', type: 'AC', status: 'Active', managerId: '', photo: null, phone: '', location: '', adminName: '', adminPhone: '', operatingHours: '6:00 AM - 10:00 PM' }); setShowModal(true); }} title="Add New Location">
-            <MapPin size={22} />
-          </button>
+          {isPowerUser && (
+            <button className="icon-btn" style={{ background: 'var(--color-red)', color: 'white' }} onClick={() => { setEditingBranch(null); setFormData({ name: '', city: '', type: 'AC', status: 'Active', managerId: '', photo: null, phone: '', location: '', adminName: '', adminPhone: '', operatingHours: '6:00 AM - 10:00 PM' }); setShowModal(true); }} title="Add New Location">
+              <MapPin size={22} />
+            </button>
+          )}
 
           <div className="sa-search-bar" style={{ width: '350px' }}>
             <Search className="sa-search-icon" size={20} />

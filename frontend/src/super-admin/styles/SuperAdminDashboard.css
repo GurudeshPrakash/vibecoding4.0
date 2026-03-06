@@ -632,7 +632,7 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     border-bottom: 1.5px solid var(--border-color);
-    background: #F9FAFB;
+    background: transparent;
 }
 
 .sa-table td {

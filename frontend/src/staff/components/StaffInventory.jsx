@@ -193,61 +193,37 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
             {/* Header */}
             <header className="sa-header" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="sa-welcome">
-                    <h1 style={{ fontSize: '1.2rem' }}>Asset Management</h1>
-                    <p style={{ fontSize: '0.78rem' }}>Manage all gym equipment and maintenance logs.</p>
-                    <h1>Inventory</h1>
-                    <p>View all gym equipment and facilities. Update status as needed.</p>
+                    <h1>Inventory Management</h1>
+                    <p>View and manage all gym equipment, facilities, and maintenance status.</p>
                 </div>
-                {isPowerUser && (
-                    <button
-                        onClick={() => {
-                            setEditingItem(null);
-                            setFormData({
-                                name: '', category: 'Strength', area: '', brand: '', model: '', serial: '', status: 'Available', photo: ''
-                            });
-                            setShowEditModal(true);
-                        }}
-                        style={{ padding: '10px 20px', background: 'var(--color-red, #ff0000)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <Wrench size={18} /> Add Equipment
-                    </button>
-                )}
             </header>
 
             {/* Stats */}
             <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Total Assets</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.total}</h2>
                         <span className="label">Total Equipment</span>
                         <h2 className="value">{counts.total}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Operating</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.good}</h2>
-                        <span className="label">Available</span>
+                        <span className="label">Good</span>
                         <h2 className="value">{counts.good}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Down Time</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.maintenance}</h2>
                         <span className="label">In Maintenance</span>
                         <h2 className="value">{counts.maintenance}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
-                        <span className="label" style={{ fontSize: '0.7rem' }}>Decommissioned</span>
-                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.dismantled}</h2>
                         <span className="label">Damaged</span>
                         <h2 className="value">{counts.dismantled}</h2>
                     </div>
@@ -255,24 +231,24 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
             </section>
 
             {/* Filters */}
-            <div className="sa-card" style={{ marginBottom: '24px', padding: '16px 20px' }}>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
-                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+            <div style={{ marginBottom: '32px' }}>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
+                        <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                         <input
                             type="text"
                             placeholder="Find by name, serial, or zone..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            style={{ width: '100%', padding: '9px 12px 9px 36px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.7rem' }}
+                            style={{ width: '100%', padding: '14px 16px 14px 44px', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.85rem', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}
                         />
                     </div>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
                                 <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                                    padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
-                                    background: categoryFilter === cat ? '#1E3A5F' : 'rgba(255,255,255,0.8)',
+                                    padding: '10px 20px', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
+                                    background: categoryFilter === cat ? '#1E3A5F' : '#fff',
                                     color: categoryFilter === cat ? '#fff' : '#64748B',
                                     transition: 'all 0.2s',
                                     boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
@@ -283,8 +259,8 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {STATUSES.filter(s => s !== 'All').map(s => (
                                 <button key={s} onClick={() => setStatusFilter(s)} style={{
-                                    padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
-                                    background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : 'rgba(255,255,255,0.8)',
+                                    padding: '10px 20px', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
+                                    background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : '#fff',
                                     color: statusFilter === s ? (STATUS_CONFIG[s]?.color || '#334155') : '#64748B',
                                     transition: 'all 0.2s',
                                     boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
@@ -298,8 +274,9 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
                                 setStatusFilter('All');
                             }}
                             style={{
-                                padding: '9px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B',
-                                cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', transition: 'all 0.2s', marginLeft: '4px'
+                                padding: '10px 20px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B',
+                                cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', transition: 'all 0.2s', marginLeft: '4px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                             }}
                             onMouseOver={(e) => { e.target.style.background = '#F1F5F9'; e.target.style.color = '#EF4444'; }}
                             onMouseOut={(e) => { e.target.style.background = '#fff'; e.target.style.color = '#64748B'; }}
@@ -311,7 +288,7 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
             </div>
 
             {/* Equipment Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {filtered.map(item => {
                     const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
                     return (
@@ -330,13 +307,10 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
 
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button onClick={() => setSelectedItem(item)} style={{ flex: 1, padding: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Eye size={12} /> Info</button>
-                                    <button onClick={() => setQrItem(item)} style={{ flex: 1, padding: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><QrCode size={12} /> QR</button>
+                                    <button onClick={() => setQrItem(item)} style={{ flex: 1, padding: '8px', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><QrCode size={12} /> QR</button>
 
                                     {isPowerUser ? (
-                                        <>
-                                            <button onClick={() => openEdit(item)} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>Edit</button>
-                                            <button onClick={() => handleDelete(item.id || item._id)} style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={12} /></button>
-                                        </>
+                                        <button onClick={() => openEdit(item)} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>Edit</button>
                                     ) : (
                                         <button onClick={() => handleOpenReport(item)} style={{ flex: 2, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Wrench size={14} /> Service</button>
                                     )}

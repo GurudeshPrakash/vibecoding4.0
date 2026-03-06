@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Phone, MapPin, ArrowLeft, User, Package, Clock, Plus, Edit2, Trash2, X,
-    Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2, Eye, Users, DollarSign
+    Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2, Eye, Users, DollarSign, Calendar
 } from 'lucide-react';
 import '../styles/BranchManagement.css';
 
@@ -54,15 +54,92 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
         operatingHours: '6:00 AM - 10:00 PM'
     });
 
+    const [staffList, setStaffList] = useState([]);
+    const [selectedStaff, setSelectedStaff] = useState(null);
+    const [showStaffModal, setShowStaffModal] = useState(false);
+
+    const AVATAR_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
+    const getAvatarColor = (name = '') => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+
+    const StatusBadge = ({ status }) => (
+        <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.62rem',
+            fontWeight: 800,
+            padding: '4px 11px',
+            borderRadius: '50px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            whiteSpace: 'nowrap',
+            color: status === 'Active' ? '#059669' : '#DC2626',
+            background: status === 'Active' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'
+        }}>
+            <span style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                flexShrink: 0,
+                background: status === 'Active' ? '#10B981' : '#EF4444'
+            }} />
+            {status}
+        </span>
+    );
+
+    const FieldRow = ({ label, value, icon }) => (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 0',
+            borderBottom: '1px solid #F1F5F9'
+        }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94A3B8' }}>{label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.8rem', color: '#1E293B' }}>
+                {icon && <span style={{ color: 'var(--color-red)', display: 'flex' }}>{icon}</span>}
+                <span>{value || '—'}</span>
+            </div>
+        </div>
+    );
+
     const handleTabAction = (gym, tab) => {
         // Carry branch context over to the target tab
         localStorage.setItem('selected_branch_context', JSON.stringify(gym));
+
+        if (tab === 'staff') {
+            const assignedStaff = staffList.find(s => s.branchId === gym._id);
+            if (assignedStaff) {
+                setSelectedStaff(assignedStaff);
+                setShowStaffModal(true);
+            } else {
+                alert('No staff member assigned to this branch yet.');
+            }
+            return;
+        }
+
         if (setActiveTab) setActiveTab(tab);
     };
 
     const syncBranches = () => {
         // Branches are permanently 6, so we always show the full list
         setAssignedBranches(ADMIN_BRANCHES);
+
+        // Sync Staff Data
+        try {
+            const DEFAULT_STAFF = [
+                { _id: 's1', staffId: 'STF-0001', firstName: 'Niluka', lastName: 'Perera', phone: '+94 77 111 2233', branchId: 'b1', joinDate: '2024-01-15', status: 'Active', nic: '958822334V', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80' },
+                { _id: 's2', staffId: 'STF-9763', firstName: 'Mithula', lastName: 'Kuganesan', phone: '+94 76 112 7146', branchId: 'b2', joinDate: '2024-03-10', status: 'Active', nic: '985533445V', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' },
+                { _id: 's3', staffId: 'STF-5987', firstName: 'Sugirtha', lastName: 'Kuganesan', phone: '+94 76 112 7146', branchId: 'b3', joinDate: '2023-11-05', status: 'Active', nic: '974455667V', photo: 'https://images.unsplash.com/photo-1531123897727-8f129e16fd3c?w=400&q=80' },
+                { _id: 's4', staffId: 'STF-9750', firstName: 'Vithushi', lastName: 'Kuganesan', phone: '+94 76 112 7146', branchId: 'b4', joinDate: '2025-01-20', status: 'Active', nic: '996677889V', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80' },
+                { _id: 's5', staffId: 'STF-7115', firstName: 'Guru', lastName: 'Praksh', phone: '+94 76 112 7146', branchId: 'b5', joinDate: '2024-08-01', status: 'Active', nic: '921100223V', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
+                { _id: 's6', staffId: 'STF-7980', firstName: 'Kuganesan', lastName: 'Kandasamy', phone: '+94 76 112 7146', branchId: 'b6', joinDate: '2024-05-12', status: 'Active', nic: '752233445V', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80' },
+            ];
+            const saved = localStorage.getItem('admin_staff_db');
+            setStaffList(saved ? JSON.parse(saved) : DEFAULT_STAFF);
+        } catch (e) {
+            console.error("Failed to sync staff data", e);
+        }
     };
 
     useEffect(() => {
@@ -94,14 +171,6 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
         alert('Branch removed (Mock)');
         if (selectedGym && selectedGym._id === id) setSelectedGym(null);
         syncBranches();
-    };
-
-    const getConditionColor = (c) => {
-        const lower = c.toLowerCase();
-        if (lower === 'excellent') return '#10B981';
-        if (lower === 'good') return '#3B82F6';
-        if (lower === 'fair') return '#F59E0B';
-        return '#EF4444';
     };
 
     const renderFormModal = () => (
@@ -156,6 +225,94 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
         </div>
     );
 
+    const renderStaffModal = () => {
+        if (!selectedStaff) return null;
+        const avatarColor = getAvatarColor(selectedStaff.firstName);
+        const branchName = assignedBranches.find(b => b._id === selectedStaff.branchId)?.name || 'Unassigned';
+
+        return (
+            <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                <div className="sa-card" style={{ maxWidth: '480px', width: '100%', padding: 0, overflow: 'hidden', background: '#FFFFFF', borderRadius: '32px', border: 'none' }}>
+                    <div style={{
+                        background: `linear-gradient(180deg, ${avatarColor}dd, ${avatarColor}aa)`,
+                        height: '220px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '40px 20px',
+                        textAlign: 'center',
+                        position: 'relative'
+                    }}>
+                        <div style={{
+                            width: '110px',
+                            height: '110px',
+                            borderRadius: '50%',
+                            border: '6px solid #fff',
+                            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                            marginBottom: '16px',
+                            overflow: 'hidden',
+                            background: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            {selectedStaff.photo ? (
+                                <img src={selectedStaff.photo} alt={selectedStaff.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                <div style={{ color: avatarColor, fontSize: '2.5rem', fontWeight: 900 }}>
+                                    {selectedStaff.firstName.charAt(0)}{selectedStaff.lastName.charAt(0)}
+                                </div>
+                            )}
+                        </div>
+                        <h2 style={{ margin: '0', fontSize: '1.5rem', color: '#fff', fontWeight: 900 }}>{selectedStaff.firstName} {selectedStaff.lastName}</h2>
+                        <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', color: '#fff' }}>{selectedStaff.staffId}</span>
+
+                        <button onClick={() => setShowStaffModal(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.1)', border: 'none', color: '#fff', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    <div style={{ padding: '24px 32px 32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                            <StatusBadge status={selectedStaff.status} />
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1a1a1a', marginBottom: '16px', borderBottom: '2px solid var(--color-red)', display: 'inline-block' }}>Staff Information</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <FieldRow label="Staff ID" value={selectedStaff.staffId} icon={<Shield size={13} />} />
+                                <FieldRow label="Full Name" value={`${selectedStaff.firstName} ${selectedStaff.lastName}`} icon={<Users size={13} />} />
+                                <FieldRow label="Branch" value={branchName} icon={<MapPin size={13} />} />
+                                <FieldRow label="Phone" value={selectedStaff.phone} icon={<Phone size={13} />} />
+                                <FieldRow label="NIC Number" value={selectedStaff.nic} icon={<Shield size={13} />} />
+                                <FieldRow label="Join Date" value={selectedStaff.joinDate} icon={<Calendar size={13} />} />
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setShowStaffModal(false)}
+                            style={{
+                                width: '100%',
+                                padding: '14px',
+                                borderRadius: '14px',
+                                border: 'none',
+                                background: 'var(--color-red)',
+                                color: 'white',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 12px rgba(255,0,0,0.2)',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            Close Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     if (selectedGym) {
         const status = checkStatus(selectedGym.openingHours, currentTime);
         return (
@@ -207,6 +364,7 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
                     </div>
                 </div>
                 {showModal && renderFormModal()}
+                {showStaffModal && renderStaffModal()}
             </div>
         );
     }
@@ -322,6 +480,7 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
                 )}
             </div>
             {showModal && renderFormModal()}
+            {showStaffModal && renderStaffModal()}
         </div>
     );
 };

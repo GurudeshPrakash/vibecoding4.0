@@ -66,10 +66,12 @@ const Managers = ({ userRole = 'super_admin' }) => {
             const response = await fetch('http://localhost:5000/api/admin/staff', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const data = await response.json();
             if (response.ok) {
+                const data = await response.json();
                 setManagers(data);
                 localStorage.setItem('mock_managers_db', JSON.stringify(data));
+            } else {
+                throw new Error(`Server returned ${response.status}`);
             }
         } catch (error) {
             console.warn('Backend reachability issue, using mock data:', error.message);

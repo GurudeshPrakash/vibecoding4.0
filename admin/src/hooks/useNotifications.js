@@ -11,7 +11,7 @@ export const useNotifications = (isAuthenticated, loginRole) => {
         if (!isAuthenticated || !loginRole) return;
 
         const apiBase = loginRole === 'admin' ? '/admin' : '/staff';
-        const token = localStorage.getItem(`${loginRole}_token`);
+        const token = localStorage.getItem('admin_token');
         const result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
 
         if (result.ok) {

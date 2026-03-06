@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Package, Search, AlertTriangle, CheckCircle2,
-    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus
+    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus, Trash2
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../assets/logo1.png';
@@ -43,8 +43,9 @@ const MOCK_INVENTORY = [
 const CATEGORIES = ['Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
-const StaffInventory = ({ inventoryData = [] }) => {
-    const allItems = inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY;
+const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
+    const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
+    const [inventory, setInventory] = useState(inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
@@ -55,22 +56,59 @@ const StaffInventory = ({ inventoryData = [] }) => {
     const [reportReason, setReportReason] = useState('');
     const [reportSubmitted, setReportSubmitted] = useState(false);
     const [qrItem, setQrItem] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
+    const [formData, setFormData] = useState({
+        name: '', category: 'Strength', area: '', brand: '', model: '', serial: '', status: 'Available', photo: ''
+    });
     const [reportImages, setReportImages] = useState([]);
 
-    const filtered = allItems.filter(item => {
-        const matchSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
-            item.id?.toLowerCase().includes(search.toLowerCase()) ||
-            item.area?.toLowerCase().includes(search.toLowerCase());
+    const filtered = inventory.filter(item => {
+        const matchSearch = (item.name || '').toLowerCase().includes(search.toLowerCase()) ||
+            (item.id || item._id || '').toLowerCase().includes(search.toLowerCase()) ||
+            (item.area || '').toLowerCase().includes(search.toLowerCase());
         const matchCat = categoryFilter === 'All' || item.category === categoryFilter;
         const matchStatus = statusFilter === 'All' || item.status === statusFilter;
         return matchSearch && matchCat && matchStatus;
     });
 
+    const openEdit = (item) => {
+        setEditingItem(item);
+        setFormData({
+            name: item.name,
+            category: item.category,
+            area: item.area,
+            brand: item.brand,
+            model: item.model,
+            serial: item.serial,
+            status: item.status,
+            photo: item.photo
+        });
+        setShowEditModal(true);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this equipment?')) return;
+        // Mocking for now, in production call API
+        setInventory(prev => prev.filter(item => (item.id || item._id) !== id));
+    };
+
+    const handleSave = (e) => {
+        e.preventDefault();
+        if (editingItem) {
+            setInventory(prev => prev.map(item => (item.id || item._id) === (editingItem.id || editingItem._id) ? { ...item, ...formData } : item));
+        } else {
+            const newItem = { ...formData, id: 'EQ-' + Date.now(), lastMaintenance: '—', nextMaintenance: '—' };
+            setInventory(prev => [newItem, ...prev]);
+        }
+        setShowEditModal(false);
+    };
+
     const counts = {
-        total: allItems.length,
-        good: allItems.filter(i => i.status === 'Good').length,
-        maintenance: allItems.filter(i => i.status === 'Maintenance').length,
-        dismantled: allItems.filter(i => i.status === 'Dismantled').length,
+        total: inventory.length,
+        good: inventory.filter(i => i.status === 'Good' || i.status === 'Available').length,
+        maintenance: inventory.filter(i => i.status === 'Maintenance').length,
+        dismantled: inventory.filter(i => i.status === 'Dismantled' || i.status === 'Damaged').length,
     };
 
     const handleOpenReport = (item) => {
@@ -102,13 +140,11 @@ const StaffInventory = ({ inventoryData = [] }) => {
     const handleSubmitReport = (e) => {
         e.preventDefault();
         if (!reportReason.trim()) return;
-        // In production, send to backend API
-        console.log('Dismantle report submitted for:', reportItem?.id, 'Reason:', reportReason);
         setReportSubmitted(true);
     };
 
     const handlePrintQR = () => {
-        const canvas = document.getElementById(`qr-code-${qrItem.id}`);
+        const canvas = document.getElementById(`qr-code-${qrItem.id || qrItem._id}`);
         const url = canvas.toDataURL();
         const win = window.open();
         win.document.write(`
@@ -127,9 +163,8 @@ const StaffInventory = ({ inventoryData = [] }) => {
                         <img src="${url}" width="300" height="300" />
                         <h2 style="margin-bottom: 5px;">${qrItem.name}</h2>
                         <p style="margin: 2px 0;">Brand: ${qrItem.brand || 'N/A'}</p>
-                        <p style="margin: 2px 0;">ID: ${qrItem.id}</p>
+                        <p style="margin: 2px 0;">ID: ${qrItem.id || qrItem._id}</p>
                         <p style="margin: 2px 0;">Serial: ${qrItem.serial || 'N/A'}</p>
-                        <p style="margin: 2px 0;">Year: ${qrItem.mfgYear || 'N/A'}</p>
                     </div>
                 </body>
             </html>
@@ -150,28 +185,33 @@ const StaffInventory = ({ inventoryData = [] }) => {
     };
 
     const generateQRValue = (item) => {
-        return `--- EQUIPMENT PROFILE ---
-NAME: ${item.name}
-ID: ${item.id}
-SERIAL: ${item.serial || 'N/A'}
-BRAND: ${item.brand || 'N/A'}
-MODEL: ${item.model || 'N/A'}
-MFG YEAR: ${item.mfgYear || 'N/A'}
-ZONE: ${item.area}
-STATUS: ${item.status}
-
-POWER WORLD GYMS
-Digital Asset Record`;
+        return `EQUIPMENT: ${item.name}\nID: ${item.id || item._id}\nZONE: ${item.area}`;
     };
 
     return (
         <div className="admin-dashboard">
             {/* Header */}
-            <header className="sa-header" style={{ marginBottom: '32px' }}>
+            <header className="sa-header" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="sa-welcome">
+                    <h1 style={{ fontSize: '1.2rem' }}>Asset Management</h1>
+                    <p style={{ fontSize: '0.78rem' }}>Manage all gym equipment and maintenance logs.</p>
                     <h1>Inventory</h1>
                     <p>View all gym equipment and facilities. Update status as needed.</p>
                 </div>
+                {isPowerUser && (
+                    <button
+                        onClick={() => {
+                            setEditingItem(null);
+                            setFormData({
+                                name: '', category: 'Strength', area: '', brand: '', model: '', serial: '', status: 'Available', photo: ''
+                            });
+                            setShowEditModal(true);
+                        }}
+                        style={{ padding: '10px 20px', background: 'var(--color-red, #ff0000)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                        <Wrench size={18} /> Add Equipment
+                    </button>
+                )}
             </header>
 
             {/* Stats */}
@@ -179,6 +219,8 @@ Digital Asset Record`;
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
                     <div className="card-data">
+                        <span className="label" style={{ fontSize: '0.7rem' }}>Total Assets</span>
+                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.total}</h2>
                         <span className="label">Total Equipment</span>
                         <h2 className="value">{counts.total}</h2>
                     </div>
@@ -186,6 +228,8 @@ Digital Asset Record`;
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
+                        <span className="label" style={{ fontSize: '0.7rem' }}>Operating</span>
+                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.good}</h2>
                         <span className="label">Available</span>
                         <h2 className="value">{counts.good}</h2>
                     </div>
@@ -193,6 +237,8 @@ Digital Asset Record`;
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
                     <div className="card-data">
+                        <span className="label" style={{ fontSize: '0.7rem' }}>Down Time</span>
+                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.maintenance}</h2>
                         <span className="label">In Maintenance</span>
                         <h2 className="value">{counts.maintenance}</h2>
                     </div>
@@ -200,6 +246,8 @@ Digital Asset Record`;
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
+                        <span className="label" style={{ fontSize: '0.7rem' }}>Decommissioned</span>
+                        <h2 className="value" style={{ fontSize: '1.4rem' }}>{counts.dismantled}</h2>
                         <span className="label">Damaged</span>
                         <h2 className="value">{counts.dismantled}</h2>
                     </div>
@@ -207,125 +255,91 @@ Digital Asset Record`;
             </section>
 
             {/* Filters */}
-            <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ position: 'relative', width: '100%', maxWidth: '500px' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                    <input
-                        type="text"
-                        placeholder="Search by name, ID, or zone..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        style={{ width: '100%', padding: '12px 16px 12px 48px', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.85rem', background: '#F8FAFC', transition: 'all 0.2s' }}
-                    />
-                </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
-                            <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                                padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
-                                background: categoryFilter === cat ? '#1E3A5F' : 'rgba(255,255,255,0.8)',
-                                color: categoryFilter === cat ? '#fff' : '#64748B',
-                                transition: 'all 0.2s',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                            }}>{cat}</button>
-                        ))}
+            <div className="sa-card" style={{ marginBottom: '24px', padding: '16px 20px' }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
+                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                        <input
+                            type="text"
+                            placeholder="Find by name, serial, or zone..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            style={{ width: '100%', padding: '9px 12px 9px 36px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.7rem' }}
+                        />
                     </div>
-                    <div style={{ width: '1px', height: '20px', background: '#E2E8F0', margin: '0 4px' }}></div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        {STATUSES.filter(s => s !== 'All').map(s => (
-                            <button key={s} onClick={() => setStatusFilter(s)} style={{
-                                padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
-                                background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : 'rgba(255,255,255,0.8)',
-                                color: statusFilter === s ? (STATUS_CONFIG[s]?.color || '#334155') : '#64748B',
-                                transition: 'all 0.2s',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                            }}>{s}</button>
-                        ))}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
+                                <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
+                                    padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
+                                    background: categoryFilter === cat ? '#1E3A5F' : 'rgba(255,255,255,0.8)',
+                                    color: categoryFilter === cat ? '#fff' : '#64748B',
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                }}>{cat}</button>
+                            ))}
+                        </div>
+                        <div style={{ width: '1px', height: '20px', background: '#E2E8F0', margin: '0 4px' }}></div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {STATUSES.filter(s => s !== 'All').map(s => (
+                                <button key={s} onClick={() => setStatusFilter(s)} style={{
+                                    padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
+                                    background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : 'rgba(255,255,255,0.8)',
+                                    color: statusFilter === s ? (STATUS_CONFIG[s]?.color || '#334155') : '#64748B',
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                }}>{s}</button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => {
+                                setSearch('');
+                                setCategoryFilter('All');
+                                setStatusFilter('All');
+                            }}
+                            style={{
+                                padding: '9px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B',
+                                cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', transition: 'all 0.2s', marginLeft: '4px'
+                            }}
+                            onMouseOver={(e) => { e.target.style.background = '#F1F5F9'; e.target.style.color = '#EF4444'; }}
+                            onMouseOut={(e) => { e.target.style.background = '#fff'; e.target.style.color = '#64748B'; }}
+                        >
+                            Reset
+                        </button>
                     </div>
-                    <button
-                        onClick={() => {
-                            setSearch('');
-                            setCategoryFilter('All');
-                            setStatusFilter('All');
-                        }}
-                        style={{
-                            padding: '9px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B',
-                            cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', transition: 'all 0.2s', marginLeft: '4px'
-                        }}
-                        onMouseOver={(e) => { e.target.style.background = '#F1F5F9'; e.target.style.color = '#EF4444'; }}
-                        onMouseOut={(e) => { e.target.style.background = '#fff'; e.target.style.color = '#64748B'; }}
-                    >
-                        Reset
-                    </button>
                 </div>
             </div>
 
             {/* Equipment Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
                 {filtered.map(item => {
                     const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
                     return (
-                        <div key={item.id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-                            {/* Equipment Image */}
-                            <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
-                                <img
-                                    src={item.photo}
-                                    alt={item.name}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    onError={e => { e.target.style.display = 'none'; }}
-                                />
-                                <div style={{
-                                    position: 'absolute', top: '12px', right: '12px',
-                                    display: 'flex', alignItems: 'center', gap: '4px',
-                                    padding: '4px 10px', borderRadius: '20px',
-                                    background: cfg.bg, color: cfg.color,
-                                    fontSize: '0.58rem', fontWeight: '700',
-                                    backdropFilter: 'blur(4px)'
-                                }}>
+                        <div key={item.id || item._id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                            <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
+                                <img src={item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '20px', background: cfg.bg, color: cfg.color, fontSize: '0.58rem', fontWeight: '700', backdropFilter: 'blur(4px)' }}>
                                     {cfg.icon} {item.status}
                                 </div>
                             </div>
 
-                            {/* Info */}
                             <div style={{ padding: '16px' }}>
-                                <div style={{ marginBottom: '4px', fontSize: '0.58rem', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                    {item.category} • {item.area}
-                                </div>
-                                <h4 style={{ margin: '0 0 4px', fontSize: '0.75rem', fontWeight: '700', color: '#1E293B' }}>{item.name}</h4>
-                                <div style={{ fontSize: '0.65rem', color: '#64748B', marginBottom: '12px' }}>
-                                    ID: <strong>{item.id}</strong> &nbsp;|&nbsp; Brand: <strong>{item.brand}</strong>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.62rem', marginBottom: '16px' }}>
-                                    <div style={{ background: '#F8FAFC', padding: '8px', borderRadius: '6px' }}>
-                                        <div style={{ color: '#94A3B8', marginBottom: '2px' }}>Last Service</div>
-                                        <div style={{ fontWeight: '600', color: '#334155' }}>{item.lastMaintenance || '—'}</div>
-                                    </div>
-                                    <div style={{ background: '#F8FAFC', padding: '8px', borderRadius: '6px' }}>
-                                        <div style={{ color: '#94A3B8', marginBottom: '2px' }}>Next Service</div>
-                                        <div style={{ fontWeight: '600', color: '#334155' }}>{item.nextMaintenance || '—'}</div>
-                                    </div>
-                                </div>
+                                <div style={{ marginBottom: '4px', fontSize: '0.58rem', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' }}>{item.category} • {item.area}</div>
+                                <h4 style={{ margin: '0 0 4px', fontSize: '0.85rem', fontWeight: '800', color: '#1E293B' }}>{item.name}</h4>
+                                <div style={{ fontSize: '0.65rem', color: '#64748B', marginBottom: '16px' }}>ID: <strong>{item.id || item._id}</strong></div>
 
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button
-                                        onClick={() => setSelectedItem(item)}
-                                        style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                                    >
-                                        <Eye size={14} /> View
-                                    </button>
-                                    <button
-                                        onClick={() => setQrItem(item)}
-                                        style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                                    >
-                                        <QrCode size={14} /> QR
-                                    </button>
-                                    <button
-                                        onClick={() => handleOpenReport(item)}
-                                        style={{ flex: 1, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                                    >
-                                        <Wrench size={14} /> Update
-                                    </button>
+                                    <button onClick={() => setSelectedItem(item)} style={{ flex: 1, padding: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Eye size={12} /> Info</button>
+                                    <button onClick={() => setQrItem(item)} style={{ flex: 1, padding: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><QrCode size={12} /> QR</button>
+
+                                    {isPowerUser ? (
+                                        <>
+                                            <button onClick={() => openEdit(item)} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>Edit</button>
+                                            <button onClick={() => handleDelete(item.id || item._id)} style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={12} /></button>
+                                        </>
+                                    ) : (
+                                        <button onClick={() => handleOpenReport(item)} style={{ flex: 2, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Wrench size={14} /> Service</button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -338,6 +352,58 @@ Digital Asset Record`;
                     </div>
                 )}
             </div>
+
+            {/* Add/Edit Modal */}
+            {showEditModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '500px', padding: '24px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '1.1rem', fontWeight: '900' }}>{editingItem ? 'Update Equipment' : 'Register Asset'}</h2>
+                            <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+                        </div>
+                        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Name</label>
+                                <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Category</label>
+                                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                                        {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Status</label>
+                                    <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                                        <option value="Available">Available</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Damaged">Damaged</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Brand</label>
+                                    <input type="text" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Model</label>
+                                    <input type="text" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Operational Area (Zone)</label>
+                                <input type="text" value={formData.area} onChange={e => setFormData({ ...formData, area: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                            </div>
+                            <div style={{ marginTop: '12px', display: 'flex', gap: '12px' }}>
+                                <button type="button" onClick={() => setShowEditModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>Cancel</button>
+                                <button type="submit" style={{ flex: 2, padding: '12px', background: 'var(--color-red)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Detail Modal */}
             {selectedItem && (
@@ -358,13 +424,12 @@ Digital Asset Record`;
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 {[
-                                    ['Equipment ID', selectedItem.id],
+                                    ['Equipment ID', selectedItem.id || selectedItem._id],
                                     ['Serial Number', selectedItem.serial || '—'],
                                     ['Brand', selectedItem.brand || '—'],
                                     ['Model', selectedItem.model || '—'],
                                     ['Location', selectedItem.area || '—'],
                                     ['Category', selectedItem.category || '—'],
-                                    ['MFG Year', selectedItem.mfgYear || '—'],
                                     ['Last Maintenance', selectedItem.lastMaintenance || '—'],
                                     ['Next Maintenance', selectedItem.nextMaintenance || '—'],
                                 ].map(([label, val]) => (
@@ -392,7 +457,7 @@ Digital Asset Record`;
                         <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                                 <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Update Equipment Status</h3>
-                                <p style={{ margin: '4px 0 0', fontSize: '0.68rem', color: '#64748B' }}>{reportItem?.name} ({reportItem?.id})</p>
+                                <p style={{ margin: '4px 0 0', fontSize: '0.68rem', color: '#64748B' }}>{reportItem?.name} ({reportItem?.id || reportItem?._id})</p>
                             </div>
                             <button onClick={() => setShowReportModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
                         </div>
@@ -437,7 +502,7 @@ Digital Asset Record`;
                                         <textarea
                                             value={reportReason}
                                             onChange={e => setReportReason(e.target.value)}
-                                            placeholder="Describe the issue in detail (condition, severity, what happened)..."
+                                            placeholder="Describe the issue in detail..."
                                             rows={4}
                                             required
                                             style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.7rem', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
@@ -491,6 +556,7 @@ Digital Asset Record`;
                     </div>
                 </div>
             )}
+
             {/* QR Modal */}
             {qrItem && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -499,10 +565,9 @@ Digital Asset Record`;
                             <h3 style={{ margin: 0, fontSize: '1rem', color: '#1E293B' }}>Equipment QR Code</h3>
                             <button onClick={() => setQrItem(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
                         </div>
-
                         <div style={{ background: '#F8FAFC', padding: '32px', borderRadius: '12px', marginBottom: '20px', display: 'inline-block' }}>
                             <QRCodeCanvas
-                                id={`qr-code-${qrItem.id}`}
+                                id={`qr-code-${qrItem.id || qrItem._id}`}
                                 value={generateQRValue(qrItem)}
                                 size={200}
                                 level={"H"}
@@ -515,12 +580,10 @@ Digital Asset Record`;
                                 }}
                             />
                         </div>
-
                         <div style={{ marginBottom: '24px' }}>
                             <h4 style={{ margin: '0 0 4px', fontSize: '0.9rem', color: '#1E293B' }}>{qrItem.name}</h4>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748B' }}>Serial: {qrItem.serial}</p>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748B' }}>Serial: {qrItem.serial || '—'}</p>
                         </div>
-
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <button onClick={handleDownloadQR} style={{ flex: 1, padding: '12px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#3B82F6', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <Download size={16} /> Download

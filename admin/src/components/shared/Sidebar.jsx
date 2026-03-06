@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, Clipboar
 import logo from '../../assets/logo1.png';
 import '../../style/Sidebar.css';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
+const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
         { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
@@ -31,18 +31,23 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
         { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
     ];
 
-    const canAccess = (userRole, targetSectionRole) => {
-        if (userRole === 'super_admin') return true;
-        if (userRole === 'admin') return targetSectionRole === 'admin' || targetSectionRole === 'staff';
-        if (userRole === 'staff') return targetSectionRole === 'staff';
+    // ✅ FIX 1: canAccess returns boolean properly
+    const canAccess = (role, targetSectionRole) => {
+        if (role === 'super_admin') return true;
+        if (role === 'admin') return targetSectionRole === 'admin' || targetSectionRole === 'staff';
+        if (role === 'staff') return targetSectionRole === 'staff';
         return false;
     };
 
     const renderNavSection = (title, menuItems, sectionRole) => {
-        const isRestricted = !canAccess(adminRole, sectionRole);
+        // Lock UI based on currently switched viewRole
+        const isSimulatedRestricted = !canAccess(viewRole, sectionRole);
+
+        // ✅ FIX 2: canActuallyClick uses viewRole (the switched role), not adminRole
+        const canActuallyClick = canAccess(viewRole, sectionRole);
 
         return (
-            <div style={{ marginBottom: '24px', opacity: isRestricted ? 0.6 : 1 }}>
+            <div style={{ marginBottom: '24px', opacity: isSimulatedRestricted ? 0.6 : 1 }}>
                 <h4 style={{
                     padding: '0 20px',
                     fontSize: '11px',
@@ -56,26 +61,26 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutTrigger, adminRole, viewRole
                     justifyContent: 'space-between'
                 }}>
                     <span>{title}</span>
-                    {isRestricted && <span style={{ fontSize: '9px', background: '#FEE2E2', color: '#EF4444', padding: '2px 6px', borderRadius: '4px' }}>LOCKED</span>}
+                    {isSimulatedRestricted && <span style={{ fontSize: '9px', background: '#FEE2E2', color: '#EF4444', padding: '2px 6px', borderRadius: '4px' }}>LOCKED</span>}
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {menuItems.map((item) => {
-                        const isActive = activeTab === item.id && viewRole === sectionRole;
+                        const isActive = activeTab === item.id && activeSection === sectionRole;
                         return (
                             <button
                                 key={item.id}
-                                className={`nav-item ${isActive ? 'active' : ''} ${isRestricted ? 'restricted' : ''}`}
+                                className={`nav-item ${isActive ? 'active' : ''} ${isSimulatedRestricted ? 'restricted' : ''}`}
                                 onClick={() => {
-                                    if (!isRestricted) {
-                                        setViewRole(sectionRole);
+                                    if (canActuallyClick) {
+                                        setActiveSection(sectionRole);
                                         setActiveTab(item.id);
                                     }
                                 }}
                                 style={{
-                                    cursor: isRestricted ? 'not-allowed' : 'pointer',
+                                    cursor: canActuallyClick ? 'pointer' : 'not-allowed',
                                     position: 'relative'
                                 }}
-                                title={isRestricted ? `Access restricted to ${sectionRole.replace('_', ' ')}s` : ''}
+                                title={!canActuallyClick ? `Access restricted to ${sectionRole.replace('_', ' ')}s` : ''}
                             >
                                 {item.icon}
                                 <span>{item.label}</span>

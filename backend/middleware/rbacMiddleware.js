@@ -6,10 +6,12 @@ const rbac = (...allowedRoles) => {
 
         const { role } = req.user;
 
-        if (!allowedRoles.includes(role)) {
-            return res.status(403).json({ message: `Access denied: Insufficient permissions for role [${role}]` });
+        // Super Admin always has access to everything
+        if (role === 'super_admin' || allowedRoles.includes(role)) {
+            return next();
         }
-        next();
+
+        return res.status(403).json({ message: `Access denied: Insufficient permissions for role [${role}]` });
     };
 };
 

@@ -16,7 +16,7 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
         if (!isAuthenticated || !loginRole) return;
         if (!isPolling) setIsLoading(true);
 
-        const token = localStorage.getItem(`${loginRole}_token`);
+        const token = localStorage.getItem('admin_token');
         const result = await apiRequest('/equipment', 'GET', null, token);
 
         if (result.ok) {
@@ -48,7 +48,7 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
 
     const fetchDismantledHistory = useCallback(async () => {
         if (!isAuthenticated || !loginRole) return;
-        const token = localStorage.getItem(`${loginRole}_token`);
+        const token = localStorage.getItem('admin_token');
         const result = await apiRequest('/equipment/dismantled-history', 'GET', null, token);
         if (result.ok) setDismantledHistory(result.data);
     }, [isAuthenticated, loginRole]);
@@ -57,7 +57,7 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
         if (!requestId) return;
         if (!window.confirm('Confirm Physical Removal: Has this equipment been completely removed from the gym?')) return;
 
-        const token = localStorage.getItem(`${loginRole}_token`);
+        const token = localStorage.getItem('admin_token');
         const result = await apiRequest(`/equipment/dismantle-finalize/${requestId}`, 'DELETE', null, token);
 
         if (result.ok) {

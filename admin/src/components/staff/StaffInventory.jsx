@@ -140,7 +140,21 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
     const handleSubmitReport = (e) => {
         e.preventDefault();
         if (!reportReason.trim()) return;
-        setReportSubmitted(true);
+
+        // Update inventory state
+        setInventory(prev => prev.map(item => {
+            if ((item.id || item._id) === (reportItem.id || reportItem._id)) {
+                return {
+                    ...item,
+                    status: newStatus,
+                    lastObservation: reportReason, // Storing description
+                    statusUpdateDate: new Date().toISOString().split('T')[0]
+                };
+            }
+            return item;
+        }));
+
+        setShowReportModal(false);
     };
 
     const handlePrintQR = () => {
@@ -308,12 +322,7 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button onClick={() => setSelectedItem(item)} style={{ flex: 1, padding: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Eye size={12} /> Info</button>
                                     <button onClick={() => setQrItem(item)} style={{ flex: 1, padding: '8px', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><QrCode size={12} /> QR</button>
-
-                                    {isPowerUser ? (
-                                        <button onClick={() => openEdit(item)} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>Edit</button>
-                                    ) : (
-                                        <button onClick={() => handleOpenReport(item)} style={{ flex: 2, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Wrench size={14} /> Service</button>
-                                    )}
+                                    <button onClick={() => handleOpenReport(item)} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -328,122 +337,119 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
             </div>
 
             {/* Add/Edit Modal */}
-            {showEditModal && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '500px', padding: '24px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '1.1rem', fontWeight: '900' }}>{editingItem ? 'Update Equipment' : 'Register Asset'}</h2>
-                            <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            {
+                showEditModal && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '500px', padding: '24px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+                                <h2 style={{ fontSize: '1.1rem', fontWeight: '900' }}>{editingItem ? 'Update Equipment' : 'Register Asset'}</h2>
+                                <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+                            </div>
+                            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Name</label>
+                                    <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Category</label>
+                                        <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                                            {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Status</label>
+                                        <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                                            <option value="Available">Available</option>
+                                            <option value="Maintenance">Maintenance</option>
+                                            <option value="Damaged">Damaged</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Brand</label>
+                                        <input type="text" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Model</label>
+                                        <input type="text" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Operational Area (Zone)</label>
+                                    <input type="text" value={formData.area} onChange={e => setFormData({ ...formData, area: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+                                </div>
+                                <div style={{ marginTop: '12px', display: 'flex', gap: '12px' }}>
+                                    <button type="button" onClick={() => setShowEditModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>Cancel</button>
+                                    <button type="submit" style={{ flex: 2, padding: '12px', background: 'var(--color-red)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>Save Changes</button>
+                                </div>
+                            </form>
                         </div>
-                        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Name</label>
-                                <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Category</label>
-                                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                                        {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Status</label>
-                                    <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                                        <option value="Available">Available</option>
-                                        <option value="Maintenance">Maintenance</option>
-                                        <option value="Damaged">Damaged</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Brand</label>
-                                    <input type="text" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Model</label>
-                                    <input type="text" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
-                                </div>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Operational Area (Zone)</label>
-                                <input type="text" value={formData.area} onChange={e => setFormData({ ...formData, area: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
-                            </div>
-                            <div style={{ marginTop: '12px', display: 'flex', gap: '12px' }}>
-                                <button type="button" onClick={() => setShowEditModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>Cancel</button>
-                                <button type="submit" style={{ flex: 2, padding: '12px', background: 'var(--color-red)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>Save Changes</button>
-                            </div>
-                        </form>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Detail Modal */}
-            {selectedItem && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-                        <div style={{ position: 'relative', height: '220px', overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
-                            <img src={selectedItem.photo} alt={selectedItem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none'; }} />
-                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)' }} />
-                            <button onClick={() => setSelectedItem(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <X size={16} />
-                            </button>
-                        </div>
-                        <div style={{ padding: '24px' }}>
-                            <div style={{ marginBottom: '4px', fontSize: '0.6rem', color: '#94A3B8', textTransform: 'uppercase', fontWeight: '600' }}>{selectedItem.category} • {selectedItem.area}</div>
-                            <h2 style={{ margin: '0 0 8px', fontSize: '0.95rem', fontWeight: '800', color: '#1E293B' }}>{selectedItem.name}</h2>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 12px', borderRadius: '20px', fontSize: '0.62rem', fontWeight: '700', background: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).bg, color: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).color, marginBottom: '20px' }}>
-                                {(STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).icon} {selectedItem.status}
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                {[
-                                    ['Equipment ID', selectedItem.id || selectedItem._id],
-                                    ['Serial Number', selectedItem.serial || '—'],
-                                    ['Brand', selectedItem.brand || '—'],
-                                    ['Model', selectedItem.model || '—'],
-                                    ['Location', selectedItem.area || '—'],
-                                    ['Category', selectedItem.category || '—'],
-                                    ['Last Maintenance', selectedItem.lastMaintenance || '—'],
-                                    ['Next Maintenance', selectedItem.nextMaintenance || '—'],
-                                ].map(([label, val]) => (
-                                    <div key={label} style={{ background: '#F8FAFC', padding: '12px', borderRadius: '8px' }}>
-                                        <div style={{ fontSize: '0.58rem', color: '#94A3B8', marginBottom: '4px', fontWeight: '600', textTransform: 'uppercase' }}>{label}</div>
-                                        <div style={{ fontSize: '0.72rem', fontWeight: '700', color: '#1E293B' }}>{val}</div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                                <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Close</button>
-                                <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '12px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                                    <AlertTriangle size={16} /> Report Issue
+            {
+                selectedItem && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+                            <div style={{ position: 'relative', height: '220px', overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
+                                <img src={selectedItem.photo} alt={selectedItem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none'; }} />
+                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)' }} />
+                                <button onClick={() => setSelectedItem(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <X size={16} />
                                 </button>
+                            </div>
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ marginBottom: '4px', fontSize: '0.6rem', color: '#94A3B8', textTransform: 'uppercase', fontWeight: '600' }}>{selectedItem.category} • {selectedItem.area}</div>
+                                <h2 style={{ margin: '0 0 8px', fontSize: '0.95rem', fontWeight: '800', color: '#1E293B' }}>{selectedItem.name}</h2>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 12px', borderRadius: '20px', fontSize: '0.62rem', fontWeight: '700', background: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).bg, color: (STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).color, marginBottom: '20px' }}>
+                                    {(STATUS_CONFIG[selectedItem.status] || STATUS_CONFIG['Good']).icon} {selectedItem.status}
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    {[
+                                        ['Equipment ID', selectedItem.id || selectedItem._id],
+                                        ['Serial Number', selectedItem.serial || '—'],
+                                        ['Brand', selectedItem.brand || '—'],
+                                        ['Model', selectedItem.model || '—'],
+                                        ['Location', selectedItem.area || '—'],
+                                        ['Category', selectedItem.category || '—'],
+                                        ['Last Maintenance', selectedItem.lastMaintenance || '—'],
+                                        ['Next Maintenance', selectedItem.nextMaintenance || '—'],
+                                    ].map(([label, val]) => (
+                                        <div key={label} style={{ background: '#F8FAFC', padding: '12px', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '0.58rem', color: '#94A3B8', marginBottom: '4px', fontWeight: '600', textTransform: 'uppercase' }}>{label}</div>
+                                            <div style={{ fontSize: '0.72rem', fontWeight: '700', color: '#1E293B' }}>{val}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                                    <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Close</button>
+                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '12px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
+                                        <AlertTriangle size={16} /> Report Issue
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Report Issue Modal */}
-            {showReportModal && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-                        <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Update Equipment Status</h3>
-                                <p style={{ margin: '4px 0 0', fontSize: '0.68rem', color: '#64748B' }}>{reportItem?.name} ({reportItem?.id || reportItem?._id})</p>
-                            </div>
-                            <button onClick={() => setShowReportModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
-                        </div>
-                        <div style={{ padding: '24px' }}>
-                            {reportSubmitted ? (
-                                <div style={{ textAlign: 'center', padding: '32px 0' }}>
-                                    <CheckCircle2 size={48} color="#10B981" style={{ marginBottom: '12px' }} />
-                                    <h4 style={{ color: '#1E293B', marginBottom: '8px' }}>Status Updated!</h4>
-                                    <p style={{ color: '#64748B', fontSize: '0.7rem' }}>The equipment status has been updated and a log entry has been created.</p>
-                                    <button onClick={() => setShowReportModal(false)} style={{ marginTop: '20px', padding: '10px 24px', background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600' }}>Done</button>
+            {
+                showReportModal && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+                            <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <h3 style={{ margin: 0, color: '#1E293B', fontSize: '0.85rem' }}>Update Equipment Status</h3>
+                                    <p style={{ margin: '4px 0 0', fontSize: '0.68rem', color: '#64748B' }}>{reportItem?.name} ({reportItem?.id || reportItem?._id})</p>
                                 </div>
-                            ) : (
+                                <button onClick={() => setShowReportModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
+                            </div>
+                            <div style={{ padding: '24px' }}>
                                 <form onSubmit={handleSubmitReport}>
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Set Status</label>
@@ -525,51 +531,53 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
                                         </button>
                                     </div>
                                 </form>
-                            )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* QR Modal */}
-            {qrItem && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', padding: '24px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h3 style={{ margin: 0, fontSize: '1rem', color: '#1E293B' }}>Equipment QR Code</h3>
-                            <button onClick={() => setQrItem(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
-                        </div>
-                        <div style={{ background: '#F8FAFC', padding: '32px', borderRadius: '12px', marginBottom: '20px', display: 'inline-block' }}>
-                            <QRCodeCanvas
-                                id={`qr-code-${qrItem.id || qrItem._id}`}
-                                value={generateQRValue(qrItem)}
-                                size={200}
-                                level={"H"}
-                                includeMargin={true}
-                                imageSettings={{
-                                    src: logo,
-                                    height: 40,
-                                    width: 40,
-                                    excavate: true,
-                                }}
-                            />
-                        </div>
-                        <div style={{ marginBottom: '24px' }}>
-                            <h4 style={{ margin: '0 0 4px', fontSize: '0.9rem', color: '#1E293B' }}>{qrItem.name}</h4>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748B' }}>Serial: {qrItem.serial || '—'}</p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <button onClick={handleDownloadQR} style={{ flex: 1, padding: '12px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#3B82F6', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <Download size={16} /> Download
-                            </button>
-                            <button onClick={handlePrintQR} style={{ flex: 1, padding: '12px', background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <Printer size={16} /> Print Label
-                            </button>
+            {
+                qrItem && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', padding: '24px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <h3 style={{ margin: 0, fontSize: '1rem', color: '#1E293B' }}>Equipment QR Code</h3>
+                                <button onClick={() => setQrItem(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X size={20} /></button>
+                            </div>
+                            <div style={{ background: '#F8FAFC', padding: '32px', borderRadius: '12px', marginBottom: '20px', display: 'inline-block' }}>
+                                <QRCodeCanvas
+                                    id={`qr-code-${qrItem.id || qrItem._id}`}
+                                    value={generateQRValue(qrItem)}
+                                    size={200}
+                                    level={"H"}
+                                    includeMargin={true}
+                                    imageSettings={{
+                                        src: logo,
+                                        height: 40,
+                                        width: 40,
+                                        excavate: true,
+                                    }}
+                                />
+                            </div>
+                            <div style={{ marginBottom: '24px' }}>
+                                <h4 style={{ margin: '0 0 4px', fontSize: '0.9rem', color: '#1E293B' }}>{qrItem.name}</h4>
+                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748B' }}>Serial: {qrItem.serial || '—'}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={handleDownloadQR} style={{ flex: 1, padding: '12px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#3B82F6', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <Download size={16} /> Download
+                                </button>
+                                <button onClick={handlePrintQR} style={{ flex: 1, padding: '12px', background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <Printer size={16} /> Print Label
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

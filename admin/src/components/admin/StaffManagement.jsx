@@ -329,7 +329,7 @@ const StaffManagement = () => {
                                                         {member.photo ? (
                                                             <img src={member.photo} alt={member.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                         ) : (
-                                                            `${member.firstName.charAt(0)}${member.lastName.charAt(0)}`
+                                                            `${(member.firstName || '').charAt(0)}${(member.lastName || '').charAt(0)}`
                                                         )}
                                                     </div>
                                                     <span className="sm-name">{member.firstName} {member.lastName}</span>

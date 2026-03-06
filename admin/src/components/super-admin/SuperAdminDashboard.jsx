@@ -289,13 +289,15 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
     useEffect(() => {
         const fetchLiveStats = () => {
             const raw = localStorage.getItem('sa_live_mock_database');
+            const branchesDb = JSON.parse(localStorage.getItem('mock_branches_db') || '[]');
             const staffDb = JSON.parse(localStorage.getItem('admin_staff_db') || '[]');
             const adminsDb = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
 
             if (raw) {
                 try {
                     const parsed = JSON.parse(raw);
-                    // Update dynamic counts from actual databases
+                    parsed.totalBranches = branchesDb.length;
+                    parsed.activeBranches = branchesDb.length;
                     parsed.totalStaff = staffDb.length;
                     parsed.activeStaff = staffDb.filter(s => s.status === 'Active').length;
                     parsed.totalAdmins = adminsDb.length;
@@ -373,43 +375,44 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
         <div className="super-admin-dashboard" style={{ opacity: isLocked ? 0.95 : 1 }}>
             <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                 <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <h1>Command Analytics</h1>
+                    <h1>Dashboard</h1>
+                    <p>View the overall performance of all gym branches, manage admins, track staff activity, and monitor system operations.</p>
                 </div>
             </header>
 
             <section className="sa-summary-grid">
-                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
-                            <Users />
+                            <Building2 />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>TOTAL STAFF</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalStaff || '05'}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
-                            <Activity />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>ACTIVE MEMBERS</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMembers?.toLocaleString() || '0'}</h2>
+                            <span className="label" style={{ margin: 0 }}>Total Branches</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalBranches || '24'}</h2>
                         </div>
                     </div>
                 </div>
 
                 <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
+                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
                             <ShieldCheck />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>SYSTEM ADMINS</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{String(statsState?.totalAdmins || 3).padStart(2, '0')}</h2>
+                            <span className="label" style={{ margin: 0 }}>Total Admins</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{String(statsState?.totalAdmins || 4).padStart(2, '0')}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
+                            <Users />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span className="label" style={{ margin: 0 }}>Total Staffs</span>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalStaff || '24'}</h2>
                         </div>
                     </div>
                 </div>
@@ -417,11 +420,11 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
-                            <Building2 />
+                            <Activity />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span className="label" style={{ margin: 0 }}>ACTIVE BRANCHES</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeGyms || '12'}</h2>
+                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeBranches || '24'}</h2>
                         </div>
                     </div>
                 </div>

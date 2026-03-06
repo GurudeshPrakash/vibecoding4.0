@@ -207,8 +207,8 @@ const AdminDashboard = ({ stats, adminName, recentInventory = [], dismantleReque
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1>Branch Terminal</h1>
-                    <p>Facility operations and asset monitoring live</p>
+                    <h1>Dashboard</h1>
+                    <p>View and manage all gym equipment, facilities, and maintenance status.</p>
                 </div>
                 <div className="sa-actions">
                     <div className="date-time-display">

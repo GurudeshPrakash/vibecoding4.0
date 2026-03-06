@@ -244,9 +244,6 @@ const StaffManagement = () => {
             {/* ── Page Header ──────────────────────────────────────────────── */}
             <div className="sm-page-header">
                 <div className="sm-page-title-block">
-                    <div className="sm-page-icon">
-                        <Users size={22} color="var(--color-red)" />
-                    </div>
                     <div>
                         <h1 className="sm-page-title">Staff Management</h1>
                         <p className="sm-page-subtitle">
@@ -398,6 +395,58 @@ const StaffManagement = () => {
                         </span>
                     </div>
                 )}
+            </div>
+
+            {/* ── Staff Profiles Section (New) ───────────────────────────── */}
+            <div className="sm-profiles-section">
+                <div className="sm-section-header">
+                    <h2 className="sm-section-title">Staff Profiles</h2>
+                    <p className="sm-section-subtitle">Visual overview of all assigned staff members.</p>
+                </div>
+
+                <div className="sm-profiles-grid">
+                    {staff.map((member) => {
+                        const avatarColor = getAvatarColor(member.firstName);
+                        return (
+                            <div key={member._id} className="sm-profile-card">
+                                <div className="sm-profile-card-inner">
+                                    <div className="sm-profile-photo-wrap">
+                                        <img
+                                            src={member.photo || `https://i.pravatar.cc/150?u=${member.staffId}`}
+                                            alt={member.firstName}
+                                            className="sm-profile-img"
+                                            onError={(e) => {
+                                                e.target.src = `https://ui-avatars.com/api/?name=${member.firstName}+${member.lastName}&background=${avatarColor.replace('#', '')}&color=fff`;
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="sm-profile-details">
+                                        <div className="sm-profile-top">
+                                            <span className="sm-profile-id">{member.staffId}</span>
+                                            <StatusBadge status={member.status} />
+                                        </div>
+                                        <h3 className="sm-profile-name">{member.firstName} {member.lastName}</h3>
+
+                                        <div className="sm-profile-info-list">
+                                            <div className="sm-profile-info-item">
+                                                <MapPin size={14} />
+                                                <span>{getBranchName(member.branchId)}</span>
+                                            </div>
+                                            <div className="sm-profile-info-item">
+                                                <Phone size={14} />
+                                                <span>{member.phone || '—'}</span>
+                                            </div>
+                                            <div className="sm-profile-info-item">
+                                                <Shield size={14} />
+                                                <span>{member.nic || '—'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* ═══════════════════════════════════════════════════════════════ */}

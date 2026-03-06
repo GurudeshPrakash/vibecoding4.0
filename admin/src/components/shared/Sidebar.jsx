@@ -43,9 +43,6 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
         // Lock UI based on currently switched viewRole
         const isSimulatedRestricted = !canAccess(viewRole, sectionRole);
 
-        // ✅ FIX 2: canActuallyClick uses viewRole (the switched role), not adminRole
-        const canActuallyClick = canAccess(viewRole, sectionRole);
-
         return (
             <div style={{ marginBottom: '24px', opacity: isSimulatedRestricted ? 0.6 : 1 }}>
                 <h4 style={{
@@ -64,26 +61,59 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
                     {isSimulatedRestricted && <span style={{ fontSize: '9px', background: '#FEE2E2', color: '#EF4444', padding: '2px 6px', borderRadius: '4px' }}>LOCKED</span>}
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {menuItems.map((item) => {
-                        const isActive = activeTab === item.id && activeSection === sectionRole;
+                    {menuItems.map((item, index) => {
+                        // Logic for temporary page locking
+                        let isTemporarilyLocked = false;
+                        if (sectionRole === 'admin' && index >= menuItems.length - 3) {
+                            isTemporarilyLocked = true;
+                        } else if (sectionRole === 'staff' && index >= menuItems.length - 2) {
+                            isTemporarilyLocked = true;
+                        }
+
+                        const isDisabled = isSimulatedRestricted || isTemporarilyLocked;
+                        const canClick = !isDisabled;
+                        const isActive = activeTab === item.id && activeSection === sectionRole && !isDisabled;
+
                         return (
                             <button
                                 key={item.id}
-                                className={`nav-item ${isActive ? 'active' : ''} ${isSimulatedRestricted ? 'restricted' : ''}`}
+                                className={`nav-item ${isActive ? 'active' : ''} ${isDisabled ? 'blocked' : ''}`}
                                 onClick={() => {
-                                    if (canActuallyClick) {
+                                    if (canClick) {
                                         setActiveSection(sectionRole);
                                         setActiveTab(item.id);
                                     }
                                 }}
                                 style={{
-                                    cursor: canActuallyClick ? 'pointer' : 'not-allowed',
-                                    position: 'relative'
+                                    cursor: canClick ? 'pointer' : 'not-allowed',
+                                    position: 'relative',
+                                    opacity: isDisabled ? 0.5 : 1,
+                                    backgroundColor: isDisabled ? 'transparent' : undefined,
                                 }}
-                                title={!canActuallyClick ? `Access restricted to ${sectionRole.replace('_', ' ')}s` : ''}
+                                title={isDisabled ? (isTemporarilyLocked ? 'This feature is temporarily locked' : `Access restricted to ${sectionRole}s`) : ''}
                             >
-                                {item.icon}
-                                <span>{item.label}</span>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    flex: 1,
+                                    color: isDisabled ? '#94A3B8' : 'inherit'
+                                }}>
+                                    {item.icon}
+                                    <span style={{ fontSize: '0.75rem' }}>{item.label}</span>
+                                </div>
+                                {isTemporarilyLocked && (
+                                    <span style={{
+                                        fontSize: '8px',
+                                        background: '#EF4444',
+                                        color: '#FFFFFF',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
+                                        fontWeight: '800',
+                                        letterSpacing: '0.02em',
+                                        boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                                    }}>LOCKED</span>
+                                )}
                             </button>
                         );
                     })}

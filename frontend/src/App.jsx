@@ -1,133 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from './shared/components/Sidebar';
-import TopNav from './shared/components/TopNav';
-import { Zap } from 'lucide-react';
-import AdminDashboard from './admin/components/Dashboard';
-import Locations from './super-admin/components/Locations';
-import Settings from './admin/components/Settings';
+
+// Layouts
+import AdminLayout from './admin/layouts/AdminLayout';
+import SuperAdminLayout from './super-admin/layouts/SuperAdminLayout';
+import StaffLayout from './staff/layouts/StaffLayout';
+
+// Shared Components
 import Landing from './shared/components/Landing';
-import Administrators from './super-admin/components/Administrators';
-import Managers from './super-admin/components/Managers';
-import StaffManagement from './admin/components/StaffManagement';
-import BranchManagement from './admin/components/BranchManagement';
-import InventoryManagement from './admin/components/InventoryManagement';
-import MembersManagement from './admin/components/MembersManagement';
-import PaymentManagement from './admin/components/PaymentManagement';
-import Reports from './admin/components/Reports';
-import ActivityLogs from './super-admin/components/AdminLogs';
+import UnifiedDashboard from './shared/components/UnifiedDashboard';
 import LogoutModal from './shared/components/LogoutModal';
 import ActivityDetailModal from './shared/components/ActivityDetailModal';
-import ForgotPassword from './admin/components/ForgotPassword';
-import ResetPassword from './admin/components/ResetPassword';
-import SuperAdminDashboard from './super-admin/components/SuperAdminDashboard';
-import SuperAdminLogin from './super-admin/components/SuperAdminLogin';
-import SuperAdminSettings from './super-admin/components/SuperAdminSettings';
-import StaffDashboard from './staff/components/StaffDashboard';
-import CheckIns from './staff/components/CheckIns';
-import Payments from './staff/components/Payments';
-import Members from './staff/components/Members';
-import StaffInventory from './staff/components/StaffInventory';
-import UnifiedDashboard from './shared/components/UnifiedDashboard';
 
+// Shared Hooks & Context
 import { useEquipmentData } from './shared/hooks/useEquipmentData';
 import { useNotifications } from './shared/hooks/useNotifications';
 import { useAuth } from './shared/context/AuthContext';
-import ProtectedRoute from './shared/components/ProtectedRoute';
 
-const AdminLayout = ({
-  children,
-  activeTab,
-  setActiveTab,
-  activeSection,
-  setActiveSection,
-  navigate,
-  setShowLogoutModal,
-  adminRole,
-  viewRole,
-  setViewRole,
-  setAdminRole,
-  userName,
-  userEmail,
-  adminId,
-  adminPhone,
-  profileImage,
-  setProfileImage,
-  notifications,
-  setNotifications,
-  loginRole,
-  handleViewActivityLog
-}) => (
-  <div className={`app-layout ${viewRole === 'super_admin' ? 'is-super-admin' : ''}`}>
-    <Sidebar
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      activeSection={activeSection}
-      setActiveSection={setActiveSection}
-      onLogoutTrigger={() => setShowLogoutModal(true)}
-      adminRole={adminRole}
-      viewRole={viewRole}
-      setViewRole={setViewRole}
-    />
-
-    <main className="main-container">
-      <TopNav
-        adminName={userName}
-        adminEmail={userEmail}
-        adminPhone={adminPhone}
-        adminId={adminId}
-        profileImage={profileImage}
-        setProfileImage={setProfileImage}
-        setActiveTab={setActiveTab}
-        onLogoutTrigger={() => setShowLogoutModal(true)}
-        role={viewRole === 'super_admin' ? 'Super Admin' : viewRole === 'admin' ? 'Administrator' : 'Staff'}
-        notifications={notifications}
-        setNotifications={setNotifications}
-        loginRole={loginRole}
-        onViewLog={handleViewActivityLog}
-        adminRole={adminRole}
-        viewRole={viewRole}
-      />
-
-      <div className="content-area">
-        {children}
-      </div>
-
-      {/* Floating Role Switcher - Always available for simulation */}
-      <button
-        onClick={() => {
-          const nextRoles = { 'super_admin': 'admin', 'admin': 'staff', 'staff': 'super_admin' };
-          const newRole = nextRoles[viewRole] || 'admin';
-          setViewRole(newRole);
-          setActiveTab('dashboard');
-        }}
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          background: '#FF0000',
-          color: '#FFFFFF',
-          border: 'none',
-          padding: '12px 24px',
-          borderRadius: '16px',
-          cursor: 'pointer',
-          zIndex: 1000,
-          fontWeight: 800,
-          boxShadow: '0 8px 24px rgba(255, 0, 0, 0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          fontSize: '0.85rem'
-        }}
-      >
-        <Zap size={18} fill="#FFD700" color="#FFD700" strokeWidth={3} />
-        <span>Switch to {viewRole === 'super_admin' ? 'Admin' : viewRole === 'admin' ? 'Staff' : 'Super Admin'} View</span>
-      </button>
-
-    </main>
-  </div>
-);
+// Role-based Routes (Internal Page Mapping)
+import AdminRoutes from './admin/routes/AdminRoutes';
+import SuperAdminRoutes from './super-admin/routes/SuperAdminRoutes';
+import StaffRoutes from './staff/routes/StaffRoutes';
 
 function App() {
   const simulatedAuthenticated = true;
@@ -138,7 +31,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Pre-load user data from localStorage for synchronous initialization
+  // Pre-load user data from localStorage
   const savedAdminData = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem('admin_user')) || {};
@@ -157,7 +50,6 @@ function App() {
   const loginRole = viewRole === 'super_admin' ? 'admin' : viewRole;
 
   useEffect(() => {
-    // setActiveTab('dashboard'); // Optional: reset tab on role switch
     setActiveSection(viewRole);
   }, [viewRole]);
 
@@ -177,19 +69,6 @@ function App() {
   } = useEquipmentData(isAuthenticated, loginRole);
 
   const { notifications, setNotifications } = useNotifications(isAuthenticated, loginRole);
-
-  // Restore session
-  useEffect(() => {
-    const adminToken = localStorage.getItem('admin_token');
-    if (adminToken && !isAuthenticated) {
-      const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
-      if (savedAdmin) {
-        setUserName(savedAdmin.firstName || 'User');
-        setUserEmail(savedAdmin.email || '');
-        setAdminRole(savedAdmin.role || 'admin');
-      }
-    }
-  }, [isAuthenticated]);
 
   const handleViewActivityLog = async (logId) => {
     try {
@@ -215,20 +94,6 @@ function App() {
       dismantled: dismantledHistory.length
     };
   }, [inventoryData, dismantledHistory]);
-
-  const handleSelectRole = (role) => {
-    navigate('/login');
-  };
-
-  const handleLogin = (data) => {
-    setUserName(data.firstName || 'User');
-    setUserEmail(data.email);
-    setAdminRole(data.role || 'staff');
-    setViewRole(data.role || 'staff');
-    setActiveTab('dashboard');
-    login(data, data.token);
-    navigate('/dashboard');
-  };
 
   const handleLogout = async () => {
     const logId = localStorage.getItem('admin_current_log');
@@ -256,8 +121,8 @@ function App() {
     setActiveSection,
     navigate,
     setShowLogoutModal,
-    adminRole, // REAL ACCOUNT ROLE
-    viewRole,  // SIMULATED VIEW ROLE
+    adminRole,
+    viewRole,
     setViewRole,
     setAdminRole,
     userName,
@@ -269,8 +134,7 @@ function App() {
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog,
-    handleLogoutTrigger: () => setShowLogoutModal(true)
+    handleViewActivityLog
   };
 
   const renderDynamicTabContent = () => {
@@ -287,58 +151,13 @@ function App() {
       setUserName
     };
 
-    // Since Sidebar.jsx handles access control by locking buttons (canAccess),
-    // any activeTab that successfully gets set should render its corresponding component.
-    // Combine activeSection with activeTab to create a unique identifier for tabs that exist in multiple sections
-    const specificTab = `${activeSection}_${activeTab}`;
-
-    switch (specificTab) {
-      // Super Admin Level
-      case 'super_admin_dashboard':
-        return (
-          <SuperAdminDashboard />
-        );
-      case 'super_admin_admins':
-        return <Administrators userRole={viewRole} />;
-      case 'super_admin_staff':
-        return <Managers userRole={viewRole} />;
-      case 'super_admin_locations':
-        return <Locations />;
-      case 'super_admin_activity-logs':
-        return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
-      case 'super_admin_settings':
-        return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
-
-      // Admin Level
-      case 'admin_dashboard':
-        return (
-          <AdminDashboard />
-        );
-      case 'admin_locations':
-        return <BranchManagement />;
-      case 'admin_members':
-        return <MembersManagement />;
-      case 'admin_staff':
-        return <StaffManagement userRole={viewRole} />;
-      case 'admin_inventory':
-        return <InventoryManagement inventoryData={props.inventoryData} />;
-      case 'admin_payments':
-        return <PaymentManagement />;
-      case 'admin_reports':
-        return <Reports />;
-
-      // Staff Level
-      case 'staff_dashboard':
-        return (
-          <StaffDashboard />
-        );
-      case 'staff_inventory':
-        return <StaffInventory inventoryData={props.inventoryData} userRole={adminRole} />;
-      case 'staff_members':
-        return <Members userRole={adminRole} />;
-      case 'staff_payments':
-        return <Payments userRole={adminRole} />;
-
+    switch (activeSection) {
+      case 'super_admin':
+        return <SuperAdminRoutes activeTab={activeTab} props={props} viewRole={viewRole} />;
+      case 'admin':
+        return <AdminRoutes activeTab={activeTab} props={props} viewRole={viewRole} />;
+      case 'staff':
+        return <StaffRoutes activeTab={activeTab} props={props} adminRole={adminRole} />;
       default:
         return (
           <UnifiedDashboard
@@ -356,19 +175,43 @@ function App() {
     }
   };
 
+  const renderContentWithLayout = () => {
+    const content = renderDynamicTabContent();
+
+    switch (activeSection) {
+      case 'super_admin':
+        return (
+          <SuperAdminLayout {...layoutProps}>
+            {content}
+          </SuperAdminLayout>
+        );
+      case 'admin':
+        return (
+          <AdminLayout {...layoutProps}>
+            {content}
+          </AdminLayout>
+        );
+      case 'staff':
+        return (
+          <StaffLayout {...layoutProps}>
+            {content}
+          </StaffLayout>
+        );
+      default:
+        return (
+          <AdminLayout {...layoutProps}>
+            {content}
+          </AdminLayout>
+        );
+    }
+  };
+
   return (
     <>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/login" element={<Navigate to="/dashboard" />} />
-
-        {/* Dashboards and Management */}
-        <Route path="/dashboard" element={
-          <AdminLayout {...layoutProps}>
-            {renderDynamicTabContent()}
-          </AdminLayout>
-        } />
-
+        <Route path="/dashboard" element={renderContentWithLayout()} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />

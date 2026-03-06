@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft } from 'lucide-react';
+import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays } from 'lucide-react';
 import '../styles/TopNav.css';
 
 const TopNav = ({
@@ -26,6 +26,13 @@ const TopNav = ({
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
     const notifRef = useRef(null);
+
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     const roleLabel = adminRole === 'super_admin' ? 'Super Admin' : 'Administrator';
 
@@ -135,6 +142,19 @@ const TopNav = ({
             </div>
 
             <div className="top-nav-right">
+
+                {/* Live Date and Time */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginRight: '16px', padding: '6px 16px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.1)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1E3A5F', fontSize: '0.75rem', fontWeight: 800 }}>
+                        <CalendarDays size={14} />
+                        {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </div>
+                    <div style={{ width: '1px', height: '14px', background: 'rgba(0,0,0,0.1)' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-red)', fontSize: '0.75rem', fontWeight: 800 }}>
+                        <Clock size={14} />
+                        {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </div>
+                </div>
 
                 <div className="notif-wrapper-rel" ref={notifRef}>
                     <button

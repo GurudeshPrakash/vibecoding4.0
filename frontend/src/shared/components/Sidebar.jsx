@@ -6,11 +6,12 @@ import '../styles/Sidebar.css';
 const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
-        { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'admins', label: 'Admin Management', icon: <ShieldCheck size={20} /> },
         { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
-        { id: 'locations', label: 'Location Management', icon: <MapPin size={20} /> },
-        { id: 'activity-logs', label: 'Session History', icon: <ClipboardList size={20} /> },
+        { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
+        { id: 'members', label: 'Member Management', icon: <Users size={20} /> },
+        { id: 'reports', label: 'Reports', icon: <ClipboardList size={20} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
     ];
 

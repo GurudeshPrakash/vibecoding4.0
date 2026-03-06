@@ -1,0 +1,13 @@
+[dotenv@17.3.1] injecting env (3) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+Server running on port 5000
+MongoDB Connection Error: MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+    at NativeConnection.createClient (C:\Users\ShahanaKuganesan\OneDrive - Janashakthi Group\Documents\power-world system\vibecoding4.0\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\connection.js:230:11)
+    at NativeConnection.openUri (C:\Users\ShahanaKuganesan\OneDrive - Janashakthi Group\Documents\power-world system\vibecoding4.0\backend\node_modules\mongoose\lib\connection.js:1075:34)
+    at Mongoose.connect (C:\Users\ShahanaKuganesan\OneDrive - Janashakthi Group\Documents\power-world system\vibecoding4.0\backend\node_modules\mongoose\lib\mongoose.js:471:15)
+    at connectDB (C:\Users\ShahanaKuganesan\OneDrive - Janashakthi Group\Documents\power-world system\vibecoding4.0\backend\config\db.js:5:37)
+    at Object.<anonymous> (C:\Users\ShahanaKuganesan\OneDrive - Janashakthi Group\Documents\power-world system\vibecoding4.0\backend\server.js:11:1)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object..js (node:internal/modules/cjs/loader:1936:10)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)

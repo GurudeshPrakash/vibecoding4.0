@@ -11,7 +11,6 @@ import Landing from './shared/components/Landing';
 import UnifiedDashboard from './shared/components/UnifiedDashboard';
 import LogoutModal from './shared/components/LogoutModal';
 import ActivityDetailModal from './shared/components/ActivityDetailModal';
-
 // Shared Hooks & Context
 import { useEquipmentData } from './shared/hooks/useEquipmentData';
 import { useNotifications } from './shared/hooks/useNotifications';

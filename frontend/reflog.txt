@@ -1,0 +1,10 @@
+d6314a9e HEAD@{0}: commit: resolved merge conflict
+79971d93 HEAD@{1}: reset: moving to HEAD
+79971d93 HEAD@{2}: commit: removed old admin components
+ee4609f1 HEAD@{3}: commit: changes
+062b8777 HEAD@{4}: pull origin main: Fast-forward
+3d80bb02 HEAD@{5}: commit (merge): Merge main into dev_shana
+3765dc10 HEAD@{6}: commit: some edit
+1ce87823 HEAD@{7}: commit: super admin changes
+d683495b HEAD@{8}: pull --tags origin dev_shana: Merge made by the 'ort' strategy.
+3e4ba54b HEAD@{9}: commit (merge): add this

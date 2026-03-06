@@ -69,7 +69,7 @@ const SuperAdminReports = () => {
                         </div>
                     </div>
                     <div style={{ height: '350px', width: '100%' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <AreaChart data={revenueTrend}>
                                 <defs>
                                     <linearGradient id="premiumRed" x1="0" y1="0" x2="0" y2="1">
@@ -95,7 +95,7 @@ const SuperAdminReports = () => {
                         </div>
                     </div>
                     <div style={{ height: '350px', width: '100%' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={branchPerformance}>
                                 <PolarGrid stroke="rgba(0,0,0,0.05)" />
                                 <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fontWeight: 800 }} />

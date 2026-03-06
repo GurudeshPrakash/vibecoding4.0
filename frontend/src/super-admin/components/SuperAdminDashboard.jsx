@@ -246,33 +246,45 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
         if (raw) {
             try {
                 return JSON.parse(raw);
-            } catch (e) {
-                // Ignore
-            }
+            } catch (e) { }
         }
         return {
             totalBranches: 24,
             totalAdmins: 4,
             totalStaff: 156,
             totalMembers: 4850,
-            totalTrainers: 82,
-            totalRevenue: 12.5,
-            activeMemberships: 4200,
+            activeMembers: 4200,
+            todayRevenue: 125000,
+            newMembersToday: 12,
+            acGyms: 16,
+            nonAcGyms: 8,
             revenueTrend: [
                 { month: 'Jan', revenue: 8.5 },
                 { month: 'Feb', revenue: 9.2 },
-                { month: 'Mar', revenue: 10.8 },
-                { month: 'Apr', revenue: 11.5 },
-                { month: 'May', revenue: 12.1 },
-                { month: 'Jun', revenue: 12.5 },
+                { month: 'Mar', revenue: 1.2 }, // Current month, will be updated to 'up to today'
+                { month: 'Apr', revenue: 0 },
+                { month: 'May', revenue: 0 },
+                { month: 'Jun', revenue: 0 },
+                { month: 'Jul', revenue: 0 },
+                { month: 'Aug', revenue: 0 },
+                { month: 'Sep', revenue: 0 },
+                { month: 'Oct', revenue: 0 },
+                { month: 'Nov', revenue: 0 },
+                { month: 'Dec', revenue: 0 },
             ],
             memberGrowth: [
-                { name: 'Jan', members: 3200 },
-                { name: 'Feb', members: 3500 },
-                { name: 'Mar', members: 3850 },
-                { name: 'Apr', members: 4100 },
-                { name: 'May', members: 4450 },
-                { name: 'Jun', members: 4850 },
+                { name: 'Jan', members: 420 },
+                { name: 'Feb', members: 380 },
+                { name: 'Mar', members: 110 }, // New members in March so far
+                { name: 'Apr', members: 0 },
+                { name: 'May', members: 0 },
+                { name: 'Jun', members: 0 },
+                { name: 'Jul', members: 0 },
+                { name: 'Aug', members: 0 },
+                { name: 'Sep', members: 0 },
+                { name: 'Oct', members: 0 },
+                { name: 'Nov', members: 0 },
+                { name: 'Dec', members: 0 },
             ],
             branchPerformance: [
                 { name: 'Colombo 07', performance: 95 },
@@ -293,26 +305,59 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
 
     useEffect(() => {
         const fetchLiveStats = () => {
-            const raw = localStorage.getItem('sa_live_mock_database');
             const staffDb = JSON.parse(localStorage.getItem('admin_staff_db') || '[]');
             const adminsDb = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
+            const branchesDb = JSON.parse(localStorage.getItem('mock_branches_db') || '[]');
+            const membersDb = JSON.parse(localStorage.getItem('mock_members_db') || '[]');
+            const paymentsDb = JSON.parse(localStorage.getItem('mock_payments_db') || '[]');
 
-            if (raw) {
-                try {
-                    const parsed = JSON.parse(raw);
-                    // Update dynamic counts from actual databases
-                    parsed.totalStaff = staffDb.length;
-                    parsed.activeStaff = staffDb.filter(s => s.status === 'Active').length;
-                    parsed.totalAdmins = adminsDb.length;
+            setStatsState(prev => {
+                const now = new Date();
+                const currentMonthIdx = now.getMonth();
+                const todayStr = now.toISOString().split('T')[0];
 
-                    if (parsed.memberGrowth && parsed.memberGrowth.length !== 12) {
-                        parsed.memberGrowth = statsState.memberGrowth;
-                    }
-                    setStatsState(parsed);
-                } catch (e) { }
-            } else {
-                localStorage.setItem('sa_live_mock_database', JSON.stringify(statsState));
-            }
+                // Calculate today's revenue from payments
+                const todayRevenueCount = paymentsDb
+                    .filter(p => p.date === todayStr || (p.timestamp && p.timestamp.startsWith(todayStr)))
+                    .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+
+                // Calculate new members today
+                const newMembersTodayCount = membersDb
+                    .filter(m => m.joinedDate === todayStr || (m.createdAt && m.createdAt.startsWith(todayStr)))
+                    .length;
+
+                // Update current month growth in trends
+                const updatedRevenueTrend = [...prev.revenueTrend];
+                // For demonstration, we simulate current month revenue as partial
+                // In a real app, this would be an aggregation of payments for the month
+                const marchBaseRevenue = 1.2; // Mock base
+                updatedRevenueTrend[currentMonthIdx] = {
+                    ...updatedRevenueTrend[currentMonthIdx],
+                    revenue: marchBaseRevenue + (todayRevenueCount / 1000000)
+                };
+
+                const updatedMemberGrowth = [...prev.memberGrowth];
+                const marchBaseMembers = 110; // Mock base
+                updatedMemberGrowth[currentMonthIdx] = {
+                    ...updatedMemberGrowth[currentMonthIdx],
+                    members: marchBaseMembers + newMembersTodayCount
+                };
+
+                return {
+                    ...prev,
+                    totalBranches: branchesDb.length || 24,
+                    totalAdmins: adminsDb.length || 4,
+                    totalStaff: staffDb.length || 156,
+                    totalMembers: membersDb.length || 4850,
+                    activeMembers: membersDb.filter(m => m.status === 'Active').length || 4200,
+                    todayRevenue: todayRevenueCount || 125000,
+                    newMembersToday: newMembersTodayCount || 12,
+                    acGyms: branchesDb.filter(b => b.type === 'AC').length || 16,
+                    nonAcGyms: branchesDb.filter(b => b.type === 'Non-AC').length || 8,
+                    revenueTrend: updatedRevenueTrend,
+                    memberGrowth: updatedMemberGrowth
+                };
+            });
         };
         fetchLiveStats();
 
@@ -383,88 +428,66 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 </div>
             </header>
 
-            <section className="sa-summary-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
-                            <Building2 size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Branches</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalBranches || '24'}</h2>
-                        </div>
+            <section className="sa-summary-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+                {/* Row 1: Core System Entities */}
+                <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer', borderLeft: '4px solid #FF0000' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000' }}>
+                        <Building2 size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Total Branches</span>
+                        <h2 className="value">{statsState?.totalBranches}</h2>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
-                            <ShieldCheck size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Admins</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalAdmins || '4'}</h2>
-                        </div>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer', borderLeft: '4px solid #3B82F6' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}>
+                        <ShieldCheck size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Total Admins</span>
+                        <h2 className="value">{statsState?.totalAdmins}</h2>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
-                            <Users size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Staff</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalStaff || '0'}</h2>
-                        </div>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer', borderLeft: '4px solid #10B981' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
+                        <Users size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Total Staff</span>
+                        <h2 className="value">{statsState?.totalStaff}</h2>
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('members'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', margin: 0 }}>
-                            <Users size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Members</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalMembers?.toLocaleString() || '0'}</h2>
-                        </div>
+                {/* Row 2: Live Performance Metrics */}
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('members'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer', borderLeft: '4px solid #F59E0B' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}>
+                        <Users size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Active Members</span>
+                        <h2 className="value">{statsState?.activeMembers?.toLocaleString()}</h2>
                     </div>
                 </div>
 
-                <div className="sa-stat-card">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6', margin: 0 }}>
-                            <Zap size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Trainers</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.totalTrainers || '0'}</h2>
-                        </div>
+                <div className="sa-stat-card" style={{ borderLeft: '4px solid #059669' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#059669' }}>
+                        <DollarSign size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Today Revenue</span>
+                        <h2 className="value">LKR {(statsState?.todayRevenue / 1000).toFixed(0)}K</h2>
                     </div>
                 </div>
 
-                <div className="sa-stat-card">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
-                            <DollarSign size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Total Revenue</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>LKR {(statsState?.totalRevenue || 0).toFixed(1)}M</h2>
-                        </div>
+                <div className="sa-stat-card" style={{ borderLeft: '4px solid #8B5CF6' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6' }}>
+                        <UserPlus size={24} />
                     </div>
-                </div>
-
-                <div className="sa-stat-card">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
-                            <CreditCard size={24} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className="label" style={{ margin: 0 }}>Active Members</span>
-                            <h2 className="value" style={{ margin: 0, marginTop: '2px' }}>{statsState?.activeMemberships || '0'}</h2>
-                        </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">New Members Today</span>
+                        <h2 className="value">{statsState?.newMembersToday}</h2>
                     </div>
                 </div>
             </section>
@@ -475,49 +498,44 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                         <div className="sa-card-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <TrendingUp size={22} color="#FF0000" />
-                                <h3>Membership Growth</h3>
+                                <h3>Membership Registration Growth</h3>
                             </div>
                         </div>
-                        <div style={{ height: '240px', minHeight: '240px', width: '100%', marginTop: '10px' }}>
+                        <div style={{ height: '300px', minHeight: '300px', width: '100%', marginTop: '10px' }}>
                             <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                                <Recharts.AreaChart data={memberGrowthData}>
-                                    <defs>
-                                        <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#FF0000" stopOpacity={0.15} />
-                                            <stop offset="95%" stopColor="#FF0000" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
+                                <Recharts.LineChart data={memberGrowthData}>
                                     <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                                     <Recharts.XAxis
                                         dataKey="name"
                                         axisLine={{ stroke: 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
                                         tickLine={false}
-                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 9, fontWeight: 700 }}
+                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }}
                                         dy={10}
-                                        interval={0}
                                     />
                                     <Recharts.YAxis
                                         axisLine={{ stroke: 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
                                         tickLine={false}
-                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 9, fontWeight: 700 }}
+                                        tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }}
                                         dx={-10}
-                                        domain={[0, 'auto']}
-                                        allowDecimals={false}
-                                        tickFormatter={(value) => {
-                                            if (value >= 1000000) return `LKR ${(value / 1000000).toFixed(1)}M`;
-                                            if (value >= 1000) return `LKR ${(value / 1000).toFixed(0)}K`;
-                                            return `LKR ${value}`;
-                                        }}
+                                        label={{ value: 'Members Registered', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '0.7rem', fontWeight: 600, fill: 'var(--color-text-dim)' } }}
                                     />
                                     <Recharts.Tooltip
                                         contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
                                         itemStyle={{ color: '#FF0000', fontWeight: 800 }}
                                     />
-                                    <Recharts.Area type="monotone" dataKey="members" stroke="#FF0000" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" animationDuration={1800} />
-                                </Recharts.AreaChart >
-                            </Recharts.ResponsiveContainer >
-                        </div >
-                    </div >
+                                    <Recharts.Line
+                                        type="monotone"
+                                        dataKey="members"
+                                        stroke="#FF0000"
+                                        strokeWidth={4}
+                                        dot={{ r: 4, fill: '#FF0000', strokeWidth: 2, stroke: '#fff' }}
+                                        activeDot={{ r: 6, fill: '#FF0000', strokeWidth: 2, stroke: '#fff' }}
+                                        animationDuration={1500}
+                                    />
+                                </Recharts.LineChart>
+                            </Recharts.ResponsiveContainer>
+                        </div>
+                    </div>
 
                     {/* Branch Performance Table - Sync with Admin Dashboard */}
                     <div className="sa-card">
@@ -558,33 +576,24 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                         <div className="sa-card">
                             <div className="sa-card-header">
-                                <h3>Monthly Revenue</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <DollarSign size={20} color="#FF0000" />
+                                    <h3>Monthly Revenue Trend</h3>
+                                </div>
                             </div>
-                            <div style={{ height: '220px', width: '100%' }}>
-                                <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                            <div style={{ height: '300px', width: '100%' }}>
+                                <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <Recharts.BarChart data={revenueData}>
                                         <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                                         <Recharts.XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
-                                        <Recharts.YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} tickFormatter={(val) => `LKR ${val}M`} />
-                                        <Recharts.Tooltip cursor={{ fill: 'rgba(0,0,0,0.02)' }} contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px' }} />
-                                        <Recharts.Bar dataKey="revenue" fill="#FF0000" radius={[4, 4, 0, 0]} />
+                                        <Recharts.YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} tickFormatter={(val) => `LKR ${val}M`} label={{ value: 'Revenue (Millions)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '0.65rem', fontWeight: 600, fill: 'var(--color-text-dim)' } }} />
+                                        <Recharts.Tooltip
+                                            cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                                            contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
+                                            formatter={(value) => [`LKR ${value.toFixed(2)}M`, 'Revenue']}
+                                        />
+                                        <Recharts.Bar dataKey="revenue" fill="#FF0000" radius={[6, 6, 0, 0]} barSize={35} />
                                     </Recharts.BarChart>
-                                </Recharts.ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        <div className="sa-card">
-                            <div className="sa-card-header">
-                                <h3>Branch Performance</h3>
-                            </div>
-                            <div style={{ height: '220px', width: '100%' }}>
-                                <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                                    <Recharts.RadarChart cx="50%" cy="50%" outerRadius="80%" data={statsState.branchPerformance}>
-                                        <Recharts.PolarGrid stroke="rgba(0,0,0,0.05)" />
-                                        <Recharts.PolarAngleAxis dataKey="name" tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
-                                        <Recharts.Radar name="Performance" dataKey="performance" stroke="#FF0000" fill="#FF0000" fillOpacity={0.6} />
-                                        <Recharts.Tooltip contentStyle={{ borderRadius: '12px', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }} />
-                                    </Recharts.RadarChart>
                                 </Recharts.ResponsiveContainer>
                             </div>
                         </div>

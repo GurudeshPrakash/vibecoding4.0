@@ -402,7 +402,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer'}}>
+                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', margin: 0 }}>
                             <ShieldCheck />
@@ -546,7 +546,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                                 <h3>Revenue Stream</h3>
                             </div>
                             <div style={{ height: '200px', width: '100%' }}>
-                                <Recharts.ResponsiveContainer width="100%" height="100%">
+                                <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <Recharts.BarChart data={revenueData}>
                                         <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                                         <Recharts.XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700 }} />
@@ -562,7 +562,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                                 <h3>Gym Distribution</h3>
                             </div>
                             <div style={{ height: '200px', width: '100%' }}>
-                                <Recharts.ResponsiveContainer width="100%" height="100%">
+                                <Recharts.ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <Recharts.PieChart>
                                         <Recharts.Pie
                                             data={gymRatioData}

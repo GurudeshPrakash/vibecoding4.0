@@ -19,60 +19,27 @@ const LiveClock = () => {
 
 const Administrators = ({ userRole = 'super_admin' }) => {
     const isSuperAdmin = userRole === 'super_admin';
-    const initBranches = () => {
-        let saved = JSON.parse(localStorage.getItem('mock_branches_db') || '[]');
-        if (saved.length < 24) {
-            const branchNames = [
-                'Colombo City Gym', 'Kandy Fitness Center', 'Galle Power Hub', 'Negombo Fitness',
-                'Mount Lavinia Branch', 'Jaffna Health Center', 'Trincomalee Fitness', 'Batticaloa Iron Works',
-                'Kurunegala Power House', 'Ratnapura Gym', 'Badulla Peak Fitness', 'Anuradhapura Fit',
-                'Polonnaruwa Body Hub', 'Matara Extreme', 'Panadura Vitality', 'Moratuwa Fitness',
-                'Nugegoda Elite', 'Maharagama Muscles', 'Dehiwala Active', 'Wattala Max fitness',
-                'Gampaha Health', 'Avissawella Power Gym', 'Chilaw Beach Gym', 'Puttalam Sun Gym'
-            ];
-            saved = branchNames.map((name, idx) => ({ _id: `b${idx + 1}`, name }));
-            localStorage.setItem('mock_branches_db', JSON.stringify(saved));
-        }
-        return saved;
-    };
-
-    const initAdmins = () => {
-        let saved = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
-        if (saved.length < 4) {
-            saved = [
-                { _id: 'a1', firstName: 'John', lastName: 'Doe', email: 'admin1@powerworld.com', role: 'Admin', status: 'Active', assignedBranches: ['b1', 'b2', 'b3', 'b4', 'b5', 'b6'], phone: '0771111111' },
-                { _id: 'a2', firstName: 'Jane', lastName: 'Smith', email: 'admin2@powerworld.com', role: 'Admin', status: 'Active', assignedBranches: ['b7', 'b8', 'b9', 'b10', 'b11', 'b12'], phone: '0772222222' },
-                { _id: 'a3', firstName: 'Mike', lastName: 'Johnson', email: 'admin3@powerworld.com', role: 'Admin', status: 'Active', assignedBranches: ['b13', 'b14', 'b15', 'b16', 'b17', 'b18'], phone: '0773333333' },
-                { _id: 'a4', firstName: 'Sarah', lastName: 'Williams', email: 'admin4@powerworld.com', role: 'Admin', status: 'Inactive', assignedBranches: ['b19', 'b20', 'b21', 'b22', 'b23', 'b24'], phone: '0774444444' }
-            ];
-            localStorage.setItem('mock_admins_db', JSON.stringify(saved));
-        }
-        return saved;
-    };
-
-    const initStaff = (branchesList) => {
-        let saved = JSON.parse(localStorage.getItem('admin_staff_db') || '[]');
-        if (saved.length < 24) {
-            saved = branchesList.map((b, i) => ({
-                id: `s${i + 1}`,
-                name: `Staff ${i + 1}`,
-                branchId: b._id,
-                branchName: b.name,
-                status: 'Active'
-            }));
-            localStorage.setItem('admin_staff_db', JSON.stringify(saved));
-        }
-        return saved;
-    };
-
     const [viewTab, setViewTab] = useState('accounts');
     const [searchQuery, setSearchQuery] = useState('');
-    const [branches, setBranches] = useState(initBranches);
-    const [admins, setAdmins] = useState(initAdmins);
-    const [staff, setStaff] = useState(() => initStaff(initBranches()));
-    const [isLoading, setIsLoading] = useState(false);
+    const [admins, setAdmins] = useState(() => {
+        const saved = localStorage.getItem('mock_admins_db');
+        return saved ? JSON.parse(saved) : [];
+    });
+    const [branches, setBranches] = useState(() => {
+        const saved = localStorage.getItem('mock_branches_db');
+        return saved ? JSON.parse(saved) : [
+            { _id: 'b1', name: 'Colombo City Gym' },
+            { _id: 'b2', name: 'Kandy Fitness Center' },
+            { _id: 'b3', name: 'Galle Power Hub' }
+        ];
+    });
+    const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_admins_db'));
     const [showModal, setShowModal] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState(null);
+    const [staff, setStaff] = useState(() => {
+        const saved = localStorage.getItem('admin_staff_db');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
@@ -82,33 +49,75 @@ const Administrators = ({ userRole = 'super_admin' }) => {
         email: '',
         phone: '',
         role: 'Admin',
-        assignedBranches: [],
+        branchId: '',
+        allBranchAccess: false,
         sendInvite: true,
         tempPassword: Math.random().toString(36).slice(-8).toUpperCase()
     });
 
-    const getOtherAdminsBranches = () => {
-        let assignedOthers = [];
-        admins.forEach(a => {
-            if (editingAdmin && a._id === editingAdmin._id) return;
-            if (a.assignedBranches) {
-                assignedOthers = [...assignedOthers, ...a.assignedBranches];
+    const fetchAdmins = async () => {
+        if (admins.length === 0) setIsLoading(true);
+        try {
+            const token = localStorage.getItem('admin_token');
+            const response = await fetch('http://localhost:5000/api/admin/admins', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.status === 403) {
+                setAdmins({ error: 'Access Denied: Only Super Admins can manage Administrators.' });
+                return;
             }
-        });
-        return assignedOthers;
+            if (response.ok) {
+                const data = await response.json();
+                setAdmins(data);
+                localStorage.setItem('mock_admins_db', JSON.stringify(data));
+            } else {
+                throw new Error(`Server returned ${response.status}`);
+            }
+        } catch (error) {
+            console.warn('Backend reachability issue, using mock data:', error.message);
+            const savedMock = localStorage.getItem('mock_admins_db');
+            if (savedMock) {
+                setAdmins(JSON.parse(savedMock));
+            } else {
+                const defaultMocks = [
+                    { _id: 'mock1', firstName: 'Shahana', lastName: 'Kuganesan', email: 'shaha@vibecoding.com', phone: '+94 77 123 4567', role: 'Admin', status: 'Active', lastLogin: 'Today, 10:45 AM', allBranchAccess: true },
+                    { _id: 'mock2', firstName: 'Admin', lastName: 'User', email: 'admin@gymsys.com', phone: '+94 77 999 0000', role: 'Admin', status: 'Active', lastLogin: 'Yesterday, 04:30 PM', branchId: 'b1' },
+                    { _id: 'mock3', firstName: 'Branch', lastName: 'Head', email: 'head@fitpro.lk', phone: '+94 71 555 1111', role: 'Branch Admin', status: 'Inactive', lastLogin: '2 days ago', branchId: 'b2' }
+                ];
+                setAdmins(defaultMocks);
+                localStorage.setItem('mock_admins_db', JSON.stringify(defaultMocks));
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleBranchToggle = (branchId) => {
-        setFormData(prev => {
-            const isSelected = prev.assignedBranches.includes(branchId);
-            if (isSelected) {
-                return { ...prev, assignedBranches: prev.assignedBranches.filter(id => id !== branchId) };
-            } else {
-                if (prev.assignedBranches.length >= 6) return prev;
-                return { ...prev, assignedBranches: [...prev.assignedBranches, branchId] };
+    const fetchBranches = async () => {
+        try {
+            const token = localStorage.getItem('admin_token');
+            const response = await fetch('http://localhost:5000/api/admin/branches', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setBranches(data);
+                localStorage.setItem('mock_branches_db', JSON.stringify(data));
             }
-        });
+        } catch (error) {
+            setBranches([
+                { _id: 'b1', name: 'Colombo City Gym' },
+                { _id: 'b2', name: 'Kandy Fitness Center' },
+                { _id: 'b3', name: 'Galle Power Hub' }
+            ]);
+        }
     };
+
+    useEffect(() => {
+        fetchAdmins();
+        fetchBranches();
+        const savedStaff = localStorage.getItem('admin_staff_db');
+        if (savedStaff) setStaff(JSON.parse(savedStaff));
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -120,27 +129,54 @@ const Administrators = ({ userRole = 'super_admin' }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem('admin_token');
+        const url = editingAdmin
+            ? `http://localhost:5000/api/admin/admins/${editingAdmin._id}`
+            : 'http://localhost:5000/api/admin/admins';
+        const method = editingAdmin ? 'PUT' : 'POST';
+
         const submitData = {
             ...formData,
+            password: formData.tempPassword,
             status: editingAdmin ? editingAdmin.status : 'Active',
             lastLogin: editingAdmin ? editingAdmin.lastLogin : 'Never'
         };
 
-        const savedMock = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
-        if (editingAdmin) {
-            const updated = savedMock.map(a => a._id === editingAdmin._id ? { ...a, ...submitData } : a);
-            localStorage.setItem('mock_admins_db', JSON.stringify(updated));
-            setAdmins(updated);
-        } else {
-            const newItem = { ...submitData, _id: 'mock_' + Date.now() };
-            savedMock.push(newItem);
-            localStorage.setItem('mock_admins_db', JSON.stringify(savedMock));
-            setAdmins(savedMock);
-        }
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(submitData)
+            });
 
-        setShowModal(false);
-        setEditingAdmin(null);
-        resetForm();
+            if (response.ok) {
+                setShowModal(false);
+                setEditingAdmin(null);
+                resetForm();
+                fetchAdmins();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || 'Failed to save admin');
+            }
+        } catch (error) {
+            console.warn('Network error, applying changes to mock database:', error.message);
+            const savedMock = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
+            if (editingAdmin) {
+                const updated = savedMock.map(a => a._id === editingAdmin._id ? { ...a, ...submitData } : a);
+                localStorage.setItem('mock_admins_db', JSON.stringify(updated));
+            } else {
+                const newItem = { ...submitData, _id: 'mock_' + Date.now() };
+                savedMock.push(newItem);
+                localStorage.setItem('mock_admins_db', JSON.stringify(savedMock));
+            }
+            setShowModal(false);
+            setEditingAdmin(null);
+            resetForm();
+            fetchAdmins();
+        }
     };
 
     const resetForm = () => {
@@ -150,7 +186,8 @@ const Administrators = ({ userRole = 'super_admin' }) => {
             email: '',
             phone: '',
             role: 'Admin',
-            assignedBranches: [],
+            branchId: '',
+            allBranchAccess: false,
             sendInvite: true,
             tempPassword: Math.random().toString(36).slice(-8).toUpperCase()
         });
@@ -158,17 +195,23 @@ const Administrators = ({ userRole = 'super_admin' }) => {
     };
 
     const handleToggleStatus = async (admin) => {
+        const token = localStorage.getItem('admin_token');
         const newStatus = admin.status === 'Active' ? 'Inactive' : 'Active';
         if (!window.confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
 
-        const savedMock = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
-        const updated = savedMock.map(a => a._id === admin._id ? { ...a, status: newStatus } : a);
-        localStorage.setItem('mock_admins_db', JSON.stringify(updated));
-        setAdmins(updated);
+        try {
+            const response = await fetch(`http://localhost:5000/api/admin/admins/${admin._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ ...admin, status: newStatus })
+            });
 
-        if (newStatus === 'Inactive') {
-            // Notification logic can be hooked up here
-            alert(`Admin ${admin.firstName} is now Inactive.`);
+            if (response.ok) fetchAdmins();
+        } catch (error) {
+            alert('Status update failed');
         }
     };
 
@@ -185,7 +228,8 @@ const Administrators = ({ userRole = 'super_admin' }) => {
             email: a.email || '',
             phone: a.phone || '',
             role: a.role || 'Admin',
-            assignedBranches: a.assignedBranches || [],
+            branchId: a.branchId || '',
+            allBranchAccess: a.allBranchAccess || false,
             sendInvite: false,
             tempPassword: ''
         });
@@ -322,20 +366,13 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                                                     </span>
                                                 </td>
                                                 <td style={{ padding: '16px 24px', fontSize: '0.75rem', fontWeight: 700 }}>
-                                                    {a.assignedBranches?.length > 0 ? (
-                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                                                            {a.assignedBranches.map(bid => {
-                                                                const b = branches.find(branch => branch._id === bid);
-                                                                return b ? <span key={bid} style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem' }}>{b.name}</span> : null;
-                                                            })}
-                                                        </div>
-                                                    ) : 'No Branches Assigned'}
+                                                    {a.allBranchAccess ? 'All Branches' : (branches.find(b => b._id === a.branchId)?.name || 'Default Branch')}
                                                 </td>
                                                 <td style={{ padding: '16px 24px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                         <Users size={12} color="var(--color-red)" />
                                                         <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>
-                                                            {a.assignedBranches ? a.assignedBranches.length : 0}
+                                                            {a.allBranchAccess ? staff.length : staff.filter(s => s.branchId === a.branchId).length}
                                                         </span>
                                                     </div>
                                                 </td>
@@ -422,36 +459,32 @@ const Administrators = ({ userRole = 'super_admin' }) => {
                                     <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600 }} placeholder="+94 77 000 0000" />
                                 </div>
 
-                                {/* Branch Assignment */}
+                                {/* Role & Branch */}
                                 <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Branch Assignment</h4>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                                    <h4 style={{ margin: '12px 0 16px 0', fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Permissions & Access</h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assign Branches (Max 6)</label>
-                                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: formData.assignedBranches.length === 6 ? '#EF4444' : '#10B981' }}>{formData.assignedBranches.length} / 6</span>
-                                            </div>
-                                            <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', height: '150px', overflowY: 'auto', background: '#F9FAFB', padding: '8px' }}>
-                                                {branches.map(b => {
-                                                    const isAssignedToOther = getOtherAdminsBranches().includes(b._id);
-                                                    const isSelected = formData.assignedBranches.includes(b._id);
-                                                    const isDisabled = isAssignedToOther || (!isSelected && formData.assignedBranches.length >= 6);
-
-                                                    return (
-                                                        <div key={b._id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px', opacity: isDisabled ? 0.5 : 1 }}>
-                                                            <input
-                                                                type="checkbox"
-                                                                id={`branch-${b._id}`}
-                                                                checked={isSelected}
-                                                                disabled={isDisabled}
-                                                                onChange={() => handleBranchToggle(b._id)}
-                                                                style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
-                                                            />
-                                                            <label htmlFor={`branch-${b._id}`} style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text)', cursor: isDisabled ? 'not-allowed' : 'pointer', flex: 1 }}>{b.name}</label>
-                                                            {isAssignedToOther && <span style={{ fontSize: '0.6rem', color: '#EF4444', fontWeight: 800 }}>Assigned</span>}
-                                                        </div>
-                                                    );
-                                                })}
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assign Role</label>
+                                            <select name="role" value={formData.role} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}>
+                                                <option value="Admin">Admin</option>
+                                                <option value="Branch Admin">Branch Admin</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>Assign Branch</label>
+                                            <select
+                                                name="branchId"
+                                                value={formData.branchId}
+                                                onChange={handleChange}
+                                                disabled={formData.allBranchAccess}
+                                                style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: formData.allBranchAccess ? '#edf2f7' : '#F9FAFB', fontWeight: 600, cursor: 'pointer' }}
+                                            >
+                                                <option value="">Select Branch...</option>
+                                                {branches.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
+                                            </select>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+                                                <input type="checkbox" id="aba" name="allBranchAccess" checked={formData.allBranchAccess} onChange={handleChange} style={{ cursor: 'pointer' }} />
+                                                <label htmlFor="aba" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)', cursor: 'pointer' }}>All Branch Access</label>
                                             </div>
                                         </div>
                                     </div>

@@ -87,7 +87,7 @@ const Reports = () => {
                         </div>
                     </div>
                     <div style={{ height: '300px', width: '100%', marginTop: '20px' }}>
-                        <ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <AreaChart data={revenueData}>
                                 <defs>
                                     <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -111,7 +111,7 @@ const Reports = () => {
                         <Activity size={18} color="#94A3B8" />
                     </div>
                     <div style={{ height: '300px', width: '100%', marginTop: '20px' }}>
-                        <ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <BarChart data={attendanceData}>
                                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} />
                                 <YAxis axisLine={false} tickLine={false} hide />

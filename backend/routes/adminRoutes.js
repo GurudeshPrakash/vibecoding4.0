@@ -19,37 +19,54 @@ const {
     getNotifications,
     markNotificationRead
 } = require('../controllers/staffManagementController');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddleware');
+const rbac = require('../middleware/rbacMiddleware');
+const upload = require('../middleware/uploadMiddleware');
+
+// Admins Management (Super Admin only)
+// Redundant declaration removed
+// const { protect, adminOnly } = require('../middleware/authMiddleware');
 
 // Auth
 router.post('/signup', registerAdmin);
 router.post('/login', loginAdmin);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
-router.get('/profile', protect, adminOnly, getAdminProfile);
+router.get('/profile', protect, rbac('admin', 'super_admin'), getAdminProfile);
+
+// Admins Management (Super Admin only)
+router.get('/admins', protect, rbac('super_admin'), getAllStaff); // Assuming getAllStaff also works for admins or similar controller
+// router.post('/admins', protect, rbac('super_admin'), createAdmin);
+// router.put('/admins/:id', protect, rbac('super_admin'), updateAdmin);
+// router.delete('/admins/:id', protect, rbac('super_admin'), deleteAdmin);
+// router.get('/admin-logs', protect, rbac('super_admin'), getAdminLogs);
 
 // Gym Owners Management
-router.get('/owners', protect, adminOnly, getAllOwners);
-router.post('/owners', protect, adminOnly, addOwner);
-router.put('/owners/:id', protect, adminOnly, updateOwner);
-router.delete('/owners/:id', protect, adminOnly, deleteOwner);
+router.get('/owners', protect, rbac('admin', 'super_admin'), getAllOwners);
+router.post('/owners', protect, rbac('admin', 'super_admin'), addOwner);
+router.put('/owners/:id', protect, rbac('admin', 'super_admin'), updateOwner);
+router.delete('/owners/:id', protect, rbac('admin', 'super_admin'), deleteOwner);
 
 // Branch Management
-router.get('/branches', protect, adminOnly, getAllBranches);
-router.post('/branches', protect, adminOnly, addBranch);
-router.put('/branches/:id', protect, adminOnly, updateBranch);
-router.delete('/branches/:id', protect, adminOnly, deleteBranch);
+router.get('/branches', protect, rbac('admin', 'super_admin'), getAllBranches);
+router.post('/branches', protect, rbac('admin', 'super_admin'), upload.single('photoFile'), addBranch);
+router.put('/branches/:id', protect, rbac('admin', 'super_admin'), upload.single('photoFile'), updateBranch);
+router.delete('/branches/:id', protect, rbac('admin', 'super_admin'), deleteBranch);
 
 // Staff Management (Admin only)
-router.post('/staff', protect, adminOnly, createStaff);
-router.get('/staff', protect, adminOnly, getAllStaff);
-router.put('/staff/:id', protect, adminOnly, updateStaff);
-router.delete('/staff/:id', protect, adminOnly, deleteStaff);
+router.post('/staff', protect, rbac('admin', 'super_admin'), createStaff);
+router.get('/staff', protect, rbac('admin', 'super_admin'), getAllStaff);
+router.put('/staff/:id', protect, rbac('admin', 'super_admin'), updateStaff);
+router.delete('/staff/:id', protect, rbac('admin', 'super_admin'), deleteStaff);
 
 // Activity Logs and Notifications
-router.get('/staff-logs', protect, adminOnly, getActivityLogs);
-router.get('/staff-logs/:id', protect, adminOnly, getLogById);
-router.get('/notifications', protect, adminOnly, getNotifications);
-router.put('/notifications/:id', protect, adminOnly, markNotificationRead);
+router.get('/staff-logs', protect, rbac('admin', 'super_admin'), getActivityLogs);
+router.get('/staff-logs/:id', protect, rbac('admin', 'super_admin'), getLogById);
+router.get('/notifications', protect, rbac('admin', 'super_admin'), getNotifications);
+router.put('/notifications/:id', protect, rbac('admin', 'super_admin'), markNotificationRead);
+
+// Dashboard Statistics
+// Assuming getDashboardStats exists in a controller or similar
+// router.get('/dashboard-stats', protect, rbac('super_admin'), getDashboardStats);
 
 module.exports = router;

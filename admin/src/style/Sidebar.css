@@ -41,7 +41,7 @@
 
 .logo-text {
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     letter-spacing: -0.5px;
     color: var(--color-text);
 }
@@ -71,7 +71,7 @@
     transition: var(--transition);
     width: 100%;
     text-align: left;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-weight: 600;
 }
 
@@ -113,7 +113,7 @@
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-weight: 600;
 }
 

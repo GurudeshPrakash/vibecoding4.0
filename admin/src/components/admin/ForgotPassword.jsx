@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import logo from '../../assets/logo1.png';
-import '../../style/AdminAuth.css';
+import '../../style/admin/AdminAuth.css';
 
 const ForgotPassword = ({ onBack }) => {
     const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ const ForgotPassword = ({ onBack }) => {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin/forgot-password', {
+            const response = await fetch('http://localhost:5000/api/shared/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })

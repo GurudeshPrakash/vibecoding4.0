@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, ShieldCheck, UserCircle, Zap } from 'lucide-react';
 import logo from '../../assets/logo1.png';
-import '../../style/AdminAuth.css';
+import '../../style/admin/AdminAuth.css';
 
-const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
+const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +12,7 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('admin_remember_me');
+    const savedEmail = localStorage.getItem('unified_remember_me');
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
@@ -25,7 +25,7 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/login', {
+      const response = await fetch('http://localhost:5000/api/shared/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -35,25 +35,26 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
 
       if (response.ok) {
         if (rememberMe) {
-          localStorage.setItem('admin_remember_me', email);
+          localStorage.setItem('unified_remember_me', email);
         } else {
-          localStorage.removeItem('admin_remember_me');
+          localStorage.removeItem('unified_remember_me');
         }
 
+        // Standardize storage for all roles
         localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('admin_current_log', data.logId);
         localStorage.setItem('admin_user', JSON.stringify({
           firstName: data.firstName,
+          lastName: data.lastName,
           email: data.email,
           role: data.role
         }));
 
         onLogin(data);
       } else {
-        setError(data.message || 'Login failed. Please check your credentials.');
+        setError(data.message || 'Authentication failed. Please check your credentials.');
       }
     } catch (err) {
-      setError('Connection failed. Server might be offline.');
+      setError('Connection failed. Terminal offline.');
     } finally {
       setIsLoading(false);
     }
@@ -63,49 +64,60 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
     <div className="login-page">
       <div className="login-bg-overlay"></div>
 
-      <button className="back-btn-top" onClick={onBack}>
-        <ArrowLeft size={20} />
-        <span>Back</span>
-      </button>
-
-      <div className="login-card animate-scale-in">
+      <div className="login-card animate-scale-in" style={{ borderTop: '4px solid #ff0000' }}>
         <div className="login-header">
-          <img src={logo} alt="Power World" className="brand-logo-small" />
-          <h1>Admin Login</h1>
-          <p>Enter your credentials to access the panel</p>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <img src={logo} alt="Power World" style={{ height: '60px', filter: 'drop-shadow(0 0 10px rgba(255,0,0,0.2))' }} />
+          </div>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '8px' }}>Unified Portal</h1>
+          <p style={{ color: '#64748B', fontWeight: 600, fontSize: '0.85rem' }}>Login to access your specific command level</p>
+        </div>
+
+        <div className="role-indicator-pill" style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>
+            <ShieldCheck size={12} /> SUPER ADMIN
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>
+            <Zap size={12} /> ADMIN
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>
+            <UserCircle size={12} /> STAFF
+          </div>
         </div>
 
         {error && (
-          <div style={{ background: 'rgba(255,0,0,0.1)', color: '#ff4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.85rem', textAlign: 'center' }}>
+          <div style={{ background: '#FEF2F2', color: '#EF4444', padding: '12px', borderRadius: '12px', marginBottom: '20px', fontSize: '0.8rem', fontWeight: 700, textAlign: 'center', border: '1px solid #FEE2E2' }}>
             {error}
           </div>
         )}
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email Address</label>
-            <div className="input-wrapper">
-              <Mail className="input-icon" size={18} />
+            <label style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748B', marginBottom: '8px', display: 'block' }}>Email Sequence</label>
+            <div className="input-wrapper" style={{ background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+              <Mail className="input-icon" size={18} color="#94A3B8" />
               <input
                 type="email"
-                placeholder="admin@powerworld.com"
+                placeholder="name@powerworld.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                style={{ fontWeight: 600 }}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Password</label>
-            <div className="input-wrapper">
-              <Lock className="input-icon" size={18} />
+            <label style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748B', marginBottom: '8px', display: 'block' }}>Access Key</label>
+            <div className="input-wrapper" style={{ background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+              <Lock className="input-icon" size={18} color="#94A3B8" />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                style={{ fontWeight: 600 }}
               />
               <button
                 type="button"
@@ -117,32 +129,34 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
             </div>
           </div>
 
-          <div className="login-extras">
-            <label className="remember-me">
+          <div className="login-extras" style={{ marginTop: '16px', marginBottom: '24px' }}>
+            <label className="remember-me" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ accentColor: '#ff0000' }}
               />
-              <span>Remember Me</span>
+              <span>Remember Sequence</span>
             </label>
             <button
               type="button"
               className="forgot-pass"
               onClick={() => onGoToSignUp('forgot-password')}
+              style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ff0000' }}
             >
-              Forgot Password?
+              Reset Key?
             </button>
           </div>
 
-          <button type="submit" className="login-submit-btn" disabled={isLoading}>
-            {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Log In'}
+          <button type="submit" className="login-submit-btn" disabled={isLoading} style={{ background: '#111827', borderRadius: '14px', height: '54px', fontWeight: 800, fontSize: '1rem', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+            {isLoading ? <Loader2 className="animate-spin" size={24} /> : 'AUTHENTICATE ACCESS'}
           </button>
         </form>
 
-        <div className="login-footer">
-          <p style={{ opacity: 0.7, fontSize: '0.8rem' }}>
-            Protected System. Access restricted to authorized personnel.
+        <div className="login-footer" style={{ marginTop: '32px' }}>
+          <p style={{ opacity: 0.6, fontSize: '0.7rem', fontWeight: 600 }}>
+            ENCRYPTED COMMAND TERMINAL v4.0.2
           </p>
         </div>
       </div>
@@ -155,9 +169,16 @@ const AdminLogin = ({ onLogin, onBack, onGoToSignUp }) => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        .login-submit-btn:hover {
+          background: #000 !important;
+          transform: translateY(-2px);
+        }
+        .login-submit-btn:active {
+          transform: translateY(0);
+        }
       `}</style>
     </div>
   );
 };
 
-export default AdminLogin;
+export default UnifiedLogin;

@@ -18,14 +18,16 @@ const TopNav = ({
     loginRole,
     setSelectedEquipmentId,
     onViewLog,
-    currentTab
+    currentTab,
+    onToggleRole,
+    adminRole
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
     const notifRef = useRef(null);
 
-    const roleLabel = role;
+    const roleLabel = adminRole === 'super_admin' ? 'Super Admin' : 'Administrator';
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -59,7 +61,7 @@ const TopNav = ({
 
         // Persist to DB for auth notifs
         const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
-        const token = localStorage.getItem(`${loginRole}_token`);
+        const token = localStorage.getItem('admin_token');
         if (token) {
             const unreadNotifs = notifications.filter(n => n.unread && n.isAuthNotif);
             for (const n of unreadNotifs) {
@@ -83,7 +85,7 @@ const TopNav = ({
 
             // Mark as read in DB
             const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
-            const token = localStorage.getItem(`${loginRole}_token`);
+            const token = localStorage.getItem('admin_token');
             if (token) {
                 try {
                     await fetch(`http://localhost:5000${apiBase}/notifications/${notif.id}`, {
@@ -119,7 +121,7 @@ const TopNav = ({
                             gap: '8px',
                             marginRight: '16px',
                             cursor: 'pointer',
-                            fontSize: '0.9rem',
+                            fontSize: '0.825rem',
                             fontWeight: '600'
                         }}
                     >
@@ -133,7 +135,6 @@ const TopNav = ({
             </div>
 
             <div className="top-nav-right">
-
 
                 <div className="notif-wrapper-rel" ref={notifRef}>
                     <button
@@ -225,10 +226,10 @@ const TopNav = ({
                                         {profileImage ? (
                                             <img src={profileImage} alt="Large" />
                                         ) : (
-                                            <User size={40} />
+                                            <User size={30} />
                                         )}
                                         <label className="update-photo-overlay" title="Update Photo">
-                                            <Camera size={16} />
+                                            <Camera size={14} />
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -238,33 +239,31 @@ const TopNav = ({
                                         </label>
                                     </div>
                                 </div>
-                                <h3 className="user-full-name">{adminName}</h3>
-                                <span className="user-role">{roleLabel}</span>
-                            </div>
-
-                            <div className="dropdown-info-section">
-                                <div className="info-row">
-                                    <User size={14} className="info-icon-dim" />
-                                    <span>{adminId}</span>
-                                </div>
-                                <div className="info-row">
-                                    <Mail size={14} className="info-icon-dim" />
-                                    <span>{adminEmail}</span>
-                                </div>
-                                <div className="info-row">
-                                    <Phone size={14} className="info-icon-dim" />
-                                    <span>{adminPhone}</span>
+                                <div className="user-details-stack">
+                                    <h3 className="user-full-name">{adminName}</h3>
+                                    <span className="user-info-text">{adminEmail}</span>
+                                    <span className="user-info-text">{adminPhone}</span>
                                 </div>
                             </div>
 
-                            <div className="dropdown-actions-section">
-                                <button className="dropdown-btn-item" onClick={() => { setActiveTab(loginRole === 'admin' ? 'settings' : 'profile'); setShowProfileDropdown(false); }}>
-                                    <div className="btn-icon-box"><User size={16} /></div>
-                                    <span>Edit Profile</span>
+                            <div className="dropdown-actions-buttons">
+                                <button
+                                    className="dropdown-action-btn edit-btn"
+                                    onClick={() => { setActiveTab(loginRole === 'admin' ? 'settings' : 'profile'); setShowProfileDropdown(false); }}
+                                >
+                                    Edit Profile
                                 </button>
-                                <button className="dropdown-btn-item" onClick={() => { setActiveTab(loginRole === 'admin' ? 'settings' : 'profile'); setShowProfileDropdown(false); }}>
-                                    <div className="btn-icon-box"><Settings size={16} /></div>
-                                    <span>Settings</span>
+                                <button
+                                    className="dropdown-action-btn remove-btn"
+                                    onClick={() => {
+                                        if (window.confirm("Are you sure you want to remove this profile?")) {
+                                            // Removal logic would go here
+                                            console.log("Removing profile...");
+                                        }
+                                        setShowProfileDropdown(false);
+                                    }}
+                                >
+                                    Remove Profile
                                 </button>
                             </div>
 

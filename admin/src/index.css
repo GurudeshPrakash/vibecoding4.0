@@ -64,6 +64,10 @@ body {
     position: relative;
 }
 
+.app-layout.is-super-admin {
+    font-size: 1.05rem;
+}
+
 /* Main Container - Pushes content to the right of fixed sidebar */
 .main-container {
     flex: 1;

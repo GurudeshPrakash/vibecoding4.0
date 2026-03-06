@@ -24,7 +24,7 @@
 .admin-greeting-left {
     display: flex;
     align-items: center;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .hello-text-red {
@@ -44,10 +44,10 @@
     gap: 24px;
 }
 
-.icon-btn {
+.top-nav .icon-btn {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 50%;
     background: var(--color-surface-muted);
     border: 1px solid var(--border-color);
     color: var(--color-ash);
@@ -79,14 +79,14 @@
     position: relative;
 }
 
-.profile-section-new {
+.top-nav .profile-section-new {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
     background: var(--color-surface-muted);
-    border-radius: 12px;
+    border-radius: 50%;
     cursor: pointer;
     transition: var(--transition);
     border: 1px solid var(--border-color);
@@ -117,11 +117,11 @@
     position: absolute;
     top: calc(100% + 15px);
     right: 0;
-    width: 300px;
-    background: var(--color-surface);
+    width: 320px;
+    background: #f2f2f2;
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    box-shadow: 0 20px 40px var(--color-shadow);
+    box-shadow: 0 15px 35px var(--color-shadow);
     z-index: 1000;
     overflow: hidden;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -140,22 +140,23 @@
 }
 
 .dropdown-header-main {
-    padding: 30px 20px 20px;
+    padding: 24px 20px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    background: linear-gradient(to bottom, rgba(255, 0, 0, 0.05), transparent);
+    gap: 16px;
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .avatar-circle-large {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background: var(--color-bg);
-    border: 3px solid var(--color-red);
+    background: white;
+    border: 2px solid var(--color-red);
     position: relative;
-    margin-bottom: 12px;
-    overflow: hidden;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -187,37 +188,43 @@
     opacity: 1;
 }
 
+.user-details-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+}
+
 .user-full-name {
-    font-size: 1.2rem;
-    font-weight: 800;
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--color-text);
     margin: 0;
 }
 
 .user-role {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: var(--color-red);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 4px;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
 }
 
-.dropdown-info-section {
-    padding: 20px;
+.dropdown-actions-buttons {
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .info-row {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--color-ash);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .info-icon-dim {
@@ -235,33 +242,38 @@
 .dropdown-btn-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px;
-    border: none;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
     background: transparent;
     color: var(--color-text);
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 500;
+    font-size: 0.825rem;
     border-radius: 10px;
     cursor: pointer;
-    transition: 0.2s;
-    text-align: left;
+    transition: all 0.2s ease;
 }
 
-.dropdown-btn-item:hover {
+.edit-btn {
+    background: white;
+    color: var(--color-text);
+    border: 1px solid var(--border-color);
+}
+
+.edit-btn:hover {
     background: var(--color-surface-hover);
-    transform: translateX(4px);
+    transform: translateY(-1px);
 }
 
-.btn-icon-box {
-    width: 28px;
-    height: 28px;
-    background: var(--color-surface-muted);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-ash);
+.remove-btn {
+    background: white;
+    color: var(--color-red);
+    border: 1.5px solid #ff4d4d;
+}
+
+.remove-btn:hover {
+    background: rgba(255, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .dropdown-footer-logout {
@@ -376,7 +388,7 @@
 }
 
 .notif-header h3 {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     color: var(--color-text);
     margin: 0;
 }
@@ -385,8 +397,8 @@
     background: transparent;
     border: none;
     color: var(--color-red);
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.775rem;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -442,9 +454,9 @@
 }
 
 .notif-text {
-    font-size: 0.9rem;
+    font-size: 0.825rem;
     color: var(--color-text);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     line-height: 1.4;
 }
 
@@ -482,15 +494,15 @@
 }
 
 .notif-time {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--color-ash);
 }
 
 .animate-pop-in {
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.3);
+    animation: popInSlide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.3);
 }
 
-@keyframes popIn {
+@keyframes popInSlide {
     from {
         opacity: 0;
         transform: scale(0.95) translateY(-10px);

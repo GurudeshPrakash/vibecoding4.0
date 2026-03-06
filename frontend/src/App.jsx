@@ -1,150 +1,197 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Sidebar from './components/shared/Sidebar';
-import TopNav from './components/shared/TopNav';
-import AdminDashboard from './components/admin/Dashboard';
-import Locations from './components/admin/Locations';
-import GymOwners from './components/admin/GymOwners';
-import Settings from './components/admin/Settings';
-import Landing from './components/shared/Landing';
-import AdminLogin from './components/admin/Login';
-import AdminSignUp from './components/admin/SignUp';
-import StaffLogin from './components/staff/Login';
-import StaffDashboard from './components/staff/Dashboard';
-import StaffSidebar from './components/staff/Sidebar';
-import StaffInventory from './components/staff/Inventory';
-import StaffProfile from './components/staff/Profile';
-import ActivityLogs from './components/admin/ActivityLogs';
-import LogoutModal from './components/shared/LogoutModal';
-import ActivityDetailModal from './components/shared/ActivityDetailModal';
-import ForgotPassword from './components/admin/ForgotPassword';
-import ResetPassword from './components/admin/ResetPassword';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import Sidebar from './shared/components/Sidebar';
+import TopNav from './shared/components/TopNav';
+import { Zap } from 'lucide-react';
+import AdminDashboard from './admin/components/Dashboard';
+import Locations from './super-admin/components/Locations';
+import Settings from './admin/components/Settings';
+import Landing from './shared/components/Landing';
+import Administrators from './super-admin/components/Administrators';
+import Managers from './super-admin/components/Managers';
+import StaffManagement from './admin/components/StaffManagement';
+import BranchManagement from './admin/components/BranchManagement';
+import InventoryManagement from './admin/components/InventoryManagement';
+import MembersManagement from './admin/components/MembersManagement';
+import PaymentManagement from './admin/components/PaymentManagement';
+import Reports from './admin/components/Reports';
+import ActivityLogs from './super-admin/components/AdminLogs';
+import LogoutModal from './shared/components/LogoutModal';
+import ActivityDetailModal from './shared/components/ActivityDetailModal';
+import ForgotPassword from './admin/components/ForgotPassword';
+import ResetPassword from './admin/components/ResetPassword';
+import SuperAdminDashboard from './super-admin/components/SuperAdminDashboard';
+import SuperAdminLogin from './super-admin/components/SuperAdminLogin';
+import SuperAdminSettings from './super-admin/components/SuperAdminSettings';
+import StaffDashboard from './staff/components/StaffDashboard';
+import CheckIns from './staff/components/CheckIns';
+import Payments from './staff/components/Payments';
+import Members from './staff/components/Members';
+import StaffInventory from './staff/components/StaffInventory';
+import UnifiedDashboard from './shared/components/UnifiedDashboard';
 
-const initialInventoryData = [
-  {
-    id: 'TM-204-01',
-    name: 'Pro-Series Treadmill G7',
-    type: 'Treadmill',
-    category: 'Cardio',
-    status: 'Good',
-    area: 'Cardio Zone',
-    branch: 'Power World - Colombo 07',
-    photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800',
-    serial: 'SN-TM-2024-001X',
-    brand: 'Life Fitness',
-    model: '95T Elevation',
-    mfgYear: '2024',
-    origin: 'USA',
-    power: '4.0 HP AC Motor',
-    voltage: '220V / 50Hz',
-    usageType: 'Heavy Commercial',
-    lastMaintenance: '2026-01-15',
-    nextMaintenance: '2026-04-15',
-    totalUsageHours: '1,245 Hours',
-    vendor: 'Global Fitness Solutions',
-    warranty: '3 Years Comprehensive',
-  },
-  {
-    id: 'EB-102-05',
-    name: 'Matrix Upright Bike U50',
-    type: 'Exercise Bike',
-    category: 'Cardio',
-    status: 'Maintenance',
-    area: 'Cardio Zone',
-    branch: 'Power World - Colombo 07',
-    photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800',
-    serial: 'SN-EB-2023-112B',
-    brand: 'Matrix',
-    model: 'U50 V2',
-    mfgYear: '2023',
-    origin: 'Taiwan',
-    power: 'Self-Generating',
-    voltage: 'N/A',
-    usageType: 'Commercial',
-    lastMaintenance: '2025-12-01',
-    nextMaintenance: '2026-02-28',
-    totalUsageHours: '890 Hours',
-    vendor: 'SportTech Imports',
-    warranty: '1 Year Remaining',
-  },
-  {
-    id: 'LP-305-12',
-    name: 'Plate-Loaded Leg Press',
-    type: 'Leg Press Machine',
-    category: 'Weight Machine',
-    status: 'Good',
-    area: 'Leg Zone',
-    branch: 'Power World - Colombo 07',
-    photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800',
-    serial: 'SN-LP-2022-998C',
-    brand: 'Hammer Strength',
-    model: 'MTS Leg Press',
-    mfgYear: '2022',
-    origin: 'USA',
-    power: 'Mechanical',
-    voltage: 'N/A',
-    usageType: 'Commercial',
-    lastMaintenance: '2026-02-01',
-    nextMaintenance: '2026-08-01',
-    totalUsageHours: '12,000+ Sets',
-    vendor: 'Life Fitness Direct',
-    warranty: '5 Years Frame',
-  }
-];
+import { useEquipmentData } from './shared/hooks/useEquipmentData';
+import { useNotifications } from './shared/hooks/useNotifications';
+import { useAuth } from './shared/context/AuthContext';
+import ProtectedRoute from './shared/components/ProtectedRoute';
 
-import { useEquipmentData } from './hooks/useEquipmentData';
-import { useNotifications } from './hooks/useNotifications';
+const AdminLayout = ({
+  children,
+  activeTab,
+  setActiveTab,
+  activeSection,
+  setActiveSection,
+  navigate,
+  setShowLogoutModal,
+  adminRole,
+  viewRole,
+  setViewRole,
+  setAdminRole,
+  userName,
+  userEmail,
+  adminId,
+  adminPhone,
+  profileImage,
+  setProfileImage,
+  notifications,
+  setNotifications,
+  loginRole,
+  handleViewActivityLog
+}) => (
+  <div className={`app-layout ${viewRole === 'super_admin' ? 'is-super-admin' : ''}`}>
+    <Sidebar
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
+      onLogoutTrigger={() => setShowLogoutModal(true)}
+      adminRole={adminRole}
+      viewRole={viewRole}
+      setViewRole={setViewRole}
+    />
+
+    <main className="main-container">
+      <TopNav
+        adminName={userName}
+        adminEmail={userEmail}
+        adminPhone={adminPhone}
+        adminId={adminId}
+        profileImage={profileImage}
+        setProfileImage={setProfileImage}
+        setActiveTab={setActiveTab}
+        onLogoutTrigger={() => setShowLogoutModal(true)}
+        role={viewRole === 'super_admin' ? 'Super Admin' : viewRole === 'admin' ? 'Administrator' : 'Staff'}
+        notifications={notifications}
+        setNotifications={setNotifications}
+        loginRole={loginRole}
+        onViewLog={handleViewActivityLog}
+        adminRole={adminRole}
+        viewRole={viewRole}
+      />
+
+      <div className="content-area">
+        {children}
+      </div>
+
+      {/* Floating Role Switcher - Always available for simulation */}
+      <button
+        onClick={() => {
+          const nextRoles = { 'super_admin': 'admin', 'admin': 'staff', 'staff': 'super_admin' };
+          const newRole = nextRoles[viewRole] || 'admin';
+          setViewRole(newRole);
+          setActiveTab('dashboard');
+        }}
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: '#FF0000',
+          color: '#FFFFFF',
+          border: 'none',
+          padding: '12px 24px',
+          borderRadius: '16px',
+          cursor: 'pointer',
+          zIndex: 1000,
+          fontWeight: 800,
+          boxShadow: '0 8px 24px rgba(255, 0, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          fontSize: '0.85rem'
+        }}
+      >
+        <Zap size={18} fill="#FFD700" color="#FFD700" strokeWidth={3} />
+        <span>Switch to {viewRole === 'super_admin' ? 'Admin' : viewRole === 'admin' ? 'Staff' : 'Super Admin'} View</span>
+      </button>
+
+    </main>
+  </div>
+);
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [loginRole, setLoginRole] = useState('admin');
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const simulatedAuthenticated = true;
+  const { login, logout, isAuthenticated: originalIsAuthenticated } = useAuth();
+  const isAuthenticated = simulatedAuthenticated || originalIsAuthenticated;
 
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Pre-load user data from localStorage for synchronous initialization
+  const savedAdminData = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('admin_user')) || {};
+    } catch {
+      return {};
+    }
+  }, []);
+
+  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || 'Vibe Master');
+  const [userEmail, setUserEmail] = useState(savedAdminData.email || 'master@vibecoding.com');
+  const [adminRole, setAdminRole] = useState('super_admin');
+  const [viewRole, setViewRole] = useState('super_admin');
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [staffTab, setStaffTab] = useState('dashboard');
-  const [userName, setUserName] = useState('Vibe Master');
-  const [userEmail, setUserEmail] = useState('master@vibecoding.com');
+  const [activeSection, setActiveSection] = useState('super_admin');
+
+  const loginRole = viewRole === 'super_admin' ? 'admin' : viewRole;
+
+  useEffect(() => {
+    // setActiveTab('dashboard'); // Optional: reset tab on role switch
+    setActiveSection(viewRole);
+  }, [viewRole]);
+
   const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
   const [adminId, setAdminId] = useState('ADM-2026-001');
   const [profileImage, setProfileImage] = useState(null);
 
-  const [resetToken, setResetToken] = useState(null);
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
-  // Senior dev refactor: Business logic decoupled via custom hooks
   const {
     inventoryData,
     dismantleRequests,
     dismantledHistory,
-    isLoading: isInventoryLoading,
     refreshInventory,
-    finalizeDismantle,
-    setInventoryData,
     setDismantleRequests
   } = useEquipmentData(isAuthenticated, loginRole);
 
   const { notifications, setNotifications } = useNotifications(isAuthenticated, loginRole);
 
+  // Restore session
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  // Handle Reset Password URL check
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (path.startsWith('/reset-password/')) {
-      const token = path.split('/').pop();
-      setResetToken(token);
-      setLoginRole('admin');
-      setCurrentView('reset-password');
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken && !isAuthenticated) {
+      const savedAdmin = JSON.parse(localStorage.getItem('admin_user'));
+      if (savedAdmin) {
+        setUserName(savedAdmin.firstName || 'User');
+        setUserEmail(savedAdmin.email || '');
+        setAdminRole(savedAdmin.role || 'admin');
+      }
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const handleViewActivityLog = async (logId) => {
-    if (loginRole !== 'admin') return;
     try {
       const token = localStorage.getItem('admin_token');
       const response = await fetch(`http://localhost:5000/api/admin/staff-logs/${logId}`, {
@@ -160,10 +207,6 @@ function App() {
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
   const stats = useMemo(() => {
     return {
       total: inventoryData.length,
@@ -173,194 +216,164 @@ function App() {
     };
   }, [inventoryData, dismantledHistory]);
 
-  const addNotification = (actionType, equipment, role = 'staff') => {
-    // This is for local inventory changes, keeping it for now
-    const newNotif = {
-      id: Date.now(),
-      equipmentName: equipment.name,
-      equipmentImage: equipment.photo,
-      action: actionType,
-      status: equipment.status,
-      staffName: role === 'staff' ? userName : 'System',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      equipmentId: equipment.id,
-      unread: true
-    };
-    setNotifications(prev => [newNotif, ...prev]);
-  };
-
   const handleSelectRole = (role) => {
-    setLoginRole(role);
-    setCurrentView('login');
+    navigate('/login');
   };
 
   const handleLogin = (data) => {
-    // Staff login returns an object from Login.jsx
-    if (loginRole === 'staff') {
-      setUserName(data.firstName);
-      setUserEmail(data.email);
-      setIsAuthenticated(true);
-      setCurrentView('dashboard');
-    } else {
-      // Admin login logic remains similar but should ideally use API too
-      // For now, keeping original admin login path if data is email/pass dummy
-      // (Assuming admin login handles itself or we extend it later)
-      if (typeof data === 'string') {
-        // Legacy handleLogin(email, pass) call
-        return;
-      }
-      // If data is from a future Admin login API
-      setUserName(data.firstName || 'Admin');
-      setUserEmail(data.email);
-      setIsAuthenticated(true);
-      setCurrentView('dashboard');
-    }
-  };
-
-  const handleAdminLoginLegacy = (email, password) => {
-    // Keeping mock for admin login as requested "Admin login and admin signup flows must remain separate"
-    const savedUser = JSON.parse(localStorage.getItem('admin_user'));
-    if ((savedUser && savedUser.email === email && savedUser.password === password) ||
-      (email === 'master@vibecoding.com' && password === 'admin123')) {
-      setUserName(savedUser?.firstName || 'Vibe Master');
-      setUserEmail(email);
-      localStorage.setItem('admin_token', 'mock-admin-token'); // Need a token for API calls
-      setIsAuthenticated(true);
-      setCurrentView('dashboard');
-    } else {
-      alert("Invalid admin credentials!");
-    }
+    setUserName(data.firstName || 'User');
+    setUserEmail(data.email);
+    setAdminRole(data.role || 'staff');
+    setViewRole(data.role || 'staff');
+    setActiveTab('dashboard');
+    login(data, data.token);
+    navigate('/dashboard');
   };
 
   const handleLogout = async () => {
-    if (loginRole === 'staff') {
-      const logId = localStorage.getItem('staff_current_log');
-      if (logId) {
-        try {
-          await fetch('http://localhost:5000/api/staff/logout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ logId })
-          });
-        } catch (e) {
-          console.error('Logout logging failed', e);
-        }
+    const logId = localStorage.getItem('admin_current_log');
+    if (logId) {
+      try {
+        await fetch('http://localhost:5000/api/admin/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logId })
+        });
+      } catch (e) {
+        console.error('Logout logging failed', e);
       }
-      localStorage.removeItem('staff_token');
-      localStorage.removeItem('staff_current_log');
-      localStorage.removeItem('staff_user_info');
-    } else {
-      localStorage.removeItem('admin_token');
     }
-
-    setIsAuthenticated(false);
+    logout();
+    setAdminRole('admin');
     setShowLogoutModal(false);
-    if (loginRole === 'staff') {
-      setCurrentView('login');
-    } else {
-      setCurrentView('landing');
-      setLoginRole(null);
+    navigate('/');
+  };
+
+  const layoutProps = {
+    activeTab,
+    setActiveTab,
+    activeSection,
+    setActiveSection,
+    navigate,
+    setShowLogoutModal,
+    adminRole, // REAL ACCOUNT ROLE
+    viewRole,  // SIMULATED VIEW ROLE
+    setViewRole,
+    setAdminRole,
+    userName,
+    userEmail,
+    adminId,
+    adminPhone,
+    profileImage,
+    setProfileImage,
+    notifications,
+    setNotifications,
+    loginRole,
+    handleViewActivityLog,
+    handleLogoutTrigger: () => setShowLogoutModal(true)
+  };
+
+  const renderDynamicTabContent = () => {
+    const props = {
+      userName,
+      stats,
+      inventoryData,
+      dismantleRequests,
+      setDismantleRequests,
+      refreshInventory,
+      handleViewActivityLog,
+      dismantledHistory,
+      setActiveTab,
+      setUserName
+    };
+
+    // Since Sidebar.jsx handles access control by locking buttons (canAccess),
+    // any activeTab that successfully gets set should render its corresponding component.
+    // Combine activeSection with activeTab to create a unique identifier for tabs that exist in multiple sections
+    const specificTab = `${activeSection}_${activeTab}`;
+
+    switch (specificTab) {
+      // Super Admin Level
+      case 'super_admin_dashboard':
+        return (
+          <SuperAdminDashboard />
+        );
+      case 'super_admin_admins':
+        return <Administrators userRole={viewRole} />;
+      case 'super_admin_staff':
+        return <Managers userRole={viewRole} />;
+      case 'super_admin_locations':
+        return <Locations />;
+      case 'super_admin_activity-logs':
+        return <ActivityLogs onViewLog={props.handleViewActivityLog} />;
+      case 'super_admin_settings':
+        return <SuperAdminSettings adminName={props.userName} setAdminName={props.setUserName} />;
+
+      // Admin Level
+      case 'admin_dashboard':
+        return (
+          <AdminDashboard />
+        );
+      case 'admin_locations':
+        return <BranchManagement />;
+      case 'admin_members':
+        return <MembersManagement />;
+      case 'admin_staff':
+        return <StaffManagement userRole={viewRole} />;
+      case 'admin_inventory':
+        return <InventoryManagement inventoryData={props.inventoryData} />;
+      case 'admin_payments':
+        return <PaymentManagement />;
+      case 'admin_reports':
+        return <Reports />;
+
+      // Staff Level
+      case 'staff_dashboard':
+        return (
+          <StaffDashboard />
+        );
+      case 'staff_inventory':
+        return <StaffInventory inventoryData={props.inventoryData} userRole={adminRole} />;
+      case 'staff_members':
+        return <Members userRole={adminRole} />;
+      case 'staff_payments':
+        return <Payments userRole={adminRole} />;
+
+      default:
+        return (
+          <UnifiedDashboard
+            userRole={viewRole}
+            permissionsRole={adminRole}
+            adminName={props.userName}
+            stats={props.stats}
+            recentInventory={props.inventoryData}
+            dismantleRequests={props.dismantleRequests}
+            setDismantleRequests={props.setDismantleRequests}
+            refreshInventory={props.refreshInventory}
+            setActiveTab={setActiveTab}
+          />
+        );
     }
   };
 
-  if (!isAuthenticated) {
-    if (currentView === 'landing') return <Landing onSelectRole={handleSelectRole} />;
-    if (currentView === 'login') {
-      return loginRole === 'admin' ? (
-        <AdminLogin onLogin={handleLogin} onBack={() => setCurrentView('landing')} onGoToSignUp={(view) => setCurrentView(typeof view === 'string' ? view : 'signup')} />
-      ) : (
-        <StaffLogin onLogin={handleLogin} onBack={() => setCurrentView('landing')} />
-      );
-    }
-    if (currentView === 'signup') {
-      return loginRole === 'admin' ? (
-        <AdminSignUp onSignUpSuccess={() => setCurrentView('login')} onBack={() => setCurrentView('login')} onGoToLogin={() => setCurrentView('login')} />
-      ) : null;
-    }
-    if (currentView === 'forgot-password') {
-      return <ForgotPassword onBack={() => setCurrentView('login')} />;
-    }
-    if (currentView === 'reset-password') {
-      return <ResetPassword token={resetToken} onComplete={() => { window.history.pushState({}, '', '/'); setCurrentView('login'); }} />;
-    }
-    return <Landing onSelectRole={handleSelectRole} />;
-  }
-
   return (
-    <div className="app-layout">
-      {loginRole === 'admin' ? (
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogoutTrigger={() => setShowLogoutModal(true)} />
-      ) : (
-        <StaffSidebar activeTab={staffTab} setActiveTab={setStaffTab} onLogoutTrigger={() => setShowLogoutModal(true)} />
-      )}
+    <>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/login" element={<Navigate to="/dashboard" />} />
 
-      <main className="main-container">
-        <TopNav
-          adminName={userName}
-          adminEmail={userEmail}
-          adminPhone={adminPhone}
-          adminId={adminId}
-          theme={theme}
-          toggleTheme={toggleTheme}
-          profileImage={profileImage}
-          setProfileImage={setProfileImage}
-          setActiveTab={loginRole === 'admin' ? setActiveTab : setStaffTab}
-          onLogoutTrigger={() => setShowLogoutModal(true)}
-          role={loginRole === 'admin' ? 'Administrator' : 'Manager'}
-          notifications={notifications}
-          setNotifications={setNotifications}
-          loginRole={loginRole}
-          onViewLog={handleViewActivityLog}
-        />
+        {/* Dashboards and Management */}
+        <Route path="/dashboard" element={
+          <AdminLayout {...layoutProps}>
+            {renderDynamicTabContent()}
+          </AdminLayout>
+        } />
 
-        <div className="content-area">
-          {loginRole === 'admin' && activeTab === 'dashboard' && (
-            <AdminDashboard
-              stats={stats}
-              adminName={userName}
-              recentInventory={inventoryData.slice(0, 4)}
-              allInventory={inventoryData}
-              dismantleRequests={dismantleRequests}
-              setDismantleRequests={setDismantleRequests}
-              refreshInventory={refreshInventory}
-              dismantledHistory={dismantledHistory}
-            />
-          )}
-          {loginRole === 'admin' && activeTab === 'owners' && <GymOwners />}
-          {loginRole === 'admin' && activeTab === 'locations' && <Locations />}
-          {loginRole === 'admin' && activeTab === 'activity-logs' && <ActivityLogs onViewLog={handleViewActivityLog} />}
-          {loginRole === 'admin' && activeTab === 'settings' && (
-            <Settings adminName={userName} setAdminName={setUserName} theme={theme} toggleTheme={toggleTheme} />
-          )}
-
-          {loginRole === 'staff' && staffTab === 'dashboard' && (
-            <StaffDashboard
-              staffName={userName}
-              stats={stats}
-              allInventory={inventoryData}
-              dismantledHistory={dismantledHistory}
-              onFinalizeDismantle={finalizeDismantle}
-            />
-          )}
-          {loginRole === 'staff' && staffTab === 'inventory' && (
-            <StaffInventory inventoryData={inventoryData} setInventoryData={setInventoryData} addNotification={addNotification} />
-          )}
-          {loginRole === 'staff' && staffTab === 'profile' && (
-            <StaffProfile
-              staffInfo={{ firstName: userName, email: userEmail, phone: adminPhone }}
-              setProfileImage={setProfileImage}
-            />
-          )}
-        </div>
-      </main>
-
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
-      <ActivityDetailModal
-        isOpen={isLogModalOpen}
-        onClose={() => setIsLogModalOpen(false)}
-        log={selectedLog}
-      />
-    </div>
+      <ActivityDetailModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} log={selectedLog} />
+    </>
   );
 }
 

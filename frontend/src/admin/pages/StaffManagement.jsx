@@ -15,10 +15,10 @@ import {
 } from '../constants/mockData';
 
 // Feature Components
-import StaffTableRow from './staff/StaffTableRow';
-import StaffProfileCard from './staff/StaffProfileCard';
-import StaffFormModal from './staff/StaffFormModal';
-import StaffViewModal from './staff/StaffViewModal';
+import StaffTableRow from '../components/StaffTableRow';
+import StaffProfileCard from '../components/StaffProfileCard';
+import StaffFormModal from '../components/StaffFormModal';
+import StaffViewModal from '../components/StaffViewModal';
 
 // Styles
 import '../styles/StaffManagement.css';

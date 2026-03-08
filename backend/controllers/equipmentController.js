@@ -2,12 +2,17 @@ const Equipment = require('../models/Equipment');
 const Notification = require('../models/Notification');
 const Staff = require('../models/Staff');
 const Request = require('../models/Request');
+const mongoose = require('mongoose');
 const equipmentService = require('../services/equipmentService');
 
 // @desc    Get all equipment
 // @route   GET /api/equipment
 exports.getAllEquipment = async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('DB Down: Returning mock empty equipment list.');
+            return res.json([]);
+        }
         let filter = {};
 
         // Branch Isolation Logic

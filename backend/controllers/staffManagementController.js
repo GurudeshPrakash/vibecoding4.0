@@ -1,6 +1,7 @@
 const Staff = require('../models/Staff');
 const ActivityLog = require('../models/ActivityLog');
 const Notification = require('../models/Notification');
+const mongoose = require('mongoose');
 
 // @desc    Admin create staff
 // @route   POST /api/admin/staff
@@ -30,6 +31,10 @@ exports.createStaff = async (req, res) => {
 // @desc    Admin get all staff
 exports.getAllStaff = async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('DB Down: Returning mock empty staff list.');
+            return res.json([]);
+        }
         const staff = await Staff.find().select('-password');
         res.json(staff);
     } catch (error) {
@@ -92,6 +97,10 @@ exports.deleteStaff = async (req, res) => {
 // @desc    Admin get activity logs
 exports.getActivityLogs = async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('DB Down: Returning mock empty activity logs.');
+            return res.json([]);
+        }
         const logs = await ActivityLog.find().sort({ loginTimestamp: -1 });
         res.json(logs);
     } catch (error) {
@@ -102,6 +111,10 @@ exports.getActivityLogs = async (req, res) => {
 // @desc    Admin get notifications
 exports.getNotifications = async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('DB Down: Returning mock empty notifications.');
+            return res.json([]);
+        }
         const notifications = await Notification.find({ recipientRole: 'admin' }).sort({ timestamp: -1 });
         res.json(notifications);
     } catch (error) {

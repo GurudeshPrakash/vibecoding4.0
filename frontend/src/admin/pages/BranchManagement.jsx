@@ -15,9 +15,9 @@ import { checkStatus } from '../shared/utils/timeUtils';
 import { ADMIN_BRANCHES, DEFAULT_STAFF } from '../constants/mockData';
 
 // Feature Components
-import BranchCard from './branch/BranchCard';
-import BranchFormModal from './branch/BranchFormModal';
-import StaffDetailsModal from './branch/StaffDetailsModal';
+import BranchCard from '../components/BranchCard';
+import BranchFormModal from '../components/BranchFormModal';
+import StaffDetailsModal from '../components/StaffDetailsModal';
 
 // Styles
 import '../styles/BranchManagement.css';

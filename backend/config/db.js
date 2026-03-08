@@ -2,11 +2,17 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI);
+        const uri = process.env.MONGODB_URI;
+        if (!uri) {
+            console.warn('WARNING: MONGODB_URI is not defined. Server will run in OFFLINE mode (no DB functionality).');
+            return;
+        }
+        const conn = await mongoose.connect(uri);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (err) {
-        console.error('MongoDB Connection Error:', err);
-        process.exit(1);
+        console.error('MongoDB Connection Error:', err.message);
+        console.warn('WARNING: Server is running without a database connection.');
+        // Don't kill the server during development
     }
 };
 

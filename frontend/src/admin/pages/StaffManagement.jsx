@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 
 // Shared UI Components
-import StatusBadge from '../shared/components/ui/StatusBadge';
+import StatusBadge from '../../shared/components/ui/StatusBadge';
 
 // Constants & Mock Data
 import {

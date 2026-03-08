@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Edit2, Shield, Users, MapPin, Phone, Calendar } from 'lucide-react';
-import StatusBadge from '../../../shared/components/ui/StatusBadge';
-import FieldRow from '../../../shared/components/ui/FieldRow';
+import StatusBadge from '../../shared/components/ui/StatusBadge';
+import FieldRow from '../../shared/components/ui/FieldRow';
 
 const StaffViewModal = ({
     show,

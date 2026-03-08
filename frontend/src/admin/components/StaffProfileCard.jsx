@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin, Phone, Shield } from 'lucide-react';
-import StatusBadge from '../../../shared/components/ui/StatusBadge';
+import StatusBadge from '../../shared/components/ui/StatusBadge';
 
 const StaffProfileCard = ({
     member,

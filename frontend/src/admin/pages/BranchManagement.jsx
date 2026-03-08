@@ -5,11 +5,11 @@ import {
 } from 'lucide-react';
 
 // Shared UI Components
-import StatusBadge from '../shared/components/ui/StatusBadge';
-import FieldRow from '../shared/components/ui/FieldRow';
+import StatusBadge from '../../shared/components/ui/StatusBadge';
+import FieldRow from '../../shared/components/ui/FieldRow';
 
 // Shared Utilities
-import { checkStatus } from '../shared/utils/timeUtils';
+import { checkStatus } from '../../shared/utils/timeUtils';
 
 // Constants & Mock Data
 import { ADMIN_BRANCHES, DEFAULT_STAFF } from '../constants/mockData';

@@ -1,5 +1,5 @@
 import React from 'react';
-import SuperAdminDashboard from '../../super-admin/components/SuperAdminDashboard';
+import SuperAdminDashboard from '../../super-admin/pages/Dashboard';
 import AdminDashboard from '../../admin/pages/Dashboard';
 import StaffDashboard from '../../staff/pages/Dashboard';
 

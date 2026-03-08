@@ -1,6 +1,6 @@
 import React from 'react';
 import { Eye, Edit2, Trash2, MapPin } from 'lucide-react';
-import StatusBadge from '../../../shared/components/ui/StatusBadge';
+import StatusBadge from '../../shared/components/ui/StatusBadge';
 
 const StaffTableRow = ({
     member,

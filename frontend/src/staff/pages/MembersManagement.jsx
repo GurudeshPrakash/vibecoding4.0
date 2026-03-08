@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Search, Filter, Plus, User, Mail, Phone, MapPin, MoreHorizontal, CheckCircle2, XCircle, Eye } from 'lucide-react';
-import '../styles/StaffDashboard.css';
+import '../styles/MembersManagement.css';
 
-const Members = ({ userRole = 'staff' }) => {
+const MembersManagement = ({ userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -196,4 +196,4 @@ const Members = ({ userRole = 'staff' }) => {
     );
 };
 
-export default Members;
+export default MembersManagement;

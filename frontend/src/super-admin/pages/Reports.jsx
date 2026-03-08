@@ -1,8 +1,9 @@
 import React from 'react';
 import { Calendar, Download, TrendingUp, Users, CreditCard, Activity, BarChart3, PieChart as PieChartIcon, FileText, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import '../styles/Reports.css';
 
-const SuperAdminReports = () => {
+const Reports = () => {
     const revenueTrend = [
         { name: 'Jan', revenue: 1.2, members: 420 },
         { name: 'Feb', revenue: 1.5, members: 450 },
@@ -143,4 +144,4 @@ const SuperAdminReports = () => {
     );
 };
 
-export default SuperAdminReports;
+export default Reports;

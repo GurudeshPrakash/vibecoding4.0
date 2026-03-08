@@ -1,11 +1,12 @@
 import React from 'react';
-import Dashboard from '../pages/Dashboard';
+import AdminDashboard from '../pages/AdminDashboard';
 import BranchManagement from '../pages/BranchManagement';
 import MembersManagement from '../pages/MembersManagement';
 import StaffManagement from '../pages/StaffManagement';
 import InventoryManagement from '../pages/InventoryManagement';
-import PaymentManagement from '../pages/PaymentManagement';
+import Payments from '../pages/Payments';
 import Reports from '../pages/Reports';
+import ProfilePage from '../../shared/pages/ProfilePage';
 
 /**
  * AdminRoutes component maps the activeTab to the corresponding Page component.
@@ -15,7 +16,7 @@ import Reports from '../pages/Reports';
 const AdminRoutes = ({ activeTab, props, viewRole }) => {
     switch (activeTab) {
         case 'dashboard':
-            return <Dashboard />;
+            return <AdminDashboard adminName={props.userName} />;
         case 'locations':
             return <BranchManagement />;
         case 'members':
@@ -25,11 +26,21 @@ const AdminRoutes = ({ activeTab, props, viewRole }) => {
         case 'inventory':
             return <InventoryManagement inventoryData={props.inventoryData} />;
         case 'payments':
-            return <PaymentManagement />;
+            return <Payments />;
         case 'reports':
             return <Reports />;
+        case 'profile':
+            return (
+                <ProfilePage
+                    currentUserId={props.selectedProfileId}
+                    userRole={viewRole}
+                    setGlobalUserName={props.setUserName}
+                    setGlobalUserEmail={props.setUserEmail}
+                    setGlobalUserPhone={props.setAdminPhone}
+                />
+            );
         default:
-            return <Dashboard />;
+            return <AdminDashboard adminName={props.userName} />;
     }
 };
 

@@ -1,12 +1,12 @@
 import React from 'react';
-import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, DollarSign, Package } from 'lucide-react';
+import { LayoutDashboard, Users, MapPin, Settings, LogOut, ShieldCheck, ClipboardList, DollarSign, Package, User } from 'lucide-react';
 import logo from '../assets/logo1.png';
 import '../styles/Sidebar.css';
 
 const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
-        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'admins', label: 'Admin Management', icon: <ShieldCheck size={20} /> },
         { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
         { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
@@ -65,9 +65,11 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
                     {menuItems.map((item, index) => {
                         // Logic for temporary page locking
                         let isTemporarilyLocked = false;
-                        if (sectionRole === 'admin' && index >= menuItems.length - 3) {
+                        if (sectionRole === 'super_admin' && (item.id === 'members' || item.id === 'reports')) {
                             isTemporarilyLocked = true;
-                        } else if (sectionRole === 'staff' && index >= menuItems.length - 2) {
+                        } else if (sectionRole === 'admin' && (item.id === 'members' || item.id === 'payments' || item.id === 'reports')) {
+                            isTemporarilyLocked = true;
+                        } else if (sectionRole === 'staff' && (item.id === 'members' || item.id === 'payments')) {
                             isTemporarilyLocked = true;
                         }
 
@@ -88,7 +90,7 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
                                 style={{
                                     cursor: canClick ? 'pointer' : 'not-allowed',
                                     position: 'relative',
-                                    opacity: isDisabled ? 0.5 : 1,
+                                    opacity: isDisabled ? 0.6 : 1,
                                     backgroundColor: isDisabled ? 'transparent' : undefined,
                                 }}
                                 title={isDisabled ? (isTemporarilyLocked ? 'This feature is temporarily locked' : `Access restricted to ${sectionRole}s`) : ''}
@@ -101,18 +103,18 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
                                     color: isDisabled ? '#94A3B8' : 'inherit'
                                 }}>
                                     {item.icon}
-                                    <span style={{ fontSize: '0.75rem' }}>{item.label}</span>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: isDisabled ? '600' : 'inherit' }}>{item.label}</span>
                                 </div>
                                 {isTemporarilyLocked && (
                                     <span style={{
                                         fontSize: '8px',
-                                        background: '#EF4444',
+                                        background: '#FCA5A5',
                                         color: '#FFFFFF',
-                                        padding: '2px 6px',
-                                        borderRadius: '4px',
-                                        fontWeight: '800',
-                                        letterSpacing: '0.02em',
-                                        boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                                        padding: '4px 8px',
+                                        borderRadius: '6px',
+                                        fontWeight: '900',
+                                        letterSpacing: '0.05em',
+                                        boxShadow: '0 2px 4px rgba(239, 68, 68, 0.1)'
                                     }}>LOCKED</span>
                                 )}
                             </button>

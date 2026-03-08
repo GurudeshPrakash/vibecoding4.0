@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../shared/assets/logo1.png';
-import '../styles/StaffDashboard.css';
+import '../styles/InventoryManagement.css';
 
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
@@ -43,7 +43,7 @@ const MOCK_INVENTORY = [
 const CATEGORIES = ['Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
-const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
+const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
     const [inventory, setInventory] = useState(inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY);
     const [search, setSearch] = useState('');
@@ -580,4 +580,4 @@ const StaffInventory = ({ inventoryData = [], userRole = 'staff' }) => {
     );
 };
 
-export default StaffInventory;
+export default InventoryManagement;

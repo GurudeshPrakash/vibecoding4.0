@@ -1,21 +1,31 @@
 import React from 'react';
-import Dashboard from '../pages/Dashboard';
-import Inventory from '../pages/Inventory';
-import Members from '../pages/Members';
+import StaffDashboard from '../pages/StaffDashboard';
+import InventoryManagement from '../pages/InventoryManagement';
+import MembersManagement from '../pages/MembersManagement';
 import Payments from '../pages/Payments';
+import ProfilePage from '../../shared/pages/ProfilePage';
 
 const StaffRoutes = ({ activeTab, props, adminRole }) => {
     switch (activeTab) {
         case 'dashboard':
-            return <Dashboard />;
+            return <StaffDashboard adminName={props.userName} />;
         case 'inventory':
-            return <Inventory inventoryData={props.inventoryData} userRole={adminRole} />;
+            return <InventoryManagement inventoryData={props.inventoryData} userRole={adminRole} />;
         case 'members':
-            return <Members userRole={adminRole} />;
+            return <MembersManagement userRole={adminRole} />;
         case 'payments':
             return <Payments userRole={adminRole} />;
+        case 'profile':
+            return (
+                <ProfilePage
+                    userRole="staff"
+                    setGlobalUserName={props.setUserName}
+                    setGlobalUserEmail={props.setUserEmail}
+                    setGlobalUserPhone={props.setAdminPhone}
+                />
+            );
         default:
-            return <Dashboard />;
+            return <StaffDashboard adminName={props.userName} />;
     }
 };
 

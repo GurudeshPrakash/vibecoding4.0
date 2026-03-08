@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, UserCheck, UserMinus, QrCode, Clock, ArrowRight } from 'lucide-react';
-import '../styles/StaffDashboard.css';
+import '../styles/CheckIns.css';
 
 const CheckIns = () => {
     const [scannedId, setScannedId] = useState('');

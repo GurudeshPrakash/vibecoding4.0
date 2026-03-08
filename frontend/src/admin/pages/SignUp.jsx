@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Mail, Lock, User, Phone, ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import logo from '../../shared/assets/logo1.png';
-import '../styles/AdminAuth.css';
+import '../styles/SignUp.css';
 
 const AdminSignUp = ({ onSignUpSuccess, onBack, onGoToLogin }) => {
   const [formData, setFormData] = useState({

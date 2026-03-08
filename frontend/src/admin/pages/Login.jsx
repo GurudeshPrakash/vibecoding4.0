@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, ShieldCheck, UserCircle, Zap } from 'lucide-react';
 import logo from '../../shared/assets/logo1.png';
-import '../styles/AdminAuth.css';
+import '../styles/Login.css';
 
 const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
   const [email, setEmail] = useState('');

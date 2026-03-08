@@ -95,48 +95,53 @@
 .sa-stat-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 20px 24px;
+    border-radius: 16px;
+    padding: 16px 20px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    min-height: 90px;
 }
 
 .sa-stat-card:hover {
     border-color: var(--color-red);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
 }
 
 .sa-stat-card .icon-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 0;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
 }
 
 .sa-stat-card .label {
-    font-size: 0.725rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
 }
 
 .sa-stat-card .value {
-    font-size: 1.2rem;
-    font-weight: 800;
+    font-size: 1.35rem;
+    font-weight: 900;
     margin: 0;
     color: var(--color-text);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    line-height: 1;
 }
 
 .sa-stat-card .trend {
@@ -689,4 +694,469 @@
     .sa-dashboard-layout {
         grid-template-columns: 1fr;
     }
+}
+
+/* Branch Management Specific Styles */
+.sa-branch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding-bottom: 60px;
+    align-items: stretch;
+}
+
+.clickable-card {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clickable-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.card-details-stack .card-detail-item {
+    font-size: 0.72rem;
+    color: #64748B;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.card-details-stack .card-detail-item strong {
+    color: #1E293B;
+    font-weight: 700;
+}
+
+@media (max-width: 1400px) {
+    .sa-branch-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .sa-branch-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sa-branch-card {
+    background: #FFFFFF;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.sa-branch-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(255, 0, 0, 0.08);
+    border-color: var(--color-red);
+}
+
+.sa-branch-card .card-img-container {
+    height: 180px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.sa-branch-card .card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.sa-branch-card:hover .card-img-container img {
+    transform: scale(1.1);
+}
+
+.sa-branch-card .status-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sa-branch-card .status-badge.open {
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+}
+
+.sa-branch-card .status-badge.closed {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+/* New Branch Card Styles (Reference Image Setup) */
+.sa-branch-card-new {
+    background: #FFFFFF;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    height: 100%;
+}
+
+.sa-branch-card-new:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.sa-branch-card-new .card-media {
+    aspect-ratio: 16 / 10;
+    height: auto;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.sa-branch-card-new .card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.sa-branch-card-new:hover .card-media img {
+    transform: scale(1.1);
+}
+
+.sa-branch-card-new .status-pill {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(16, 185, 129, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #059669;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    z-index: 2;
+}
+
+.sa-branch-card-new .status-pill.closed {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.sa-branch-card-new .card-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.sa-branch-card-new .card-category {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 10px;
+}
+
+.sa-branch-card-new .card-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0 0 14px;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+.sa-branch-card-new .card-id-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    margin: 0 0 24px;
+    flex: 1;
+}
+
+.sa-branch-card-new .id-value {
+    color: #2563eb;
+    font-weight: 900;
+}
+
+.sa-branch-card-new .card-action-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: auto;
+}
+
+.sa-branch-card-new .action-btn-new {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 12px 0;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sa-branch-card-new .info-btn {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+.sa-branch-card-new .info-btn:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+}
+
+.sa-branch-card-new .edit-btn {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #dbeafe;
+}
+
+.sa-branch-card-new .edit-btn:hover {
+    background: #dbeafe;
+    transform: translateY(-2px);
+}
+
+.sa-branch-card-new .delete-btn {
+    background: #fff1f2;
+    color: #e11d48;
+    border-color: #ffe4e6;
+}
+
+.sa-branch-card-new .delete-btn:hover {
+    background: #ffe4e6;
+    transform: translateY(-2px);
+}
+
+/* Fix for Recharts height warning */
+.sa-card>div[style*="height"] {
+    min-height: 300px !important;
+}
+
+/* Branch Details View */
+.sa-branch-banner {
+    position: relative;
+    height: 240px;
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.sa-branch-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
+}
+
+.sa-tabs-nav {
+    display: flex;
+    gap: 40px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 40px;
+}
+
+.sa-tab-btn {
+    padding: 16px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--color-text-dim);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.sa-tab-btn:hover {
+    color: var(--color-red);
+}
+
+.sa-tab-btn.active {
+    color: var(--color-red);
+}
+
+.sa-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-red);
+    border-radius: 100px;
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+}
+
+/* Staff & Inventory */
+.sa-staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.sa-input {
+    width: 100%;
+    padding: 14px 18px;
+    background: #F9FAFB;
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.sa-input:focus {
+    border-color: var(--color-red);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.05);
+}
+
+.label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+/* Branch Card Actions */
+.card-actions-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: translateY(-5px);
+    z-index: 10;
+}
+
+.sa-branch-card:hover .card-actions-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-action-btn.edit {
+    background: rgba(59, 130, 246, 0.9);
+    /* Blue */
+}
+
+.card-action-btn.edit:hover {
+    background: #2563EB;
+}
+
+.card-action-btn.delete {
+    background: rgba(239, 68, 68, 0.9);
+    /* Red */
+}
+
+.card-action-btn.delete:hover {
+    background: #DC2626;
+}
+
+.clickable-card {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clickable-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.select-container {
+    position: relative;
+    width: 100%;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    pointer-events: none;
+    transition: all 0.2s;
+}
+
+.select-container:focus-within .select-arrow {
+    color: var(--color-red) !important;
+}
+
+.image-upload-box:hover {
+    border-color: var(--color-red) !important;
+    background: #FFF5F5 !important;
+}
+
+.image-upload-box:hover .hover-overlay {
+    opacity: 1 !important;
+}
+
+.card-details-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+    font-size: 0.72rem;
+}
+
+.card-detail-item {
+    color: #64748B;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.card-detail-item strong {
+    color: #1E293B;
+    font-weight: 700;
 }

@@ -14,9 +14,18 @@ import {
     AlertCircle,
     Key
 } from 'lucide-react';
-import '../styles/SuperAdminSettings.css';
+import '../styles/Settings.css';
+import ProfilePage from '../../shared/pages/ProfilePage';
 
-const SuperAdminSettings = ({ adminName, setAdminName }) => {
+const Settings = ({
+    adminName,
+    setAdminName,
+    userEmail,
+    setUserEmail,
+    adminPhone,
+    setAdminPhone,
+    userRole
+}) => {
     const [activeTab, setActiveTab] = useState('Account');
 
     const tabs = [
@@ -31,49 +40,14 @@ const SuperAdminSettings = ({ adminName, setAdminName }) => {
         switch (activeTab) {
             case 'Account':
                 return (
-                    <div className="sas-content-card">
-                        <h2 className="sas-section-title">Profile Configuration</h2>
-                        <div className="sas-profile-grid">
-                            <div>
-                                <div className="sas-input-group">
-                                    <label className="sas-label">Super Admin Name</label>
-                                    <input
-                                        className="sas-input"
-                                        type="text"
-                                        value={adminName}
-                                        onChange={(e) => setAdminName(e.target.value)}
-                                    />
-                                </div>
-                                <div className="sas-input-group">
-                                    <label className="sas-label">Corporate Email</label>
-                                    <input className="sas-input" type="email" defaultValue="master@vibecoding.com" disabled />
-                                </div>
-                                <div className="sas-input-group">
-                                    <label className="sas-label">Authentication Phrase</label>
-                                    <div style={{ display: 'flex', gap: '16px' }}>
-                                        <input className="sas-input" type="password" defaultValue="*********" disabled />
-                                        <button className="sas-btn-secondary">Update</button>
-                                    </div>
-                                </div>
-                                <div style={{ marginTop: '48px' }}>
-                                    <button className="sas-btn-primary">
-                                        <CheckCircle2 size={18} /> Save Configurations
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="sas-profile-pic-area">
-                                <div className="sas-avatar-wrapper">
-                                    <img className="sas-avatar" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=FF0000&color=fff&size=200`} alt="Profile" />
-                                    <button className="sas-avatar-badge" title="Change Avatar">
-                                        <Camera size={20} />
-                                    </button>
-                                </div>
-                                <p style={{ textAlign: 'center', color: '#666', fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>
-                                    High-res images render best.<br />Max size 5MB.
-                                </p>
-                            </div>
-                        </div>
+                    <div className="sas-content-card" style={{ padding: '40px' }}>
+                        <ProfilePage
+                            userRole={userRole}
+                            setGlobalUserName={setAdminName}
+                            setGlobalUserEmail={setUserEmail}
+                            setGlobalUserPhone={setAdminPhone}
+                            nested={true}
+                        />
                     </div>
                 );
             case 'Notifications':
@@ -257,4 +231,4 @@ const SuperAdminSettings = ({ adminName, setAdminName }) => {
     );
 };
 
-export default SuperAdminSettings;
+export default Settings;

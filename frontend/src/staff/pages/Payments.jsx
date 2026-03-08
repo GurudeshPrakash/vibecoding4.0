@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, DollarSign, Filter, Receipt, FileText, CheckCircle2, Clock } from 'lucide-react';
-import '../styles/StaffDashboard.css';
+import '../styles/Payments.css';
 
 const Payments = ({ userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';

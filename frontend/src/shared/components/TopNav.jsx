@@ -267,12 +267,14 @@ const TopNav = ({
                             </div>
 
                             <div className="dropdown-actions-buttons">
-                                <button
-                                    className="dropdown-action-btn edit-btn"
-                                    onClick={() => { setActiveTab(loginRole === 'admin' ? 'settings' : 'profile'); setShowProfileDropdown(false); }}
-                                >
-                                    Edit Profile
-                                </button>
+                                {adminRole === 'super_admin' && (
+                                    <button
+                                        className="dropdown-action-btn edit-btn"
+                                        onClick={() => { setActiveTab('settings'); setShowProfileDropdown(false); }}
+                                    >
+                                        View Profile
+                                    </button>
+                                )}
                                 <button
                                     className="dropdown-action-btn remove-btn"
                                     onClick={() => {

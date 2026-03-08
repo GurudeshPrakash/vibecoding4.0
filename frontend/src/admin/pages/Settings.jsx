@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Bell, Shield, Globe, CreditCard, Camera, Save, Lock, LogOut, Check } from 'lucide-react';
-import '../styles/AdminSettings.css';
+import '../styles/Settings.css';
 
 const Settings = ({
   adminName,

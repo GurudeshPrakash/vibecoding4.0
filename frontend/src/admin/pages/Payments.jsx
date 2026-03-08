@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Search, DollarSign, Filter, Receipt, FileText, CheckCircle2, Clock, Calendar, TrendingUp } from 'lucide-react';
-import '../styles/MembersManagement.css'; // Reusing common board style
+import '../styles/Payments.css';
 
-const PaymentManagement = () => {
+const Payments = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const paymentsList = [
@@ -145,4 +145,4 @@ const PaymentManagement = () => {
     );
 };
 
-export default PaymentManagement;
+export default Payments;

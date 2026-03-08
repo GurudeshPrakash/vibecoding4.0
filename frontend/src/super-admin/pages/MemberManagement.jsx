@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Search, Filter, User, Mail, Phone, MapPin, CheckCircle2, XCircle, Eye, Download, Users } from 'lucide-react';
+import '../styles/MemberManagement.css';
 
-const SuperAdminMembers = () => {
+const MemberManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const membersList = [
@@ -138,4 +139,4 @@ const SuperAdminMembers = () => {
     );
 };
 
-export default SuperAdminMembers;
+export default MemberManagement;

@@ -16,10 +16,10 @@ import {
 } from '../constants/mockData';
 
 // Feature Components
-import InventoryCard from './inventory/InventoryCard';
-import EquipmentDetailModal from './inventory/EquipmentDetailModal';
-import MaintenanceReportModal from './inventory/MaintenanceReportModal';
-import EquipmentQrModal from './inventory/EquipmentQrModal';
+import InventoryCard from '../components/InventoryCard';
+import EquipmentDetailModal from '../components/EquipmentDetailModal';
+import MaintenanceReportModal from '../components/MaintenanceReportModal';
+import EquipmentQrModal from '../components/EquipmentQrModal';
 
 const InventoryManagement = () => {
     // ─── State ──────────────────────────────────────────────────────────────

@@ -1,8 +1,8 @@
 import React from 'react';
 import { X, Shield, Users, MapPin, Phone, Calendar } from 'lucide-react';
-import StatusBadge from '../../../shared/components/ui/StatusBadge';
-import FieldRow from '../../../shared/components/ui/FieldRow';
-import { AVATAR_COLORS } from '../../constants/mockData';
+import StatusBadge from '../../shared/components/ui/StatusBadge';
+import FieldRow from '../../shared/components/ui/FieldRow';
+import { AVATAR_COLORS } from '../constants/mockData';
 
 const StaffDetailsModal = ({
     show,

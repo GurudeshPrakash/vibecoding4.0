@@ -58,6 +58,7 @@ function App() {
 
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
 
   const {
     inventoryData,
@@ -125,20 +126,30 @@ function App() {
     setViewRole,
     setAdminRole,
     userName,
+    setUserName,
     userEmail,
+    setUserEmail,
     adminId,
     adminPhone,
+    setAdminPhone,
     profileImage,
     setProfileImage,
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog
+    handleViewActivityLog,
+    selectedProfileId,
+    setSelectedProfileId
   };
 
   const renderDynamicTabContent = () => {
     const props = {
       userName,
+      setUserName,
+      userEmail,
+      setUserEmail,
+      adminPhone,
+      setAdminPhone,
       stats,
       inventoryData,
       dismantleRequests,
@@ -147,7 +158,8 @@ function App() {
       handleViewActivityLog,
       dismantledHistory,
       setActiveTab,
-      setUserName
+      selectedProfileId,
+      setSelectedProfileId
     };
 
     switch (activeSection) {

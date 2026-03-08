@@ -1,7 +1,7 @@
 import React from 'react';
-import SuperAdminDashboard from '../../super-admin/components/SuperAdminDashboard';
-import AdminDashboard from '../../admin/components/Dashboard';
-import StaffDashboard from '../../staff/components/StaffDashboard';
+import SuperAdminDashboard from '../../super-admin/pages/Dashboard';
+import AdminDashboard from '../../admin/pages/Dashboard';
+import StaffDashboard from '../../staff/pages/Dashboard';
 
 const UnifiedDashboard = (props) => {
     const { userRole, adminName, stats, recentInventory, dismantleRequests, setDismantleRequests, refreshInventory, setActiveTab } = props;

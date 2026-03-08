@@ -6,10 +6,10 @@ import {
 } from 'lucide-react';
 
 // Feature Components
-import MiniCalendar from './dashboard/MiniCalendar';
-import StatCard from './dashboard/StatCard';
-import BranchPerformanceTable from './dashboard/BranchPerformanceTable';
-import DismantleRequestModal from './dashboard/DismantleRequestModal';
+import MiniCalendar from '../components/MiniCalendar';
+import StatCard from '../components/StatCard';
+import BranchPerformanceTable from '../components/BranchPerformanceTable';
+import DismantleRequestModal from '../components/DismantleRequestModal';
 
 // Styles
 import '../styles/AdminDashboard.css';

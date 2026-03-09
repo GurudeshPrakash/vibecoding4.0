@@ -1,6 +1,7 @@
 const Staff = require('../models/Staff');
 const ActivityLog = require('../models/ActivityLog');
 const Notification = require('../models/Notification');
+const Admin = require('../models/Admin');
 const mongoose = require('mongoose');
 
 // @desc    Admin create staff
@@ -115,7 +116,33 @@ exports.getNotifications = async (req, res) => {
             console.warn('DB Down: Returning mock empty notifications.');
             return res.json([]);
         }
-        const notifications = await Notification.find({ recipientRole: 'admin' }).sort({ timestamp: -1 });
+
+        const adminId = req.user.id;
+        const admin = await Admin.findById(adminId);
+
+        let query = {};
+        if (admin && admin.role === 'super_admin') {
+            // Super admins see all generic admin notifications and super_admin specific ones
+            query = {
+                $or: [
+                    { recipientRole: 'admin', adminId: { $exists: false } },
+                    { recipientRole: 'admin', adminId: null },
+                    { recipientRole: 'super_admin' },
+                    { adminId: adminId }
+                ]
+            };
+        } else {
+            // Regular admins see generic admin notifications and ones explicitly for them
+            query = {
+                $or: [
+                    { recipientRole: 'admin', adminId: { $exists: false } },
+                    { recipientRole: 'admin', adminId: null },
+                    { adminId: adminId }
+                ]
+            };
+        }
+
+        const notifications = await Notification.find(query).sort({ timestamp: -1 });
         res.json(notifications);
     } catch (error) {
         res.status(500).json({ message: error.message });

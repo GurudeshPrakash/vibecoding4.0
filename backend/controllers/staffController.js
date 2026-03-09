@@ -231,3 +231,78 @@ exports.markStaffNotificationRead = async (req, res) => {
 };
 
 // Note: RegisterStaff is removed here as it will be handled by Admin
+
+// @desc    Report Inventory Issue (Maintenance/Damage)
+exports.reportInventoryIssue = async (req, res) => {
+    try {
+        const { machineId, machineName, branchName, status, description } = req.body;
+
+        const staff = await Staff.findById(req.user.id);
+        if (!staff) {
+            return res.status(404).json({ message: 'Staff not found' });
+        }
+
+        // Determine message text
+        let messageText = '';
+        if (status === 'Damaged') {
+            messageText = `Staff member ${staff.firstName} reported that the machine ${machineName} is Damaged.`;
+        } else {
+            messageText = `Staff member ${staff.firstName} reported that the machine ${machineName} in ${staff.branch} requires Maintenance.`;
+        }
+
+        // Find Branch Admin
+        const Branch = require('../models/Branch');
+        const branchObj = await Branch.findOne({ name: staff.branch });
+        let adminId = null;
+        if (branchObj && branchObj.adminName) {
+            // Find Admin by firstName (assuming adminName is firstName)
+            const admin = await Admin.findOne({ firstName: branchObj.adminName, role: 'admin' });
+            if (admin) {
+                adminId = admin._id;
+
+                // 1. Notification for Branch Admin
+                await Notification.create({
+                    type: 'Inventory',
+                    recipientRole: 'admin',
+                    recipientId: admin._id,
+                    adminId: admin._id,
+                    staffId: staff._id,
+                    staffName: `${staff.firstName} ${staff.lastName}`,
+                    staffEmail: staff.email,
+                    branch: staff.branch,
+                    message: messageText,
+                    systemSource: 'Staff Inventory Check',
+                    machineId,
+                    machineName,
+                    status,
+                    description
+                });
+            }
+        }
+
+        // 2. Notification for Super Admin
+        const superAdmins = await Admin.find({ role: 'super_admin' });
+        for (const superAdmin of superAdmins) {
+            await Notification.create({
+                type: 'Inventory',
+                recipientRole: 'super_admin',
+                recipientId: superAdmin._id,
+                adminId: superAdmin._id,
+                staffId: staff._id,
+                staffName: `${staff.firstName} ${staff.lastName}`,
+                staffEmail: staff.email,
+                branch: staff.branch,
+                message: messageText,
+                systemSource: 'Staff Inventory Check',
+                machineId,
+                machineName,
+                status,
+                description
+            });
+        }
+
+        res.json({ message: 'Maintenance report sent successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

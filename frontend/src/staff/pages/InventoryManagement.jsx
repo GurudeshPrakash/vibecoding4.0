@@ -6,6 +6,7 @@ import {
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../shared/assets/logo1.png';
 import '../styles/InventoryManagement.css';
+import { apiRequest } from '../../shared/api/apiService';
 
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
@@ -144,9 +145,24 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
         setReportImages(updatedImages);
     };
 
-    const handleSubmitReport = (e) => {
+    const handleSubmitReport = async (e) => {
         e.preventDefault();
         if (!reportReason.trim()) return;
+
+        // Try to locate user token
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
+
+        // Make the API request to notify Admin & Super Admin
+        try {
+            await apiRequest('/staff/inventory/report', 'POST', {
+                machineId: reportItem.id || reportItem._id,
+                machineName: reportItem.name,
+                status: newStatus,
+                description: reportReason
+            }, token);
+        } catch (error) {
+            console.error('Error sending maintenance notification', error);
+        }
 
         // Update inventory state
         setInventory(prev => prev.map(item => {
@@ -542,7 +558,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Cancel</button>
                                         <button type="submit" style={{ flex: 2, padding: '12px', background: '#1E3A5F', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                                            <Send size={16} /> Save Changes
+                                            <Send size={16} /> Send Message
                                         </button>
                                     </div>
                                 </form>

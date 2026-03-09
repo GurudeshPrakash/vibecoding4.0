@@ -15,7 +15,7 @@ export const useNotifications = (isAuthenticated, loginRole) => {
         const result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
 
         if (result.ok) {
-            setNotifications(result.data.map(n => ({
+            const apiNotifs = result.data.map(n => ({
                 id: n._id,
                 staffName: n.staffName,
                 staffEmail: n.staffEmail,
@@ -28,7 +28,15 @@ export const useNotifications = (isAuthenticated, loginRole) => {
                 unread: !n.isRead,
                 isAuthNotif: true,
                 activityLogId: n.activityLogId
-            })));
+            }));
+
+            // Merge with local mock notifications for persistent testing
+            const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
+            setNotifications([...localMocks, ...apiNotifs]);
+        } else {
+            // If API fails, still show local mocks
+            const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
+            setNotifications(localMocks);
         }
     }, [isAuthenticated, loginRole]);
 

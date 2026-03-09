@@ -15,6 +15,11 @@ import ActivityDetailModal from './shared/components/ActivityDetailModal';
 import { useEquipmentData } from './shared/hooks/useEquipmentData';
 import { useNotifications } from './shared/hooks/useNotifications';
 import { useAuth } from './shared/context/AuthContext';
+import { TEST_USERS } from './shared/constants/testUsers';
+
+// Icons for Dev Switcher
+import { Shield, UserCog, Briefcase, RefreshCw } from 'lucide-react';
+
 
 // Role-based Routes (Internal Page Mapping)
 import AdminRoutes from './admin/routes/AdminRoutes';
@@ -81,6 +86,27 @@ function App() {
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(null);
+
+  // Apply TEST_USERS data based on viewRole
+  useEffect(() => {
+    const activeTestUser = TEST_USERS[viewRole] || TEST_USERS.super_admin;
+    setUserName(activeTestUser.name);
+    setUserEmail(activeTestUser.email);
+    setAdminRole(activeTestUser.role);
+    setAdminPhone(activeTestUser.phone);
+    setAdminId(activeTestUser.id);
+    setActiveSection(viewRole);
+
+    // Auto-navigate to dashboard on switch to prevent being stuck on sub-tabs
+    setActiveTab('dashboard');
+  }, [viewRole]);
+
+  const toggleRole = () => {
+    const roles = ['super_admin', 'admin', 'staff'];
+    const currentIndex = roles.indexOf(viewRole);
+    const nextIndex = (currentIndex + 1) % roles.length;
+    setViewRole(roles[nextIndex]);
+  };
 
   const {
     inventoryData,
@@ -288,6 +314,64 @@ function App() {
       </Routes>
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
       <ActivityDetailModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} log={selectedLog} />
+
+      {/* 🚀 Dev Role Switcher - Permanent Test Setup */}
+      <div className="dev-role-switcher" style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px'
+      }}>
+        <div style={{
+          background: 'rgba(30, 41, 59, 0.95)',
+          backdropFilter: 'blur(8px)',
+          padding: '10px 16px',
+          borderRadius: '16px',
+          color: 'white',
+          fontSize: '0.7rem',
+          fontWeight: '800',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: viewRole === 'super_admin' ? '#10B981' : (viewRole === 'admin' ? '#3B82F6' : '#EF4444'),
+              boxShadow: `0 0 10px ${viewRole === 'super_admin' ? '#10B981' : (viewRole === 'admin' ? '#3B82F6' : '#EF4444')}`
+            }} />
+            <span>TESTING AS: <span style={{ color: '#94A3B8' }}>{viewRole.toUpperCase().replace('_', ' ')}</span></span>
+          </div>
+          <button
+            onClick={toggleRole}
+            style={{
+              background: 'var(--color-red)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              color: 'white',
+              fontSize: '0.65rem',
+              fontWeight: '900',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
+          >
+            <RefreshCw size={12} /> SWITCH ROLE
+          </button>
+        </div>
+      </div>
     </>
   );
 }

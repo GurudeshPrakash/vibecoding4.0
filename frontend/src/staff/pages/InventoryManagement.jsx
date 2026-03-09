@@ -8,10 +8,10 @@ import logo from '../../shared/assets/logo1.png';
 import '../styles/InventoryManagement.css';
 
 const STATUS_CONFIG = {
-    'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
-    'Available': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
-    'Maintenance': { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)', icon: <Wrench size={12} /> },
-    'Damaged': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={12} /> },
+    'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
+    'Available': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
+    'Maintenance': { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)', icon: <Wrench size={16} /> },
+    'Damaged': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={16} /> },
 };
 
 const MOCK_INVENTORY = [
@@ -302,28 +302,62 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             </div>
 
             {/* Equipment Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+            <div className="inventory-grid">
                 {filtered.map(item => {
                     const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
                     return (
-                        <div key={item.id || item._id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-                            <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
-                                <img src={item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '20px', background: cfg.bg, color: cfg.color, fontSize: '0.58rem', fontWeight: '700', backdropFilter: 'blur(4px)' }}>
-                                    {cfg.icon} {item.status}
+                        <div key={item.id || item._id} className="equipment-card-premium">
+                            <div className="card-image-container">
+                                <img src={item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'} alt={item.name} />
+                                <div className="status-badge-overlay" style={{ background: cfg.bg, color: cfg.color }}>
+                                    {cfg.icon} <span>{item.status}</span>
                                 </div>
                             </div>
 
-                            <div style={{ padding: '16px' }}>
-                                <div style={{ marginBottom: '4px', fontSize: '0.58rem', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' }}>{item.category} • {item.area}</div>
-                                <h4 style={{ margin: '0 0 4px', fontSize: '0.85rem', fontWeight: '800', color: '#1E293B' }}>{item.name}</h4>
-                                <div style={{ fontSize: '0.65rem', color: '#64748B', marginBottom: '16px' }}>ID: <strong>{item.id || item._id}</strong></div>
-
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => setSelectedItem(item)} style={{ flex: 1, padding: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Eye size={12} /> Info</button>
-                                    <button onClick={() => setQrItem(item)} style={{ flex: 1, padding: '8px', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><QrCode size={12} /> QR</button>
-                                    <button onClick={() => handleOpenReport(item)} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>Edit</button>
+                            <div className="card-body-premium">
+                                <div className="meta-info-caps">
+                                    {item.category} • {item.area}
                                 </div>
+                                <h3 className="equipment-title-large">{item.name}</h3>
+                                <div className="sub-meta-line">
+                                    ID: <strong>{item.id || item._id}</strong> | Brand: <strong>{item.brand || 'Hammer Strength'}</strong>
+                                </div>
+
+                                <div className="service-info-grid">
+                                    <div className="service-box">
+                                        <div className="service-label">Last Service</div>
+                                        <div className="service-date">{item.lastMaintenance || '2026-02-01'}</div>
+                                    </div>
+                                    <div className="service-box">
+                                        <div className="service-label">Next Service</div>
+                                        <div className="service-date">{item.nextMaintenance || '2026-08-01'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="card-actions-row">
+                                <button
+                                    onClick={() => setSelectedItem(item)}
+                                    className="action-btn-premium btn-view"
+                                    title="View Details"
+                                >
+                                    <Eye size={18} /> <span>View</span>
+                                </button>
+                                <button
+                                    onClick={() => setQrItem(item)}
+                                    className="action-btn-premium btn-qr"
+                                    title="Generate QR"
+                                >
+                                    <QrCode size={18} /> <span>QR</span>
+                                </button>
+                                <button
+                                    onClick={() => handleOpenReport(item)}
+                                    className="action-btn-premium btn-update"
+                                    title="Update Status"
+                                >
+                                    <Wrench size={18} /> <span>Update</span>
+                                </button>
+
                             </div>
                         </div>
                     );

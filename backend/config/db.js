@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const setupTestUsers = require('../scripts/setupTestUsers');
 
 const connectDB = async () => {
     try {
@@ -9,6 +10,10 @@ const connectDB = async () => {
         }
         const conn = await mongoose.connect(uri);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+        // Setup permanent development testing users and structure
+        await setupTestUsers();
+
     } catch (err) {
         console.error('MongoDB Connection Error:', err.message);
         console.warn('WARNING: Server is running without a database connection.');

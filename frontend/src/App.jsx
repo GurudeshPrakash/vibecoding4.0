@@ -23,24 +23,29 @@ import StaffRoutes from './staff/routes/StaffRoutes';
 
 function App() {
   const simulatedAuthenticated = true;
-  const { login, logout, isAuthenticated: originalIsAuthenticated } = useAuth();
+  const { login, logout, isAuthenticated: originalIsAuthenticated, user } = useAuth();
   const isAuthenticated = simulatedAuthenticated || originalIsAuthenticated;
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Pre-load user data from localStorage
+  // Pre-load user data from context or localStorage
   const savedAdminData = useMemo(() => {
+    if (user) return user;
     try {
       return JSON.parse(localStorage.getItem('admin_user')) || {};
     } catch {
       return {};
     }
-  }, []);
+  }, [user, originalIsAuthenticated]);
 
-  const [userName, setUserName] = useState(savedAdminData.firstName || savedAdminData.name || 'Vibe Master');
-  const [userEmail, setUserEmail] = useState(savedAdminData.email || 'master@vibecoding.com');
+  const [userName, setUserName] = useState(
+    savedAdminData.firstName
+      ? `${savedAdminData.firstName} ${savedAdminData.lastName || ''}`.trim()
+      : 'User'
+  );
+  const [userEmail, setUserEmail] = useState(savedAdminData.email || 'user@powerworld.com');
   const [adminRole, setAdminRole] = useState('super_admin');
   const [viewRole, setViewRole] = useState('super_admin');
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -52,9 +57,26 @@ function App() {
     setActiveSection(viewRole);
   }, [viewRole]);
 
-  const [adminPhone, setAdminPhone] = useState('+94 77 999 8888');
-  const [adminId, setAdminId] = useState('ADM-2026-001');
+  const [adminPhone, setAdminPhone] = useState(savedAdminData.phone || '+94 00 000 0000');
+  const [adminId, setAdminId] = useState(savedAdminData._id || 'ID-TEMP');
   const [profileImage, setProfileImage] = useState(null);
+
+  // Sync state with local storage data on login/change
+  useEffect(() => {
+    if (savedAdminData && savedAdminData.firstName) {
+      setUserName(`${savedAdminData.firstName} ${savedAdminData.lastName || ''}`.trim());
+      setUserEmail(savedAdminData.email || '');
+      setAdminPhone(savedAdminData.phone || '+94 00 000 0000');
+      setAdminId(savedAdminData._id || 'ID-TEMP');
+      setAdminRole(savedAdminData.role || 'admin');
+
+      // Initially, also set viewRole to their actual role
+      if (savedAdminData.role) {
+        setViewRole(savedAdminData.role);
+        setActiveSection(savedAdminData.role === 'super_admin' ? 'super_admin' : (savedAdminData.role === 'staff' ? 'staff' : 'admin'));
+      }
+    }
+  }, [savedAdminData, isAuthenticated]);
 
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -114,6 +136,44 @@ function App() {
     navigate('/');
   };
 
+  const handleQuickSwitch = async (email, password) => {
+    try {
+      const { ok, data } = await apiRequest('/shared/login', 'POST', { email, password });
+
+      if (ok) {
+        // Update localStorage
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_user', JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          role: data.role,
+          phone: data.phone,
+          _id: data._id
+        }));
+
+        // Update context and trigger re-render
+        login(data, data.token);
+
+        // Update local state directly for immediate feedback
+        setAdminRole(data.role);
+        setViewRole(data.role);
+        setActiveSection(data.role === 'super_admin' ? 'super_admin' : (data.role === 'staff' ? 'staff' : 'admin'));
+        setUserName(`${data.firstName} ${data.lastName || ''}`.trim());
+        setUserEmail(data.email);
+
+        // Force navigation
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
+      } else {
+        console.error('Login failed during switch:', data.message);
+      }
+    } catch (err) {
+      console.error('Quick switch failed', err);
+    }
+  };
+
   const layoutProps = {
     activeTab,
     setActiveTab,
@@ -139,7 +199,8 @@ function App() {
     loginRole,
     handleViewActivityLog,
     selectedProfileId,
-    setSelectedProfileId
+    setSelectedProfileId,
+    handleQuickSwitch
   };
 
   const renderDynamicTabContent = () => {

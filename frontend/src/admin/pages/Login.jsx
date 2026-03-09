@@ -46,7 +46,8 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
-          role: data.role
+          role: data.role,
+          phone: data.phone
         }));
 
         onLogin(data);
@@ -74,15 +75,15 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
         </div>
 
         <div className="role-indicator-pill" style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>
-            <ShieldCheck size={12} /> SUPER ADMIN
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>
-            <Zap size={12} /> ADMIN
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>
-            <UserCircle size={12} /> STAFF
-          </div>
+          <button type="button" onClick={() => { setEmail('alex@powerworld.com'); setPassword('admin123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
+            <ShieldCheck size={14} color="#EF4444" /> TEST SUPER ADMIN
+          </button>
+          <button type="button" onClick={() => { setEmail('daniel@powerworld.com'); setPassword('admin123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
+            <Zap size={14} color="#F59E0B" /> TEST ADMIN
+          </button>
+          <button type="button" onClick={() => { setEmail('nimal@powerworld.com'); setPassword('staff123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
+            <UserCircle size={14} color="#10B981" /> TEST STAFF
+          </button>
         </div>
 
         {error && (

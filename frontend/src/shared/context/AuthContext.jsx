@@ -12,9 +12,7 @@ export const AuthProvider = ({ children }) => {
         if (savedUser && token) {
             try {
                 const parsedUser = JSON.parse(savedUser);
-                // Normalize role for RBAC logic
-                const normalizedRole = parsedUser.role === 'super_admin' ? 'superadmin' : (parsedUser.role === 'staff' ? 'manager' : parsedUser.role);
-                setUser({ ...parsedUser, role: normalizedRole });
+                setUser(parsedUser);
             } catch (e) {
                 console.error("Failed to parse saved user", e);
                 localStorage.removeItem("admin_user");
@@ -25,11 +23,9 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (userData, token) => {
-        const normalizedRole = userData.role === 'super_admin' ? 'superadmin' : (userData.role === 'staff' ? 'manager' : userData.role);
-        const userToSave = { ...userData, role: normalizedRole };
-        setUser(userToSave);
+        setUser(userData);
         localStorage.setItem("admin_token", token);
-        localStorage.setItem("admin_user", JSON.stringify(userToSave));
+        localStorage.setItem("admin_user", JSON.stringify(userData));
     };
 
     const logout = () => {

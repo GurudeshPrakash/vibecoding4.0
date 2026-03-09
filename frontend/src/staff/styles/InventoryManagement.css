@@ -4,14 +4,14 @@
 
 .inventory-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
     padding-bottom: 40px;
 }
 
 .equipment-card-premium {
     background: #ffffff;
-    border-radius: 24px;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -27,7 +27,7 @@
 
 .card-image-container {
     position: relative;
-    height: 240px;
+    height: 180px;
     overflow: hidden;
 }
 
@@ -44,9 +44,9 @@
 
 .status-badge-overlay {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    padding: 6px 14px;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
     border-radius: 100px;
     font-size: 0.75rem;
     font-weight: 700;
@@ -58,31 +58,31 @@
 }
 
 .card-body-premium {
-    padding: 24px;
+    padding: 16px;
     flex: 1;
 }
 
 .meta-info-caps {
-    font-size: 0.7rem;
+    font-size: 0.55rem;
     font-weight: 800;
     color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .equipment-title-large {
-    font-size: 1.25rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: #1E293B;
-    margin: 0 0 6px 0;
+    margin: 0 0 2px 0;
     line-height: 1.2;
 }
 
 .sub-meta-line {
-    font-size: 0.85rem;
+    font-size: 0.7rem;
     color: #64748B;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .sub-meta-line strong {
@@ -92,25 +92,25 @@
 .service-info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .service-box {
     background: #F8FAFC;
-    padding: 12px 16px;
-    border-radius: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
 }
 
 .service-label {
-    font-size: 0.7rem;
+    font-size: 0.55rem;
     color: #94A3B8;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .service-date {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: #334155;
 }
@@ -118,8 +118,8 @@
 .card-actions-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 0 24px 24px 24px;
+    gap: 8px;
+    padding: 0 16px 16px 16px;
 }
 
 .action-btn-premium {
@@ -127,9 +127,9 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 0.8rem;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.65rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;

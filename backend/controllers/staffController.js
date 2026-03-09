@@ -242,12 +242,13 @@ exports.reportInventoryIssue = async (req, res) => {
             return res.status(404).json({ message: 'Staff not found' });
         }
 
-        // Determine message text
+        // Determine message text as per requested format
+        const staffFullName = `${staff.firstName} ${staff.lastName}`.trim();
         let messageText = '';
         if (status === 'Damaged') {
-            messageText = `Staff member ${staff.firstName} reported that the machine ${machineName} is Damaged.`;
+            messageText = `Staff member ${staffFullName} reported that the machine [${machineName} - ${machineId || 'N/A'}] is Damaged.`;
         } else {
-            messageText = `Staff member ${staff.firstName} reported that the machine ${machineName} in ${staff.branch} requires Maintenance.`;
+            messageText = `Staff member ${staffFullName} reported that the machine [${machineName} - ${machineId || 'N/A'}] in ${staff.branch} requires Maintenance.`;
         }
 
         // Find Branch Admin

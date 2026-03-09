@@ -33,6 +33,7 @@ exports.unifiedLogin = async (req, res) => {
                 lastName: user.lastName,
                 email: user.email,
                 role: user.role, // roles: super_admin, admin, staff, etc
+                phone: user.phone,
                 userType: userType, // helper for frontend
                 token: generateToken(user._id, user.role),
             });

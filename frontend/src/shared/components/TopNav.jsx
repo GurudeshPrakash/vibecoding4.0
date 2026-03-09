@@ -20,7 +20,8 @@ const TopNav = ({
     onViewLog,
     currentTab,
     onToggleRole,
-    adminRole
+    adminRole,
+    handleQuickSwitch
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -155,6 +156,69 @@ const TopNav = ({
                         {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </div>
                 </div>
+                {/* ✅ Quick Switcher (DEV ONLY) */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    marginRight: '16px',
+                    padding: '4px',
+                    background: 'rgba(0,0,0,0.03)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(0,0,0,0.05)'
+                }}>
+                    <button
+                        onClick={() => handleQuickSwitch('alex@powerworld.com', 'admin123')}
+                        style={{
+                            padding: '6px 12px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            background: adminRole === 'super_admin' ? 'var(--color-red)' : 'transparent',
+                            color: adminRole === 'super_admin' ? '#fff' : '#64748B',
+                            letterSpacing: '0.05em'
+                        }}
+                    >
+                        SUPER
+                    </button>
+                    <button
+                        onClick={() => handleQuickSwitch('daniel@powerworld.com', 'admin123')}
+                        style={{
+                            padding: '6px 12px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            background: adminRole === 'admin' ? '#F59E0B' : 'transparent',
+                            color: adminRole === 'admin' ? '#fff' : '#64748B',
+                            letterSpacing: '0.05em'
+                        }}
+                    >
+                        ADMIN
+                    </button>
+                    <button
+                        onClick={() => handleQuickSwitch('nimal@powerworld.com', 'staff123')}
+                        style={{
+                            padding: '6px 12px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            background: adminRole === 'staff' ? '#10B981' : 'transparent',
+                            color: adminRole === 'staff' ? '#fff' : '#64748B',
+                            letterSpacing: '0.05em'
+                        }}
+                    >
+                        STAFF
+                    </button>
+                </div>
 
                 <div className="notif-wrapper-rel" ref={notifRef}>
                     <button
@@ -260,21 +324,22 @@ const TopNav = ({
                                     </div>
                                 </div>
                                 <div className="user-details-stack">
-                                    <h3 className="user-full-name">{adminName}</h3>
+                                    <h3 className="user-full-name" style={{ marginBottom: '2px' }}>{adminName}</h3>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                                        {adminRole === 'super_admin' ? 'Super Admin' : (loginRole === 'staff' ? 'Staff Member' : 'Branch Administrator')}
+                                    </div>
                                     <span className="user-info-text">{adminEmail}</span>
                                     <span className="user-info-text">{adminPhone}</span>
                                 </div>
                             </div>
 
                             <div className="dropdown-actions-buttons">
-                                {adminRole === 'super_admin' && (
-                                    <button
-                                        className="dropdown-action-btn edit-btn"
-                                        onClick={() => { setActiveTab('settings'); setShowProfileDropdown(false); }}
-                                    >
-                                        View Profile
-                                    </button>
-                                )}
+                                <button
+                                    className="dropdown-action-btn edit-btn"
+                                    onClick={() => { setActiveTab('settings'); setShowProfileDropdown(false); }}
+                                >
+                                    View Profile
+                                </button>
                                 <button
                                     className="dropdown-action-btn remove-btn"
                                     onClick={() => {
@@ -298,8 +363,8 @@ const TopNav = ({
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

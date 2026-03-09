@@ -24,7 +24,8 @@ const StaffLayout = ({
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog
+    handleViewActivityLog,
+    handleQuickSwitch
 }) => {
     return (
         <div className="app-layout">
@@ -56,6 +57,7 @@ const StaffLayout = ({
                     onViewLog={handleViewActivityLog}
                     adminRole={adminRole}
                     viewRole={viewRole}
+                    handleQuickSwitch={handleQuickSwitch}
                 />
 
                 <div className="content-area">

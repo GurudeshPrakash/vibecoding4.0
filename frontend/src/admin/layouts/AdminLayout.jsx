@@ -25,7 +25,8 @@ const AdminLayout = ({
     notifications,
     setNotifications,
     loginRole,
-    handleViewActivityLog
+    handleViewActivityLog,
+    handleQuickSwitch
 }) => {
     return (
         <div className={`app-layout ${viewRole === 'super_admin' ? 'is-super-admin' : ''}`}>
@@ -57,6 +58,7 @@ const AdminLayout = ({
                     onViewLog={handleViewActivityLog}
                     adminRole={adminRole}
                     viewRole={viewRole}
+                    handleQuickSwitch={handleQuickSwitch}
                 />
 
                 <div className="content-area">

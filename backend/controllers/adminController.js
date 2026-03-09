@@ -132,8 +132,10 @@ exports.loginAdmin = async (req, res) => {
             res.json({
                 _id: admin._id,
                 firstName: admin.firstName,
+                lastName: admin.lastName,
                 email: admin.email,
                 role: admin.role,
+                phone: admin.phone,
                 token: generateToken(admin._id, admin.role),
             });
         } else {

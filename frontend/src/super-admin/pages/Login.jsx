@@ -40,8 +40,10 @@ const SuperAdminLogin = ({ onLogin, onBack }) => {
                 localStorage.setItem('admin_current_log', data.logId);
                 localStorage.setItem('admin_user', JSON.stringify({
                     firstName: data.firstName,
+                    lastName: data.lastName,
                     email: data.email,
-                    role: data.role
+                    role: data.role,
+                    phone: data.phone
                 }));
 
                 onLogin(data);
@@ -72,6 +74,11 @@ const SuperAdminLogin = ({ onLogin, onBack }) => {
                     <img src={logo} alt="Power World" className="brand-logo-small" />
                     <h1 className="sa-title">Admin Portal</h1>
                     <p className="sa-subtitle">High-level System Access Authorization</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+                        <button type="button" onClick={() => { setEmail('alex@powerworld.com'); setPassword('admin123'); }} style={{ background: 'rgba(255,0,0,0.1)', border: '1px dashed #ff0000', color: '#ff4444', padding: '6px 14px', borderRadius: '14px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <ShieldCheck size={14} /> AUTOHACK (LOAD TEST SECRETS)
+                        </button>
+                    </div>
                 </div>
 
                 {error && (

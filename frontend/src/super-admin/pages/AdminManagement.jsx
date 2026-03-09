@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, Mail, Search, Plus, X, Trash2, Edit2, Shield, Users, CheckCircle2, Building2, Camera, UserPlus, Eye, ShieldCheck, Minus } from 'lucide-react';
 import '../styles/AdminManagement.css';
+import AdminProfileDashboard from '../components/AdminProfileDashboard';
 
 const DEFAULT_AVATAR = '/MDH_8729webqualitysquare.webp';
 
@@ -10,6 +11,7 @@ const AdminManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
     const [searchQuery, setSearchQuery] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState(null);
+    const [selectedAdminView, setSelectedAdminView] = useState(null);
 
     // Load real branches from localStorage
     const [branches, setBranches] = useState([]);
@@ -293,6 +295,14 @@ const AdminManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
         setShowModal(true);
     };
 
+    if (selectedAdminView) {
+        return (
+            <div className="super-admin-dashboard animate-fade-in" style={{ padding: '30px' }}>
+                <AdminProfileDashboard admin={selectedAdminView} onBack={() => setSelectedAdminView(null)} />
+            </div>
+        );
+    }
+
     return (
         <div className="super-admin-dashboard animate-fade-in" style={{ padding: '30px' }}>
             <header className="sa-header" style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -344,13 +354,14 @@ const AdminManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
                 {admins.map((a) => {
                     const status = getAdminStatus(a.lastLogin);
                     return (
-                        <div key={a._id} className="sa-card admin-profile-row" style={{
+                        <div key={a._id} className="sa-card admin-profile-row" onClick={() => setSelectedAdminView(a)} style={{
                             display: 'flex',
                             alignItems: 'center',
                             padding: '24px',
                             position: 'relative',
                             overflow: 'hidden',
-                            minHeight: '140px'
+                            minHeight: '140px',
+                            cursor: 'pointer'
                         }}>
                             <div style={{
                                 position: 'absolute',
@@ -417,8 +428,8 @@ const AdminManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
 
                             {/* Actions Right */}
                             <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                                <button className="row-action-btn" onClick={() => openEdit(a)} title="Edit"><Edit2 size={18} /></button>
-                                <button className="row-action-btn" onClick={() => handleDelete(a._id)} style={{ color: '#EF4444' }} title="Delete"><Trash2 size={18} /></button>
+                                <button className="row-action-btn" onClick={(e) => { e.stopPropagation(); openEdit(a); }} title="Edit"><Edit2 size={18} /></button>
+                                <button className="row-action-btn" onClick={(e) => { e.stopPropagation(); handleDelete(a._id); }} style={{ color: '#EF4444' }} title="Delete"><Trash2 size={18} /></button>
                             </div>
                         </div>
                     );

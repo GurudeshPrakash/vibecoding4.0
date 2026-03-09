@@ -410,15 +410,10 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
         };
     }, []);
 
-    const memberGrowthData = statsState.memberGrowth;
-    const revenueData = statsState.revenueTrend;
-    const gymRatioData = [
-        { name: 'AC Gyms', value: statsState.acGyms },
-        { name: 'Non-AC Gyms', value: statsState.nonAcGyms },
-    ];
+
     const COLORS = ['#FF0000', '#374151'];
 
-    const recentActivities = statsState.recentActivities.map((act, idx) => ({
+    const recentActivities = statsState.recentActivities.map((act) => ({
         ...act,
         icon: act.action && act.action.includes('session') ? <Activity size={18} /> : <Zap size={18} />,
         time: act.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -451,10 +446,40 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
 
     return (
         <div className="super-admin-dashboard" style={{ opacity: isLocked ? 0.95 : 1 }}>
-            <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <h1>Dashboard</h1>
-                    <p>View the overall performance of all gym branches, manage admins, track staff activity, and monitor system operations.</p>
+            <header className="sa-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="sa-welcome" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+                    <h1 style={{ margin: 0, padding: 0 }}>Admin Dashboard</h1>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-dim)', fontWeight: 600 }}>Monitor and manage your entire gym system.</p>
+                </div>
+
+                <div className="sa-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100%' }}>
+                    <button className="add-admin-btn" style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(255,0,0,0.2)' }}>
+                        <UserPlus size={20} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.85rem', fontWeight: 800, lineHeight: 1.2 }}>
+                            <span>Add</span>
+                            <span>Admin</span>
+                        </div>
+                    </button>
+
+                    <button className="add-branch-btn" style={{ background: '#f8f9fa', color: '#000', border: '1px solid #e0e0e0', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+                        <Building2 size={20} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontSize: '0.85rem', fontWeight: 800, lineHeight: 1.2 }}>
+                            <span>Add</span>
+                            <span>Branch</span>
+                        </div>
+                    </button>
+
+                    <form className="sa-search-bar" onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', borderRadius: '12px', padding: '0 16px', border: '1px solid #e0e0e0', height: '44px', width: '280px' }}>
+                        <Search className="sa-search-icon" size={18} color="#888" style={{ marginRight: '12px' }} />
+                        <div style={{ height: '22px', width: '1px', background: '#d1d5db', marginRight: '12px' }}></div>
+                        <input
+                            type="text"
+                            placeholder="Search Members, Managers, Branches..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.9rem', fontWeight: 500, color: '#333' }}
+                        />
+                    </form>
                 </div>
             </header>
 

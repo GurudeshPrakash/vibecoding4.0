@@ -8,6 +8,9 @@ import logo from '../../shared/assets/logo1.png';
 import '../styles/InventoryManagement.css';
 
 const STATUS_CONFIG = {
+    'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={12} /> },
+    'Maintenance': { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)', icon: <Wrench size={12} /> },
+    'Damaged': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={12} /> },
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
     'Available': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
     'Maintenance': { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)', icon: <Wrench size={16} /> },
@@ -42,6 +45,14 @@ const MOCK_INVENTORY = [
 
 const CATEGORIES = ['Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
+
+const formatDate = (dateStr) => {
+    if (!dateStr || dateStr === '—') return 'N/A';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    const parts = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).split(' ');
+    return parts.join(' ');
+};
 
 const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
@@ -306,6 +317,26 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                 {filtered.map(item => {
                     const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG['Good'];
                     return (
+                        <div key={item.id || item._id} className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                            <div style={{ height: '120px', overflow: 'hidden', position: 'relative' }}>
+                                <img src={item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '20px', background: cfg.bg, color: cfg.color, fontSize: '0.58rem', fontWeight: '700', backdropFilter: 'blur(4px)' }}>
+                                    {cfg.icon} {item.status}
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '16px' }}>
+                                <div style={{ marginBottom: '4px', fontSize: '0.58rem', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' }}>{item.category} • {item.area}</div>
+                                <h4 style={{ margin: '0 0 4px', fontSize: '0.85rem', fontWeight: '800', color: '#1E293B' }}>{item.name}</h4>
+                                <div style={{ fontSize: '0.65rem', color: '#64748B', marginBottom: '8px' }}>ID: <strong>{item.id || item._id}</strong></div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                                    <div style={{ fontSize: '0.65rem', color: '#64748B' }}>
+                                        Last Service: {formatDate(item.lastMaintenance)}
+                                    </div>
+                                    <div style={{ fontSize: '0.65rem', color: '#1E293B', fontWeight: '700' }}>
+                                        Next Service: <span style={{ color: '#3B82F6' }}>{formatDate(item.nextMaintenance)}</span>
+                                    </div>
                         <div key={item.id || item._id} className="equipment-card-premium">
                             <div className="card-image-container">
                                 <img src={item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'} alt={item.name} />

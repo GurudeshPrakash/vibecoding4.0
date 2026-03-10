@@ -35,10 +35,10 @@ router.post('/reset-password/:token', resetPassword);
 router.get('/profile', protect, rbac('admin', 'super_admin'), getAdminProfile);
 
 // Admins Management (Super Admin only)
-router.get('/admins', protect, rbac('super_admin'), getAllStaff); // Assuming getAllStaff also works for admins or similar controller
-// router.post('/admins', protect, rbac('super_admin'), createAdmin);
-// router.put('/admins/:id', protect, rbac('super_admin'), updateAdmin);
-// router.delete('/admins/:id', protect, rbac('super_admin'), deleteAdmin);
+const { getAllAdmins, deleteAdmin } = require('../controllers/adminController');
+router.get('/admins', protect, rbac('super_admin'), getAllAdmins);
+router.post('/admins', protect, rbac('super_admin'), registerAdmin);
+router.delete('/admins/:id', protect, rbac('super_admin'), deleteAdmin);
 // router.get('/admin-logs', protect, rbac('super_admin'), getAdminLogs);
 
 // Gym Owners Management

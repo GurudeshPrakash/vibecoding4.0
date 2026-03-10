@@ -16,7 +16,17 @@ import ProfilePage from '../../shared/pages/ProfilePage';
 const AdminRoutes = ({ activeTab, props, viewRole }) => {
     switch (activeTab) {
         case 'dashboard':
-            return <AdminDashboard adminName={props.userName} />;
+            return (
+                <AdminDashboard
+                    adminName={props.userName}
+                    stats={props.stats}
+                    recentInventory={props.inventoryData}
+                    dismantleRequests={props.dismantleRequests}
+                    setDismantleRequests={props.setDismantleRequests}
+                    refreshInventory={props.refreshInventory}
+                    userRole={viewRole}
+                />
+            );
         case 'locations':
             return <BranchManagement />;
         case 'members':
@@ -24,7 +34,7 @@ const AdminRoutes = ({ activeTab, props, viewRole }) => {
         case 'staff':
             return <StaffManagement userRole={viewRole} />;
         case 'inventory':
-            return <InventoryManagement inventoryData={props.inventoryData} />;
+            return <InventoryManagement inventoryData={props.inventoryData} userRole={viewRole} />;
         case 'payments':
             return <Payments />;
         case 'reports':

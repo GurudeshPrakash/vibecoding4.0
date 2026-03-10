@@ -1,9 +1,73 @@
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Activity, CheckSquare, DollarSign, Clock, UserCheck, ChevronRight, CheckCircle2, Wrench, AlertTriangle } from 'lucide-react';
 import '../styles/StaffDashboard.css';
 
-const StaffDashboard = ({ setActiveTab }) => {
+const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
     const navigate = useNavigate();
+    const [inventory, setInventory] = useState(inventoryData.length > 0 ? inventoryData : []);
+    const [checkinCount, setCheckinCount] = useState(0);
+    const [pendingPaymentsCount, setPendingPaymentsCount] = useState(18);
+
+    const todayCheckins = [
+        { no: 1, id: 'M-1024', name: 'Arjun Perera', arrival: '08:15 AM', leave: '09:40 AM', status: 'Completed' },
+        { no: 2, id: 'M-1056', name: 'Sarah Mendis', arrival: '08:45 AM', leave: '10:00 AM', status: 'Completed' },
+        { no: 3, id: 'M-1089', name: 'Dilshan Silva', arrival: '09:05 AM', leave: '--', status: 'Active' },
+        { no: 4, id: 'M-1102', name: 'Anjali Gunawardena', arrival: '09:30 AM', leave: '--', status: 'Active' },
+        { no: 5, id: 'M-1115', name: 'Kasun Rajapaksa', arrival: '10:00 AM', leave: '11:15 AM', status: 'Completed' },
+    ];
+
+    const expiringMembers = [
+        { id: 'M-1115', name: 'Kasun Rajapaksa', start: '2025-02-10', expire: '2026-02-10', status: 'Expired' },
+        { id: 'M-1120', name: 'Lakmini Silva', start: '2025-02-28', expire: '2026-02-28', status: 'Expired' },
+        { id: 'M-1102', name: 'Anjali Gunawardena', start: '2025-03-05', expire: '2026-03-05', status: 'Expiring Soon' },
+    ];
+
+    const pendingPaymentsList = [
+        { id: 'M-1130', name: 'Damith Perera', amount: 'LKR 12,000', due: '2026-03-01', status: 'Overdue' },
+        { id: 'M-1089', name: 'Dilshan Silva', amount: 'LKR 12,000', due: '2026-03-03', status: 'Overdue' },
+    ];
+
+    // Initial load and dynamic updates
+    useEffect(() => {
+        // Today Check-ins Logic
+        const todayStr = new Date().toISOString().split('T')[0];
+        const lastCheckinDate = localStorage.getItem('dev_checkin_date');
+        let currentCheckins = parseInt(localStorage.getItem('dev_today_checkins') || '124');
+
+        if (lastCheckinDate !== todayStr) {
+            currentCheckins = 0; // Midnight reset
+            localStorage.setItem('dev_checkin_date', todayStr);
+            localStorage.setItem('dev_today_checkins', '0');
+        }
+        setCheckinCount(currentCheckins);
+
+        // Pending Payments Logic
+        const payments = parseInt(localStorage.getItem('dev_pending_payments') || '18');
+        setPendingPaymentsCount(payments);
+
+        // Equipment Stats Logic
+        const rawInventory = inventoryData.length > 0 ? inventoryData : []; // Would use MOCK if empty in a real scenario
+        const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
+
+        let availableCount = 0;
+        let maintenanceCount = 0;
+        let damagedCount = 0;
+
+        // Apply overrides and calculate counts
+        const updatedInventory = rawInventory.map(item => {
+            const id = item.id || item._id;
+            const status = overrides[id] || item.status || 'Good';
+
+            if (status === 'Good') availableCount++;
+            else if (status === 'Maintenance') maintenanceCount++;
+            else if (status === 'Damaged') damagedCount++;
+
+            return { ...item, status };
+        });
+
+        setInventory(updatedInventory);
+    }, [inventoryData]);
 
     const handleNavigation = (tab) => {
         if (setActiveTab) {
@@ -13,53 +77,21 @@ const StaffDashboard = ({ setActiveTab }) => {
         }
     };
 
-    const todayCheckins = [
-        { no: 1, id: 'M-1024', name: 'Arjun Perera', arrival: '08:15 AM', leave: '09:40 AM', status: 'Completed' },
-        { no: 2, id: 'M-1056', name: 'Sarah Mendis', arrival: '08:45 AM', leave: '10:00 AM', status: 'Completed' },
-        { no: 3, id: 'M-1089', name: 'Dilshan Silva', arrival: '09:05 AM', leave: '--', status: 'Active' },
-        { no: 4, id: 'M-1102', name: 'Anjali Gunawardena', arrival: '09:30 AM', leave: '--', status: 'Active' },
-        { no: 5, id: 'M-1115', name: 'Kasun Rajapaksa', arrival: '10:00 AM', leave: '11:15 AM', status: 'Completed' },
-        { no: 6, id: 'M-1128', name: 'Nirosha Fernando', arrival: '10:15 AM', leave: '--', status: 'Active' },
-        { no: 7, id: 'M-1140', name: 'Pathum Nissanka', arrival: '10:30 AM', leave: '12:00 PM', status: 'Completed' },
-        { no: 8, id: 'M-1152', name: 'Kusal Mendis', arrival: '11:00 AM', leave: '--', status: 'Active' },
-        { no: 9, id: 'M-1165', name: 'Wanidu Hasaranga', arrival: '11:15 AM', leave: '12:45 PM', status: 'Completed' },
-        { no: 10, id: 'M-1178', name: 'Maheesh Theekshana', arrival: '11:45 AM', leave: '--', status: 'Active' },
-        { no: 11, id: 'M-1190', name: 'Charith Asalanka', arrival: '12:15 PM', leave: '01:30 PM', status: 'Completed' },
-        { no: 12, id: 'M-1202', name: 'Dasun Shanaka', arrival: '12:45 PM', leave: '--', status: 'Active' },
-        { no: 13, id: 'M-1215', name: 'Chamika Karunaratne', arrival: '01:15 PM', leave: '02:45 PM', status: 'Completed' },
-        { no: 14, id: 'M-1228', name: 'Dushmantha Chameera', arrival: '01:45 PM', leave: '--', status: 'Active' },
-        { no: 15, id: 'M-1240', name: 'Lahiru Kumara', arrival: '02:15 PM', leave: '03:30 PM', status: 'Completed' },
-    ];
-
-    const equipmentSummary = [
-        { status: 'Available', count: 18, color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
-        { status: 'Maintenance', count: 4, color: '#f59e0bff', bg: 'rgba(245, 158, 11, 0.1)', icon: <Clock size={16} /> },
-        { status: 'Damaged', count: 1, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={16} /> },
-    ];
-
-    const expiringMembers = [
-        { id: 'M-1115', name: 'Kasun Rajapaksa', start: '2025-02-10', expire: '2026-02-10', status: 'Expired' },
-        { id: 'M-1120', name: 'Lakmini Silva', start: '2025-02-28', expire: '2026-02-28', status: 'Expired' },
-        { id: 'M-1102', name: 'Anjali Gunawardena', start: '2025-03-05', expire: '2026-03-05', status: 'Expiring Soon' },
-        { id: 'M-1024', name: 'Arjun Perera', start: '2025-03-10', expire: '2026-03-10', status: 'Expiring Soon' },
-        { id: 'M-1089', name: 'Dilshan Silva', start: '2025-03-15', expire: '2026-03-15', status: 'Expiring Soon' },
-        { id: 'M-1250', name: 'Saman Kumara', start: '2025-03-20', expire: '2026-03-20', status: 'Active' },
-        { id: 'M-1260', name: 'Nuwan Perera', start: '2025-03-25', expire: '2026-03-25', status: 'Active' },
-        { id: 'M-1270', name: 'Thilina Prasad', start: '2025-04-01', expire: '2026-04-01', status: 'Active' },
-        { id: 'M-1280', name: 'Ruwan Kumara', start: '2025-04-05', expire: '2026-04-05', status: 'Active' },
-        { id: 'M-1290', name: 'Priyantha De Silva', start: '2025-04-10', expire: '2026-04-10', status: 'Active' },
-    ];
-
-    const pendingPaymentsList = [
-        { id: 'M-1130', name: 'Damith Perera', amount: 'LKR 12,000', due: '2026-03-01', status: 'Overdue' },
-        { id: 'M-1089', name: 'Dilshan Silva', amount: 'LKR 12,000', due: '2026-03-03', status: 'Overdue' },
-        { id: 'M-1102', name: 'Anjali Gunawardena', amount: 'LKR 4,500', due: '2026-03-05', status: 'Pending' },
-        { id: 'M-1024', name: 'Arjun Perera', amount: 'LKR 4,500', due: '2026-03-10', status: 'Pending' },
-        { id: 'M-1280', name: 'Gihan Fernando', amount: 'LKR 6,000', due: '2026-03-12', status: 'Pending' },
-        { id: 'M-1290', name: 'Ruwan Wijesinghe', amount: 'LKR 3,000', due: '2026-03-15', status: 'Pending' },
-        { id: 'M-1300', name: 'Chathura Perera', amount: 'LKR 4,500', due: '2026-03-18', status: 'Pending' },
-        { id: 'M-1310', name: 'Asanka Gurusinghe', amount: 'LKR 12,000', due: '2026-03-20', status: 'Pending' },
-    ];
+    const moreBtnStyle = {
+        background: '#EF4444',
+        color: 'white',
+        border: 'none',
+        padding: '3px 10px', // Significantly reduced padding
+        borderRadius: '4px',
+        fontSize: '0.65rem', // Even smaller text
+        fontWeight: '700',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        minWidth: '50px', // Smaller min-width
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px'
+    };
 
     return (
         <div className="admin-dashboard">
@@ -68,56 +100,57 @@ const StaffDashboard = ({ setActiveTab }) => {
                     <h1>Dashboard</h1>
                     <p>Welcome to your daily shift overview. Have a great day!</p>
                 </div>
-                <div className="sa-actions">
-                    <div className="date-time-display">
-                        <Clock size={18} />
-                        <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-                    </div>
-                </div>
+                {/* Date and Time section removed */}
             </header>
 
             <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)' }}>
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users /></div>
+                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users size={20} /></div>
                     <div className="card-data">
                         <span className="label">Total Members</span>
                         <h2 className="value">842</h2>
                     </div>
                 </div>
+
+                {/* Position 2: Today Check-ins (Replacing Active Members) */}
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><UserCheck /></div>
-                    <div className="card-data">
-                        <span className="label">Active Members</span>
-                        <h2 className="value">756</h2>
-                    </div>
-                </div>
-                <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Activity /></div>
+                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><UserCheck size={20} /></div>
                     <div className="card-data">
                         <span className="label">Today Check-ins</span>
-                        <h2 className="value">124</h2>
+                        <h2 className="value">{checkinCount}</h2>
                     </div>
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare /></div>
+                    <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare size={20} /></div>
                     <div className="card-data">
                         <span className="label">Total Equipment</span>
-                        <h2 className="value">23</h2>
+                        <h2 className="value">{inventory.filter(i => i.status === 'Good' || i.status === 'Available').length || 23}</h2>
                     </div>
                 </div>
+
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0bff' }}><Clock /></div>
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0bff' }}><Wrench size={20} /></div>
                     <div className="card-data">
                         <span className="label">Equipment Under Maintenance</span>
-                        <h2 className="value">04</h2>
+                        <h2 className="value">{inventory.filter(i => i.status === 'Maintenance').length || '04'}</h2>
                     </div>
                 </div>
+
+                {/*Damaged (New Live Card) */}
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><DollarSign /></div>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">Damaged</span>
+                        <h2 className="value">{inventory.filter(i => i.status === 'Damaged').length || '01'}</h2>
+                    </div>
+                </div>
+
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><DollarSign size={20} /></div>
                     <div className="card-data">
                         <span className="label">Pending Payments</span>
-                        <h2 className="value">18</h2>
+                        <h2 className="value">{pendingPaymentsCount}</h2>
                     </div>
                 </div>
             </section>
@@ -129,13 +162,14 @@ const StaffDashboard = ({ setActiveTab }) => {
                         <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Recent Check-ins</h3>
                         <button
                             onClick={() => handleNavigation('members')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
+                            style={moreBtnStyle}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
                             More
                         </button>
                     </div>
+                    {/* ... (table content kept same) */}
                     <div className="table-responsive" style={{ padding: '0 20px 20px', flex: 1, overflowY: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
                             <thead>
@@ -181,7 +215,7 @@ const StaffDashboard = ({ setActiveTab }) => {
                         <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Equipment Status Summary</h3>
                         <button
                             onClick={() => handleNavigation('inventory')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
+                            style={moreBtnStyle}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
@@ -189,7 +223,11 @@ const StaffDashboard = ({ setActiveTab }) => {
                         </button>
                     </div>
                     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '280px' }}>
-                        {equipmentSummary.map((eq, index) => (
+                        {[
+                            { status: 'Available', count: inventory.filter(i => i.status === 'Good' || i.status === 'Available').length || 18, color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
+                            { status: 'Maintenance', count: inventory.filter(i => i.status === 'Maintenance').length || 4, color: '#f59e0bff', bg: 'rgba(245, 158, 11, 0.1)', icon: <Clock size={16} /> },
+                            { status: 'Damaged', count: inventory.filter(i => i.status === 'Damaged').length || 1, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={16} /> },
+                        ].map((eq, index) => (
                             <div key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <div style={{
@@ -208,7 +246,7 @@ const StaffDashboard = ({ setActiveTab }) => {
                 </div>
             </div>
 
-            {/* Section 3: Membership Alerts */}
+            {/* Section 3: Membership Alerts (reduced more button) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', marginBottom: '32px' }}>
                 <div className="sa-card" style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
                     <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -217,13 +255,14 @@ const StaffDashboard = ({ setActiveTab }) => {
                         </h3>
                         <button
                             onClick={() => handleNavigation('members')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
+                            style={moreBtnStyle}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
                             More
                         </button>
                     </div>
+                    {/* ... table kept same */}
                     <div className="table-responsive" style={{ padding: '0 20px 20px', flex: 1, overflowY: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
                             <thead>
@@ -262,20 +301,21 @@ const StaffDashboard = ({ setActiveTab }) => {
                 </div>
             </div>
 
-            {/* Section 4: Pending Payments */}
+            {/* Section 4: Pending Payments (reduced more button) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', marginBottom: '32px' }}>
                 <div className="sa-card" style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
                     <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Pending Payments</h3>
                         <button
                             onClick={() => handleNavigation('payments')}
-                            style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minWidth: '90px' }}
+                            style={moreBtnStyle}
                             onMouseOver={(e) => e.target.style.background = '#DC2626'}
                             onMouseOut={(e) => e.target.style.background = '#EF4444'}
                         >
                             More
                         </button>
                     </div>
+                    {/* ... table kept same */}
                     <div className="table-responsive" style={{ padding: '0 20px 20px', flex: 1, overflowY: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
                             <thead>

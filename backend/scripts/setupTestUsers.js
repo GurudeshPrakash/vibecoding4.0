@@ -5,37 +5,33 @@ const Branch = require('../models/Branch');
 const setupTestUsers = async () => {
     try {
         // 1. Setup Super Admin: Alex Fernando
-        let superAdmin = await Admin.findOne({ email: 'alex@powerworld.com' });
+        let superAdmin = await Admin.findOne({ email: 'superadmin@powerworld.com' });
         if (!superAdmin) {
             superAdmin = new Admin({
                 firstName: 'Alex',
                 lastName: 'Fernando',
-                email: 'alex@powerworld.com',
-                password: 'admin123', // Will be hashed by pre-save middleware
+                email: 'superadmin@powerworld.com',
+                password: 'SuperAdmin123',
                 phone: '0711111111',
                 role: 'super_admin'
             });
             await superAdmin.save();
             console.log('✅ Permanent Super Admin (Alex Fernando) created.');
-        } else {
-            console.log('⚡ Super Admin (Alex Fernando) already exists.');
         }
 
         // 2. Setup Admin: Daniel Perera
-        let admin = await Admin.findOne({ email: 'daniel@powerworld.com' });
+        let admin = await Admin.findOne({ email: 'admin@powerworld.com' });
         if (!admin) {
             admin = new Admin({
                 firstName: 'Daniel',
                 lastName: 'Perera',
-                email: 'daniel@powerworld.com',
-                password: 'admin123', // Will be hashed by pre-save middleware
+                email: 'admin@powerworld.com',
+                password: 'Admin123',
                 phone: '0722222222',
                 role: 'admin'
             });
             await admin.save();
             console.log('✅ Permanent Admin (Daniel Perera) created.');
-        } else {
-            console.log('⚡ Admin (Daniel Perera) already exists.');
         }
 
         // 3. Setup Branches: Daniel manages 6 branches
@@ -54,23 +50,17 @@ const setupTestUsers = async () => {
                 });
                 await branch.save();
                 console.log(`✅ Default Branch (${bName}) created and assigned to Daniel.`);
-            } else {
-                if (branch.adminName !== 'Daniel') {
-                    branch.adminName = 'Daniel';
-                    await branch.save();
-                    console.log(`🔄 Default Branch (${bName}) re-assigned to Daniel.`);
-                }
             }
         }
 
         // 4. Setup Staff: Nimal Silva
-        let staff = await Staff.findOne({ email: 'nimal@powerworld.com' });
+        let staff = await Staff.findOne({ email: 'staff@powerworld.com' });
         if (!staff) {
             staff = new Staff({
                 firstName: 'Nimal',
                 lastName: 'Silva',
-                email: 'nimal@powerworld.com',
-                password: 'staff123', // Will be hashed by pre-save middleware
+                email: 'staff@powerworld.com',
+                password: 'Staff123',
                 phone: '0733333333',
                 role: 'staff',
                 branch: 'Galle Branch',
@@ -84,10 +74,7 @@ const setupTestUsers = async () => {
                 staff.branch = 'Galle Branch';
                 await staff.save();
                 console.log('🔄 Permanent Staff (Nimal Silva) re-assigned to Galle Branch.');
-            } else {
-                console.log('⚡ Staff (Nimal Silva) already exists.');
             }
-
         }
 
     } catch (err) {

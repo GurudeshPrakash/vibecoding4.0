@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 // Layouts
 import AdminLayout from './admin/layouts/AdminLayout';
@@ -7,10 +8,11 @@ import SuperAdminLayout from './super-admin/layouts/SuperAdminLayout';
 import StaffLayout from './staff/layouts/StaffLayout';
 
 // Shared Components
-import Landing from './shared/components/Landing';
+import LoginPage from './shared/pages/LoginPage';
 import UnifiedDashboard from './shared/components/UnifiedDashboard';
 import LogoutModal from './shared/components/LogoutModal';
 import ActivityDetailModal from './shared/components/ActivityDetailModal';
+import { apiRequest } from './shared/api/apiService';
 // Shared Hooks & Context
 import { useEquipmentData } from './shared/hooks/useEquipmentData';
 import { useNotifications } from './shared/hooks/useNotifications';
@@ -22,9 +24,7 @@ import SuperAdminRoutes from './super-admin/routes/SuperAdminRoutes';
 import StaffRoutes from './staff/routes/StaffRoutes';
 
 function App() {
-  const simulatedAuthenticated = true;
-  const { login, logout, isAuthenticated: originalIsAuthenticated, user } = useAuth();
-  const isAuthenticated = simulatedAuthenticated || originalIsAuthenticated;
+  const { login, logout, isAuthenticated, user, loading: authLoading } = useAuth();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
@@ -38,45 +38,79 @@ function App() {
     } catch {
       return {};
     }
-  }, [user, originalIsAuthenticated]);
+  }, [user, isAuthenticated]);
 
-  const [userName, setUserName] = useState(
-    savedAdminData.firstName
-      ? `${savedAdminData.firstName} ${savedAdminData.lastName || ''}`.trim()
-      : 'User'
-  );
-  const [userEmail, setUserEmail] = useState(savedAdminData.email || 'user@powerworld.com');
-  const [adminRole, setAdminRole] = useState('super_admin');
-  const [viewRole, setViewRole] = useState('super_admin');
+  const [userName, setUserName] = useState('User');
+  const [userEmail, setUserEmail] = useState('');
+  const [adminRole, setAdminRole] = useState('admin');
+  const [viewRole, setViewRole] = useState('admin');
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeSection, setActiveSection] = useState('super_admin');
+  const [activeSection, setActiveSection] = useState('admin');
+
+  const normalizeRole = (role) => {
+    if (!role) return 'admin';
+    const r = role.toUpperCase();
+    if (r === 'SUPER_ADMIN') return 'super_admin';
+    if (r === 'ADMIN') return 'admin';
+    if (r === 'STAFF') return 'staff';
+    return role.toLowerCase(); // fallback for other roles
+  };
 
   const loginRole = viewRole === 'super_admin' ? 'admin' : viewRole;
 
-  useEffect(() => {
-    setActiveSection(viewRole);
-  }, [viewRole]);
 
-  const [adminPhone, setAdminPhone] = useState(savedAdminData.phone || '+94 00 000 0000');
-  const [adminId, setAdminId] = useState(savedAdminData._id || 'ID-TEMP');
+
+  const [adminPhone, setAdminPhone] = useState('+94 00 000 0000');
+  const [adminId, setAdminId] = useState('ID-TEMP');
   const [profileImage, setProfileImage] = useState(null);
 
   // Sync state with local storage data on login/change
   useEffect(() => {
-    if (savedAdminData && savedAdminData.firstName) {
-      setUserName(`${savedAdminData.firstName} ${savedAdminData.lastName || ''}`.trim());
+    if (isAuthenticated && savedAdminData && savedAdminData.email) {
+      setUserName(`${savedAdminData.firstName || ''} ${savedAdminData.lastName || ''}`.trim() || 'User');
       setUserEmail(savedAdminData.email || '');
       setAdminPhone(savedAdminData.phone || '+94 00 000 0000');
       setAdminId(savedAdminData._id || 'ID-TEMP');
-      setAdminRole(savedAdminData.role || 'admin');
 
-      // Initially, also set viewRole to their actual role
-      if (savedAdminData.role) {
-        setViewRole(savedAdminData.role);
-        setActiveSection(savedAdminData.role === 'super_admin' ? 'super_admin' : (savedAdminData.role === 'staff' ? 'staff' : 'admin'));
-      }
+      const technicalRole = normalizeRole(savedAdminData.role);
+      setAdminRole(technicalRole);
+      setViewRole(technicalRole);
+      setActiveSection(technicalRole === 'super_admin' ? 'super_admin' : (technicalRole === 'staff' ? 'staff' : 'admin'));
     }
   }, [savedAdminData, isAuthenticated]);
+
+  // Route Protection & Auto-Redirect: Prevent unauthorized access and ensure correct URL
+  useEffect(() => {
+    if (isAuthenticated && adminRole) {
+      const role = normalizeRole(adminRole);
+      const path = location.pathname;
+
+      // 1. Handle Redirect from /dashboard to specific role path
+      if (path === '/dashboard' || path === '/') {
+        if (role === 'super_admin') navigate('/super-admin/dashboard');
+        else if (role === 'admin') navigate('/admin/dashboard');
+        else if (role === 'staff') navigate('/staff/dashboard');
+        return;
+      }
+
+      // 2. Sync activeSection with Path and Protect
+      if (path.startsWith('/super-admin')) {
+        if (role !== 'super_admin') {
+          navigate('/dashboard');
+        } else {
+          setActiveSection('super_admin');
+        }
+      } else if (path.startsWith('/admin')) {
+        if (role !== 'admin' && role !== 'super_admin') {
+          navigate('/dashboard');
+        } else {
+          setActiveSection('admin');
+        }
+      } else if (path.startsWith('/staff')) {
+        setActiveSection('staff');
+      }
+    }
+  }, [adminRole, location.pathname, isAuthenticated, navigate]);
 
   const [selectedLog, setSelectedLog] = useState(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -103,8 +137,8 @@ function App() {
         setSelectedLog(data);
         setIsLogModalOpen(true);
       }
-    } catch (error) {
-      console.error('Fetch log detail error:', error);
+    } catch (e) {
+      console.error('Failed to fetch activity log', e);
     }
   };
 
@@ -117,14 +151,41 @@ function App() {
     };
   }, [inventoryData, dismantledHistory]);
 
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const seenNotifs = React.useRef(new Set());
+
+  // Notification "Pop" Logic for Staff
+  useEffect(() => {
+    if (isAuthenticated && loginRole === 'staff' && notifications.length > 0) {
+      const pendingPoppable = notifications.find(n => 
+        n.unread && 
+        n.recipientEmail === 'staff@gym.com' && 
+        (n.status === 'Approved' || n.status === 'Rejected') &&
+        !seenNotifs.current.has(n.id)
+      );
+
+      if (pendingPoppable) {
+        setToast({
+          show: true,
+          message: pendingPoppable.action || 'Report status updated',
+          type: pendingPoppable.status === 'Approved' ? 'success' : 'rejected'
+        });
+        seenNotifs.current.add(pendingPoppable.id);
+        
+        // Auto-hide toast
+        setTimeout(() => setToast(t => ({ ...t, show: false })), 5000);
+      }
+    }
+  }, [notifications, isAuthenticated, loginRole]);
+
   const handleLogout = async () => {
     const logId = localStorage.getItem('admin_current_log');
     if (logId) {
       try {
-        await fetch('http://localhost:5000/api/admin/logout', {
+        const token = localStorage.getItem('admin_token');
+        await fetch(`http://localhost:5000/api/admin/staff-logs/${logId}/end`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ logId })
+          headers: { 'Authorization': `Bearer ${token}` }
         });
       } catch (e) {
         console.error('Logout logging failed', e);
@@ -141,7 +202,7 @@ function App() {
       const { ok, data } = await apiRequest('/shared/login', 'POST', { email, password });
 
       if (ok) {
-        // Update localStorage
+        // Essential: Save to localStorage first so it persists through reload
         localStorage.setItem('admin_token', data.token);
         localStorage.setItem('admin_user', JSON.stringify({
           firstName: data.firstName,
@@ -152,27 +213,40 @@ function App() {
           _id: data._id
         }));
 
-        // Update context and trigger re-render
+        // Also update context for immediate (pre-reload) state if needed
         login(data, data.token);
 
-        // Update local state directly for immediate feedback
-        setAdminRole(data.role);
-        setViewRole(data.role);
-        setActiveSection(data.role === 'super_admin' ? 'super_admin' : (data.role === 'staff' ? 'staff' : 'admin'));
-        setUserName(`${data.firstName} ${data.lastName || ''}`.trim());
-        setUserEmail(data.email);
-
-        // Force navigation
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 100);
+        // Use a full page reload to clear ALL hook states, intervals, and cache
+        // and force a fresh fetch with the new token.
+        window.location.href = '/dashboard';
       } else {
-        console.error('Login failed during switch:', data.message);
+        alert('Quick Switch failed: ' + (data.message || 'Check backend connection'));
       }
     } catch (err) {
       console.error('Quick switch failed', err);
+      alert('Network error - Is the backend running?');
     }
   };
+
+  if (authLoading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white' }}>
+        <Loader2 className="animate-spin" size={48} color="#ff0000" />
+        <p style={{ marginTop: '20px', fontWeight: 600, letterSpacing: '1px' }}>INITIALIZING SECURE TERMINAL...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={(userData) => {
+      login(userData, userData.token);
+      const role = normalizeRole(userData.role);
+      if (role === 'super_admin') navigate('/super-admin/dashboard');
+      else if (role === 'admin') navigate('/admin/dashboard');
+      else if (role === 'staff') navigate('/staff/dashboard');
+      else navigate('/dashboard');
+    }} />;
+  }
 
   const layoutProps = {
     activeTab,
@@ -229,7 +303,7 @@ function App() {
       case 'admin':
         return <AdminRoutes activeTab={activeTab} props={props} viewRole={viewRole} />;
       case 'staff':
-        return <StaffRoutes activeTab={activeTab} props={props} adminRole={adminRole} />;
+        return <StaffRoutes activeTab={activeTab} props={props} viewRole={viewRole} adminRole={adminRole} />;
       default:
         return (
           <UnifiedDashboard
@@ -284,8 +358,20 @@ function App() {
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/login" element={<Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={renderContentWithLayout()} />
+        <Route path="/super-admin/dashboard" element={renderContentWithLayout()} />
+        <Route path="/admin/dashboard" element={renderContentWithLayout()} />
+        <Route path="/staff/dashboard" element={renderContentWithLayout()} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
+      
+      {toast.show && (
+        <div className="toast-container">
+          <div className={`toast-box ${toast.type}`}>
+            <div className="toast-msg">{toast.message}</div>
+          </div>
+        </div>
+      )}
+
       <LogoutModal isOpen={showLogoutModal} onCancel={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
       <ActivityDetailModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} log={selectedLog} />
     </>

@@ -58,8 +58,6 @@ const TopNav = ({
         // Persist to DB for auth notifs (if any)
         const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
         const token = localStorage.getItem('admin_token');
-        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
-        const token = sessionStorage.getItem('admin_token');
         if (token) {
             const unreadNotifs = notifications.filter(n => n.unread && n.isAuthNotif);
             const apiBase = user?.role === 'staff' ? '/api/staff' : '/api/admin';

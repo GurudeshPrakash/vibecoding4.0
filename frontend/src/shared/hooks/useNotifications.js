@@ -12,7 +12,12 @@ export const useNotifications = (isAuthenticated, loginRole) => {
 
         const apiBase = loginRole === 'admin' ? '/admin' : '/staff';
         const token = localStorage.getItem('admin_token');
-        const result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
+        let result = { ok: false };
+        try {
+            result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
+        } catch (e) {
+            // Silently fail for dev
+        }
 
         const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]').map(n => ({
             id: n.id,

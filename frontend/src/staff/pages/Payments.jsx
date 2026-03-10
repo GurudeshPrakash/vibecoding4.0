@@ -1,3 +1,8 @@
+/**
+ * @module StaffModule
+ * @status STABLE - LOCKED
+ * @description This module is development-complete. Avoid modifications unless specifically requested.
+ */
 import React, { useState } from 'react';
 import { Search, DollarSign, Filter, Receipt, FileText, CheckCircle2, Clock } from 'lucide-react';
 import '../styles/Payments.css';

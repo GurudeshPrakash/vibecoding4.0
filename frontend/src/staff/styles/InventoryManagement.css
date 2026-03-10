@@ -1,4 +1,8 @@
-/* Staff Inventory Styles */
+/* 
+ * @module StaffModule Styles
+ * @status STABLE - LOCKED
+ * @description These styles are development-complete. Avoid modifications.
+ */
 @import './StaffDashboard.css';
 @import './StaffDashboard.css';
 
@@ -126,10 +130,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px;
+    gap: 4px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;

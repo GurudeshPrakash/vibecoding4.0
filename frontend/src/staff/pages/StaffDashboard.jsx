@@ -1,3 +1,8 @@
+/**
+ * @module StaffModule
+ * @status STABLE - LOCKED
+ * @description This module is development-complete. Avoid modifications unless specifically requested.
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Activity, CheckSquare, DollarSign, Clock, UserCheck, ChevronRight, CheckCircle2, Wrench, AlertTriangle } from 'lucide-react';
@@ -97,7 +102,18 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1>Dashboard</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                        <h1>Dashboard</h1>
+                        <span style={{ 
+                            background: '#10B981', 
+                            color: '#fff', 
+                            fontSize: '10px', 
+                            padding: '4px 10px', 
+                            borderRadius: '100px', 
+                            fontWeight: '900',
+                            letterSpacing: '0.05em'
+                        }}>STABLE MODULE</span>
+                    </div>
                     <p>Welcome to your daily shift overview. Have a great day!</p>
                 </div>
                 {/* Date and Time section removed */}

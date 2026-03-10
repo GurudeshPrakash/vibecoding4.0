@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Package, Search, AlertTriangle, CheckCircle2,
-    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus, Trash2
+    Wrench, Eye, X, Send, QrCode, Printer, Download, Plus, Trash2, Edit2
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../shared/assets/logo1.png';
@@ -612,8 +612,8 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                 </div>
                                 <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
                                     <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.65rem' }}>Close</button>
-                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.65rem' }}>
-                                        <AlertTriangle size={14} /> Report Issue
+                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.65rem' }}>
+                                        <Edit2 size={14} /> Edit Details
                                     </button>
                                 </div>
                             </div>

@@ -55,15 +55,9 @@ export const useNotifications = (isAuthenticated, loginRole) => {
             // Prioritize dev notifications for immediate feedback
             setNotifications([...devNotifs, ...apiNotifs]);
         } else {
-            // Fallback to dev notifications only if API fails
-            setNotifications(devNotifs);
-            // Merge with local mock notifications for persistent testing
+            // Fallback to dev notifications and local mocks if API fails
             const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
-            setNotifications([...localMocks, ...apiNotifs]);
-        } else {
-            // If API fails, still show local mocks
-            const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
-            setNotifications(localMocks);
+            setNotifications([...devNotifs, ...localMocks]);
         }
     }, [isAuthenticated, loginRole]);
 

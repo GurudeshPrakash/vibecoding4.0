@@ -86,8 +86,7 @@ const InventoryManagement = () => {
             const newReminders = reminders.filter(r => !existingIds.has(r.id));
             
             if (newReminders.length > 0) {
-                localStorage.setItem('dev_notifications', JSON.stringify([...reminders, ...devNotifs]));
-                // Trigger an event to refresh TopNav if needed (TopNav polls so it should be fine)
+                localStorage.setItem('dev_notifications', JSON.stringify([...newReminders, ...devNotifs]));
             }
         }
     }, [inventory]);

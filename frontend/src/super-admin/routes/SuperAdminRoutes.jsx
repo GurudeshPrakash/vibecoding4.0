@@ -1,55 +1,46 @@
 import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from '../pages/SuperAdminDashboard';
-import Administrators from '../pages/AdminManagement';
+import Administrations from '../pages/AdminManagement';
 import StaffManagement from '../pages/StaffManagement';
 import Locations from '../pages/BranchManagement';
 import AdminLogs from '../pages/AdminLogs';
 import Settings from '../pages/Settings';
 import Members from '../pages/MemberManagement';
 import Reports from '../pages/Reports';
-import ProfilePage from '../../shared/pages/ProfilePage';
 
-const SuperAdminRoutes = ({ activeTab, props, viewRole }) => {
-    switch (activeTab) {
-        case 'dashboard':
-            return <Dashboard adminName={props.userName} setActiveTab={props.setActiveTab} userRole={viewRole} />;
-        case 'admins':
-            return <Administrators userRole={viewRole} setActiveTab={props.setActiveTab} setSelectedProfileId={props.setSelectedProfileId} />;
-        case 'staff':
-            return <StaffManagement userRole={viewRole} setActiveTab={props.setActiveTab} setSelectedProfileId={props.setSelectedProfileId} />;
-        case 'locations':
-            return <Locations userRole={viewRole} />;
-        case 'members':
-            return <Members userRole={viewRole} />;
-        case 'reports':
-            return <Reports userRole={viewRole} />;
-        case 'activity-logs':
-            return <AdminLogs onViewLog={props.handleViewActivityLog} />;
-        case 'profile':
-            return (
-                <ProfilePage
-                    currentUserId={props.selectedProfileId}
-                    userRole={viewRole}
-                    setGlobalUserName={props.setUserName}
-                    setGlobalUserEmail={props.setUserEmail}
-                    setGlobalUserPhone={props.setAdminPhone}
+const SuperAdminRoutes = ({ sharedProps }) => {
+    return (
+        <Routes>
+            <Route path="dashboard" element={
+                <Dashboard
+                    adminName={sharedProps.userName}
                 />
-            );
-        case 'settings':
-            return (
+            } />
+
+            <Route path="admins" element={<Administrations />} />
+            <Route path="create-admin" element={<Administrations showCreateModal={true} />} />
+
+            <Route path="staff" element={<StaffManagement />} />
+            <Route path="locations" element={<Locations />} />
+            <Route path="members" element={<Members />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="activity-logs" element={<AdminLogs onViewLog={sharedProps.handleViewActivityLog} />} />
+
+            <Route path="settings" element={
                 <Settings
-                    adminName={props.userName}
-                    setAdminName={props.setUserName}
-                    userEmail={props.userEmail}
-                    setUserEmail={props.setUserEmail}
-                    adminPhone={props.adminPhone}
-                    setAdminPhone={props.setAdminPhone}
-                    userRole={viewRole}
+                    adminName={sharedProps.userName}
+                    userEmail={sharedProps.userEmail}
                 />
-            );
-        default:
-            return <Dashboard adminName={props.userName} setActiveTab={props.setActiveTab} userRole={viewRole} />;
-    }
+            } />
+
+            {/* Default redirect for /super-admin */}
+            <Route path="/" element={<Navigate to="dashboard" replace />} />
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="dashboard" replace />} />
+        </Routes>
+    );
 };
 
 export default SuperAdminRoutes;
+

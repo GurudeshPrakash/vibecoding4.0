@@ -11,7 +11,6 @@ import {
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../shared/assets/logo1.png';
 import '../styles/InventoryManagement.css';
-import { apiRequest } from '../../shared/api/apiService';
 
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
@@ -49,20 +48,19 @@ const MOCK_INVENTORY = [
 const CATEGORIES = ['Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
-const formatDate = (dateStr) => {
-    if (!dateStr || dateStr === '—') return 'N/A';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    const parts = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).split(' ');
-    return parts.join(' ');
-};
-
 const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
     const [inventory, setInventory] = useState(inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
+
+    // Sync with live data from hook
+    useEffect(() => {
+        if (inventoryData && inventoryData.length > 0) {
+            setInventory(inventoryData);
+        }
+    }, [inventoryData]);
 
     // Apply Dev Overrides
     useEffect(() => {
@@ -77,6 +75,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             }));
         }
     }, [inventoryData]);
+
 
     const [selectedItem, setSelectedItem] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -166,7 +165,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
         setReportImages(updatedImages);
     };
 
-    const handleSubmitReport = async (e) => {
+    const handleSubmitReport = (e) => {
         e.preventDefault();
 
         // VALIDATION: Description and Image are required ONLY for 'Damaged'
@@ -181,7 +180,8 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             }
         }
 
-        const staffUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+        const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
+
         const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Nimal Silva';
         const staffBranch = 'Galle'; // Simulation: Staff is from Galle branch
 
@@ -281,6 +281,18 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
 
             alert(`Damage report for ${reportItem.name} sent to Admin and Super Admin for approval.`);
         }
+        // Update inventory state
+        setInventory(prev => prev.map(item => {
+            if ((item.id || item._id) === (reportItem.id || reportItem._id)) {
+                return {
+                    ...item,
+                    status: newStatus,
+                    lastObservation: reportReason, // Storing description
+                    statusUpdateDate: new Date().toISOString().split('T')[0]
+                };
+            }
+            return item;
+        }));
 
         setShowReportModal(false);
     };
@@ -701,7 +713,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Cancel</button>
                                         <button type="submit" style={{ flex: 2, padding: '12px', background: '#1E3A5F', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                                            <Send size={16} /> Send Message
+                                            <Send size={16} /> Save Changes
                                         </button>
                                     </div>
                                 </form>

@@ -1,29 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays, AlertTriangle } from 'lucide-react';
 import '../styles/TopNav.css';
+import { useAuth } from '../../auth/hooks/useAuth.jsx';
 
 const TopNav = ({
-    adminName = "Admin",
-    adminEmail = "admin@gymsys.com",
-    adminPhone = "+94 77 000 0000",
-    adminId = "ID-001",
-    profileImage = null,
-    setProfileImage,
+    adminName = "User",
+    adminEmail = "",
     setActiveTab,
     onLogoutTrigger,
-    hideSidebarToggle = false,
-    role = "Administrator",
+    role = "Staff",
     notifications = [],
     setNotifications,
-    loginRole,
-    setSelectedEquipmentId,
     onViewLog,
     currentTab,
-    onToggleRole,
-    adminRole,
-    viewRole,
-    handleQuickSwitch
 }) => {
+    const { user } = useAuth();
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
@@ -38,8 +29,6 @@ const TopNav = ({
         return () => clearInterval(timer);
     }, []);
 
-    const roleLabel = adminRole === 'super_admin' ? 'Super Admin' : 'Administrator';
-
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -53,22 +42,7 @@ const TopNav = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfileImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const activeNotifications = loginRole === 'staff'
-        ? notifications.filter(n => n.recipientEmail === 'staff@gym.com' && (n.status === 'Approved' || n.status === 'Rejected'))
-        : notifications;
-
-    const unreadCount = activeNotifications.filter(n => n.unread).length;
+    const unreadCount = notifications.filter(n => n.unread).length;
 
     const markAllRead = async () => {
         // Optimistic update for UI
@@ -84,8 +58,11 @@ const TopNav = ({
         // Persist to DB for auth notifs (if any)
         const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
         const token = localStorage.getItem('admin_token');
+        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+        const token = sessionStorage.getItem('admin_token');
         if (token) {
             const unreadNotifs = notifications.filter(n => n.unread && n.isAuthNotif);
+            const apiBase = user?.role === 'staff' ? '/api/staff' : '/api/admin';
             for (const n of unreadNotifs) {
                 try {
                     await fetch(`http://localhost:5000${apiBase}/notifications/${n.id}`, {
@@ -112,14 +89,13 @@ const TopNav = ({
         }
 
         if (notif.isAuthNotif) {
-            if (loginRole === 'admin' && onViewLog && notif.activityLogId) {
+            if (onViewLog && notif.activityLogId) {
                 onViewLog(notif.activityLogId);
             }
 
-            // Mark as read in DB
-            const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
-            const token = localStorage.getItem('admin_token');
+            const token = sessionStorage.getItem('admin_token');
             if (token) {
+                const apiBase = user?.role === 'staff' ? '/api/staff' : '/api/admin';
                 try {
                     await fetch(`http://localhost:5000${apiBase}/notifications/${notif.id}`, {
                         method: 'PUT',
@@ -131,11 +107,6 @@ const TopNav = ({
 
         setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, unread: false } : n));
         setShowNotifications(false);
-
-        if (loginRole === 'staff' && notif.equipmentId) {
-            setActiveTab('inventory');
-            if (setSelectedEquipmentId) setSelectedEquipmentId(notif.equipmentId);
-        }
     };
 
     return (
@@ -168,8 +139,6 @@ const TopNav = ({
             </div>
 
             <div className="top-nav-right">
-
-                {/* Live Date and Time */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginRight: '16px', padding: '6px 16px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.1)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1E3A5F', fontSize: '0.75rem', fontWeight: 800 }}>
                         <CalendarDays size={14} />
@@ -180,69 +149,6 @@ const TopNav = ({
                         <Clock size={14} />
                         {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </div>
-                </div>
-                {/* ✅ Quick Switcher (DEV ONLY) */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    marginRight: '16px',
-                    padding: '4px',
-                    background: 'rgba(0,0,0,0.03)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(0,0,0,0.05)'
-                }}>
-                    <button
-                        onClick={() => handleQuickSwitch('superadmin@gym.com', 'SuperAdmin@123')}
-                        style={{
-                            padding: '6px 12px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '10px',
-                            fontWeight: 900,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            background: viewRole === 'super_admin' ? 'var(--color-red)' : 'transparent',
-                            color: viewRole === 'super_admin' ? '#fff' : '#64748B',
-                            letterSpacing: '0.05em'
-                        }}
-                    >
-                        SUPER
-                    </button>
-                    <button
-                        onClick={() => handleQuickSwitch('admin@gym.com', 'Admin@123')}
-                        style={{
-                            padding: '6px 12px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '10px',
-                            fontWeight: 900,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            background: viewRole === 'admin' ? '#F59E0B' : 'transparent',
-                            color: viewRole === 'admin' ? '#fff' : '#64748B',
-                            letterSpacing: '0.05em'
-                        }}
-                    >
-                        ADMIN
-                    </button>
-                    <button
-                        onClick={() => handleQuickSwitch('staff@gym.com', 'Staff@123')}
-                        style={{
-                            padding: '6px 12px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '10px',
-                            fontWeight: 900,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            background: viewRole === 'staff' ? '#10B981' : 'transparent',
-                            color: viewRole === 'staff' ? '#fff' : '#64748B',
-                            letterSpacing: '0.05em'
-                        }}
-                    >
-                        STAFF
-                    </button>
                 </div>
 
                 <div className="notif-wrapper-rel" ref={notifRef}>
@@ -264,10 +170,10 @@ const TopNav = ({
                                 {unreadCount > 0 && <button onClick={markAllRead}>Mark all as read</button>}
                             </div>
                             <div className="notif-list">
-                                {activeNotifications.length === 0 ? (
+                                {notifications.length === 0 ? (
                                     <div className="empty-notifs">No new notifications</div>
                                 ) : (
-                                    activeNotifications.map(notif => (
+                                    notifications.map(notif => (
                                         <div
                                             key={notif.id}
                                             className={`notif-item ${notif.unread ? 'unread' : ''}`}
@@ -291,7 +197,6 @@ const TopNav = ({
                                                             <><strong>{notif.staffName}</strong> {notif.action}</>
                                                         )
                                                     )}
-                                                    {notif.type !== 'Inventory' && (notif.isAuthNotif ? <strong> {notif.branch}</strong> : <strong> {notif.equipmentName}</strong>)}
                                                 </p>
                                                 <div className="notif-meta">
                                                     {notif.status && (
@@ -314,8 +219,8 @@ const TopNav = ({
                         onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                     >
                         <div className="profile-avatar-top">
-                            {profileImage ? (
-                                <img src={profileImage} alt="Profile" className="avatar-img-top" />
+                            {user?.profilePic ? (
+                                <img src={user.profilePic} alt="Profile" className="avatar-img-top" />
                             ) : (
                                 <User size={20} />
                             )}
@@ -331,44 +236,37 @@ const TopNav = ({
                                 <X size={16} />
                             </button>
 
-                            <div className="dropdown-content-simple">
-                                <div className="large-avatar-wrapper-centered">
-                                    <div className="avatar-circle-large-centered">
-                                        {profileImage ? (
-                                            <img src={profileImage} alt="Profile" />
+                            <div className="dropdown-header-main">
+                                <div className="large-avatar-wrapper">
+                                    <div className="avatar-circle-large">
+                                        {user?.profilePic ? (
+                                            <img src={user.profilePic} alt="Large" />
                                         ) : (
                                             <User size={40} />
                                         )}
-                                        <label className="update-photo-overlay-centered" title="Update Photo">
-                                            <Camera size={14} />
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleImageUpload}
-                                                style={{ display: 'none' }}
-                                            />
-                                        </label>
                                     </div>
                                 </div>
-
-                                <div className="user-info-stack-centered">
-                                    <div className="staff-id-text">Staff ID: {adminId}</div>
-                                    <h3 className="user-name-centered">{adminName}</h3>
-                                    <div className="user-email-centered">{adminEmail}</div>
-                                    <div className="user-phone-centered">{adminPhone}</div>
+                                <div className="user-details-stack">
+                                    <h3 className="user-full-name" style={{ marginBottom: '2px' }}>{adminName}</h3>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                                        {role}
+                                    </div>
+                                    <span className="user-info-text">{adminEmail}</span>
+                                    {user?.phone && <span className="user-info-text">{user.phone}</span>}
                                 </div>
+                            </div>
 
-                                <div className="dropdown-footer-simple">
-                                    <button className="logout-btn-full" onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}>
-                                        <LogOut size={20} />
-                                        <span>Log Out</span>
-                                    </button>
-                                </div>
+                            <div className="dropdown-footer-logout">
+                                <button className="logout-btn-dropdown" onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}>
+                                    <LogOut size={16} />
+                                    <span>Log Out</span>
+                                </button>
                             </div>
                         </div>
                     )}
                 </div>
             </div >
+
 
             {/* Damage Report Review Modal (Admin/Super Admin only) */}
             {selectedReport && (
@@ -453,6 +351,16 @@ const TopNav = ({
                                         overrides[selectedReport.machineId] = 'Damaged';
                                         localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
 
+                                        // NEW WORKFLOW: Create Physical Removal Task
+                                        import('../../shared/services/taskService').then(({ default: taskService }) => {
+                                            taskService.createTask({
+                                                request_id: selectedReport.id,
+                                                equipment_name: selectedReport.machineName,
+                                                location: selectedReport.branch,
+                                                remarks: 'Damage report approved. Physical removal required.'
+                                            });
+                                        });
+
                                         // Notify Staff
                                         const staffNotif = {
                                             id: `NOTIF-STF-APP-${Date.now()}`,
@@ -461,7 +369,7 @@ const TopNav = ({
                                             recipientEmail: 'staff@gym.com',
                                             status: 'Approved',
                                             title: 'Damage Report Approved',
-                                            action: `Your damage report for equipment ${selectedReport.machineId} has been approved by the Admin.`,
+                                            action: `Your request for ${selectedReport.machineName} has been approved. You can now proceed with the physical equipment removal.`,
                                             time: 'Just now',
                                             timestamp: new Date().toISOString(),
                                             unread: true,
@@ -472,9 +380,10 @@ const TopNav = ({
                                         localStorage.setItem('dev_notifications', JSON.stringify(updatedNotifs));
                                         if (setNotifications) setNotifications(updatedNotifs);
 
-                                        alert("Report approved! Equipment status updated to DAMAGED.");
+                                        alert("Report approved! Equipment status updated to DAMAGED. Physical removal task created.");
                                         setSelectedReport(null);
                                     }}
+
                                     style={{ flex: 1, padding: '14px', borderRadius: '12px', border: 'none', background: '#10B981', color: '#fff', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}
                                 >
                                     Approve & Update
@@ -489,3 +398,4 @@ const TopNav = ({
 };
 
 export default TopNav;
+

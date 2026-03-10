@@ -10,16 +10,14 @@ export const useNotifications = (isAuthenticated, loginRole) => {
     const fetchNotifications = useCallback(async () => {
         if (!isAuthenticated || !loginRole) return;
 
-        const apiBase = loginRole === 'admin' ? '/admin' : '/staff';
-        const token = localStorage.getItem('admin_token');
-        let result = { ok: false };
-        try {
-            result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
-        } catch (e) {
-            // Silently fail for dev
-        }
+        // Determine API endpoint based on role
+        const isAdminType = loginRole === 'admin' || loginRole === 'super_admin';
+        const apiBase = isAdminType ? '/admin' : '/staff';
+        const token = sessionStorage.getItem('admin_token');
 
-        const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]').map(n => ({
+        // Prepare development/local notifications
+        const devNotifsRaw = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+        const devNotifs = devNotifsRaw.map(n => ({
             id: n.id,
             staffName: n.staffName,
             action: n.action || n.message,
@@ -36,47 +34,50 @@ export const useNotifications = (isAuthenticated, loginRole) => {
             recipientEmail: n.recipientEmail
         }));
 
-        if (result.ok) {
-            const apiNotifs = result.data.map(n => ({
-                id: n._id,
-                staffName: n.staffName,
-                staffEmail: n.staffEmail,
-                action: n.message || (n.type === 'Login' ? 'logged in' : 'logged out'),
-                status: n.type === 'Login' ? 'Active' : (n.type === 'Inventory' ? 'New' : 'Ended'),
-                time: new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                date: n.timestamp ? new Date(n.timestamp).toLocaleDateString() : '',
-                branch: n.branch,
-                type: n.type,
-                unread: !n.isRead,
-                isAuthNotif: true,
-                activityLogId: n.activityLogId
-            }));
+        try {
+            const result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
 
-            // Prioritize dev notifications for immediate feedback
-            setNotifications([...devNotifs, ...apiNotifs]);
-        } else {
-            // Fallback to dev notifications only if API fails
-            setNotifications(devNotifs);
-            // Merge with local mock notifications for persistent testing
+            if (result.ok) {
+                const apiNotifs = result.data.map(n => ({
+                    id: n._id,
+                    staffName: n.staffName,
+                    staffEmail: n.staffEmail,
+                    action: n.message || (n.type === 'Login' ? 'logged in' : 'logged out'),
+                    status: n.type === 'Login' ? 'Active' : (n.type === 'Inventory' ? 'New' : 'Ended'),
+                    time: new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    date: n.timestamp ? new Date(n.timestamp).toLocaleDateString() : '',
+                    branch: n.branch,
+                    type: n.type,
+                    unread: !n.isRead,
+                    isAuthNotif: true,
+                    activityLogId: n.activityLogId
+                }));
+
+                // Combine Dev and API notifications
+                setNotifications([...devNotifs, ...apiNotifs]);
+            } else {
+                // If API fails, show dev + local mocks
+                const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
+                setNotifications([...devNotifs, ...localMocks]);
+            }
+        } catch (e) {
+            console.error('Notification fetch failed', e);
             const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
-            setNotifications([...localMocks, ...apiNotifs]);
-        } else {
-            // If API fails, still show local mocks
-            const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
-            setNotifications(localMocks);
+            setNotifications([...devNotifs, ...localMocks]);
         }
     }, [isAuthenticated, loginRole]);
 
     useEffect(() => {
         if (isAuthenticated && loginRole) {
             fetchNotifications();
-            // Slow down background polling to 60s to reduce server load and jitter
+            // Polling for simulation responsiveness
             const interval = setInterval(() => {
                 fetchNotifications().catch(err => console.log('Background sync skipped:', err.message));
-            }, 10000); // Polling every 10 seconds for more responsive feedback
+            }, 5000);
             return () => clearInterval(interval);
         }
     }, [isAuthenticated, loginRole, fetchNotifications]);
 
     return { notifications, setNotifications, refreshNotifications: fetchNotifications };
 };
+

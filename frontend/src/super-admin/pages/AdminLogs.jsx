@@ -13,7 +13,7 @@ const AdminLogs = ({ embedded = false }) => {
     useEffect(() => {
         const fetchLogs = async () => {
             try {
-                const token = localStorage.getItem('admin_token');
+                const token = sessionStorage.getItem('admin_token');
                 const response = await fetch('http://localhost:5000/api/admin/admin-logs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

@@ -1,24 +1,55 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth.jsx';
 
-export default function ProtectedRoute({ children, allowedRoles }) {
+/**
+ * ProtectedRoute Component
+ * Restricts access based on authentication status and user role.
+ * 
+ * @param {Array} allowedRoles - List of roles permitted to access the route
+ */
+const ProtectedRoute = ({ allowedRoles }) => {
     const { user, isAuthenticated, loading } = useAuth();
-    const location = useLocation();
+
+    // Define the hierarchy: lower index = higher power
+    const roleHierarchy = ['super_admin', 'admin', 'staff'];
+
+    const hasRequiredRole = () => {
+        if (!allowedRoles) return true;
+
+        const userLevel = roleHierarchy.indexOf(user?.role?.toLowerCase());
+
+        // A user has access if their level is equal to or higher (lower index) 
+        // than ANY of the allowed roles
+        return allowedRoles.some(role => {
+            const requiredLevel = roleHierarchy.indexOf(role.toLowerCase());
+            return userLevel !== -1 && userLevel <= requiredLevel;
+        });
+    };
 
     if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a', color: '#3b82f6' }}>Loading...</div>;
+        return (
+            <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+                <div className="loader">Loading...</div>
+            </div>
+        );
     }
 
     if (!isAuthenticated) {
-        // If not logged in, redirect to login page but save the current location
-        return <Navigate to="/login" state={{ from: location }} replace />;
+        return <Navigate to="/login" replace />;
     }
 
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
-        // If logged in but role not allowed, redirect to unauthorized or dashboard
-        console.warn(`Access denied for role: ${user.role}. Required roles: ${allowedRoles}`);
-        return <Navigate to={user.role === 'superadmin' ? '/super-admin/dashboard' : '/admin/dashboard'} replace />;
+    if (!hasRequiredRole()) {
+        const dashboardMap = {
+            'super_admin': '/super-admin/dashboard',
+            'admin': '/admin/dashboard',
+            'staff': '/staff/dashboard'
+        };
+        return <Navigate to={dashboardMap[user.role] || '/login'} replace />;
     }
 
-    return children;
-}
+    return <Outlet />;
+};
+
+
+export default ProtectedRoute;

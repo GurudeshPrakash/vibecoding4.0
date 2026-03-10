@@ -6,12 +6,13 @@ import AdminProfileDashboard from '../components/AdminProfileDashboard';
 
 const DEFAULT_AVATAR = '/MDH_8729webqualitysquare.webp';
 
-const AdminManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedProfileId }) => {
+const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) => {
     const isSuperAdmin = userRole === 'super_admin';
     const [searchQuery, setSearchQuery] = useState('');
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(showCreateModal);
     const [editingAdmin, setEditingAdmin] = useState(null);
     const [selectedAdminView, setSelectedAdminView] = useState(null);
+
 
     // Load real branches from localStorage
     const [branches, setBranches] = useState([]);

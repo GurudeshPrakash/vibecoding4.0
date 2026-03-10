@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiRequest } from '../api/apiService';
+import { MOCK_INVENTORY } from '../../admin/constants/mockData';
 
 /**
  * Custom hook for equipment data management.
@@ -19,7 +20,7 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
         const token = localStorage.getItem('admin_token');
         const result = await apiRequest('/equipment', 'GET', null, token);
 
-        if (result.ok) {
+        if (result.ok && result.data && result.data.length > 0) {
             setInventoryData(result.data.map(item => ({
                 ...item,
                 id: item._id,
@@ -34,6 +35,13 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
                 maintenanceHistory: item.maintenanceHistory || [],
                 warranty: item.warranty,
                 createdAt: item.createdAt
+            })));
+        } else {
+            // Fallback to MOCK_INVENTORY for Permanent Test Setup
+            setInventoryData(MOCK_INVENTORY.map(item => ({
+                ...item,
+                id: item.id || item._id,
+                photo: item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'
             })));
         }
         if (!isPolling) setIsLoading(false);

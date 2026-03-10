@@ -51,7 +51,7 @@ const SuperAdminLayout = ({
                     setProfileImage={setProfileImage}
                     setActiveTab={setActiveTab}
                     onLogoutTrigger={() => setShowLogoutModal(true)}
-                    role="Super Admin"
+                    role={viewRole === 'super_admin' ? 'Super Admin' : viewRole === 'admin' ? 'Administrator' : 'Staff'}
                     notifications={notifications}
                     setNotifications={setNotifications}
                     loginRole={loginRole}

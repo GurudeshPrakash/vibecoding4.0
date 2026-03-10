@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays } from 'lucide-react';
+import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays, AlertTriangle } from 'lucide-react';
 import '../styles/TopNav.css';
 
 const TopNav = ({
@@ -21,12 +21,15 @@ const TopNav = ({
     currentTab,
     onToggleRole,
     adminRole,
+    viewRole,
     handleQuickSwitch
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
     const notifRef = useRef(null);
+
+    const [selectedReport, setSelectedReport] = useState(null);
 
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -61,7 +64,11 @@ const TopNav = ({
         }
     };
 
-    const unreadCount = notifications.filter(n => n.unread).length;
+    const activeNotifications = loginRole === 'staff'
+        ? notifications.filter(n => n.recipientEmail === 'staff@gym.com' && (n.status === 'Approved' || n.status === 'Rejected'))
+        : notifications;
+
+    const unreadCount = activeNotifications.filter(n => n.unread).length;
 
     const markAllRead = async () => {
         // Optimistic update
@@ -86,6 +93,17 @@ const TopNav = ({
     };
 
     const handleNotificationClick = async (notif) => {
+        // Handle Dev Damage Reports
+        if (notif.type === 'Damaged' && notif.reportId) {
+            const reports = JSON.parse(localStorage.getItem('dev_damaged_reports') || '[]');
+            const report = reports.find(r => r.id === notif.reportId);
+            if (report) {
+                setSelectedReport(report);
+                setShowNotifications(false);
+                return;
+            }
+        }
+
         if (notif.isAuthNotif) {
             if (loginRole === 'admin' && onViewLog && notif.activityLogId) {
                 onViewLog(notif.activityLogId);
@@ -168,7 +186,7 @@ const TopNav = ({
                     border: '1px solid rgba(0,0,0,0.05)'
                 }}>
                     <button
-                        onClick={() => handleQuickSwitch('alex@powerworld.com', 'admin123')}
+                        onClick={() => handleQuickSwitch('superadmin@gym.com', 'SuperAdmin@123')}
                         style={{
                             padding: '6px 12px',
                             border: 'none',
@@ -177,15 +195,15 @@ const TopNav = ({
                             fontWeight: 900,
                             cursor: 'pointer',
                             transition: 'all 0.2s',
-                            background: adminRole === 'super_admin' ? 'var(--color-red)' : 'transparent',
-                            color: adminRole === 'super_admin' ? '#fff' : '#64748B',
+                            background: viewRole === 'super_admin' ? 'var(--color-red)' : 'transparent',
+                            color: viewRole === 'super_admin' ? '#fff' : '#64748B',
                             letterSpacing: '0.05em'
                         }}
                     >
                         SUPER
                     </button>
                     <button
-                        onClick={() => handleQuickSwitch('daniel@powerworld.com', 'admin123')}
+                        onClick={() => handleQuickSwitch('admin@gym.com', 'Admin@123')}
                         style={{
                             padding: '6px 12px',
                             border: 'none',
@@ -194,15 +212,15 @@ const TopNav = ({
                             fontWeight: 900,
                             cursor: 'pointer',
                             transition: 'all 0.2s',
-                            background: adminRole === 'admin' ? '#F59E0B' : 'transparent',
-                            color: adminRole === 'admin' ? '#fff' : '#64748B',
+                            background: viewRole === 'admin' ? '#F59E0B' : 'transparent',
+                            color: viewRole === 'admin' ? '#fff' : '#64748B',
                             letterSpacing: '0.05em'
                         }}
                     >
                         ADMIN
                     </button>
                     <button
-                        onClick={() => handleQuickSwitch('nimal@powerworld.com', 'staff123')}
+                        onClick={() => handleQuickSwitch('staff@gym.com', 'Staff@123')}
                         style={{
                             padding: '6px 12px',
                             border: 'none',
@@ -211,8 +229,8 @@ const TopNav = ({
                             fontWeight: 900,
                             cursor: 'pointer',
                             transition: 'all 0.2s',
-                            background: adminRole === 'staff' ? '#10B981' : 'transparent',
-                            color: adminRole === 'staff' ? '#fff' : '#64748B',
+                            background: viewRole === 'staff' ? '#10B981' : 'transparent',
+                            color: viewRole === 'staff' ? '#fff' : '#64748B',
                             letterSpacing: '0.05em'
                         }}
                     >
@@ -239,10 +257,10 @@ const TopNav = ({
                                 {unreadCount > 0 && <button onClick={markAllRead}>Mark all as read</button>}
                             </div>
                             <div className="notif-list">
-                                {notifications.length === 0 ? (
+                                {activeNotifications.length === 0 ? (
                                     <div className="empty-notifs">No new notifications</div>
                                 ) : (
-                                    notifications.map(notif => (
+                                    activeNotifications.map(notif => (
                                         <div
                                             key={notif.id}
                                             className={`notif-item ${notif.unread ? 'unread' : ''}`}
@@ -269,7 +287,9 @@ const TopNav = ({
                                                     {notif.type !== 'Inventory' && (notif.isAuthNotif ? <strong> {notif.branch}</strong> : <strong> {notif.equipmentName}</strong>)}
                                                 </p>
                                                 <div className="notif-meta">
-                                                    <span className={`status-pill-small ${notif.status.toLowerCase()}`}>{notif.status}</span>
+                                                    {notif.status && (
+                                                        <span className={`status-pill-small ${notif.status.toLowerCase()}`}>{notif.status}</span>
+                                                    )}
                                                     <span className="notif-time">{notif.time}</span>
                                                 </div>
                                             </div>
@@ -304,15 +324,15 @@ const TopNav = ({
                                 <X size={16} />
                             </button>
 
-                            <div className="dropdown-header-main">
-                                <div className="large-avatar-wrapper">
-                                    <div className="avatar-circle-large">
+                            <div className="dropdown-content-simple">
+                                <div className="large-avatar-wrapper-centered">
+                                    <div className="avatar-circle-large-centered">
                                         {profileImage ? (
-                                            <img src={profileImage} alt="Large" />
+                                            <img src={profileImage} alt="Profile" />
                                         ) : (
-                                            <User size={30} />
+                                            <User size={40} />
                                         )}
-                                        <label className="update-photo-overlay" title="Update Photo">
+                                        <label className="update-photo-overlay-centered" title="Update Photo">
                                             <Camera size={14} />
                                             <input
                                                 type="file"
@@ -323,47 +343,140 @@ const TopNav = ({
                                         </label>
                                     </div>
                                 </div>
-                                <div className="user-details-stack">
-                                    <h3 className="user-full-name" style={{ marginBottom: '2px' }}>{adminName}</h3>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>
-                                        {adminRole === 'super_admin' ? 'Super Admin' : (loginRole === 'staff' ? 'Staff Member' : 'Branch Administrator')}
-                                    </div>
-                                    <span className="user-info-text">{adminEmail}</span>
-                                    <span className="user-info-text">{adminPhone}</span>
+
+                                <div className="user-info-stack-centered">
+                                    <div className="staff-id-text">Staff ID: {adminId}</div>
+                                    <h3 className="user-name-centered">{adminName}</h3>
+                                    <div className="user-email-centered">{adminEmail}</div>
+                                    <div className="user-phone-centered">{adminPhone}</div>
                                 </div>
-                            </div>
 
-                            <div className="dropdown-actions-buttons">
-                                <button
-                                    className="dropdown-action-btn edit-btn"
-                                    onClick={() => { setActiveTab('settings'); setShowProfileDropdown(false); }}
-                                >
-                                    View Profile
-                                </button>
-                                <button
-                                    className="dropdown-action-btn remove-btn"
-                                    onClick={() => {
-                                        if (window.confirm("Are you sure you want to remove this profile?")) {
-                                            // Removal logic would go here
-                                            console.log("Removing profile...");
-                                        }
-                                        setShowProfileDropdown(false);
-                                    }}
-                                >
-                                    Remove Profile
-                                </button>
-                            </div>
-
-                            <div className="dropdown-footer-logout">
-                                <button className="logout-btn-dropdown" onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}>
-                                    <LogOut size={16} />
-                                    <span>Log Out</span>
-                                </button>
+                                <div className="dropdown-footer-simple">
+                                    <button className="logout-btn-full" onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}>
+                                        <LogOut size={20} />
+                                        <span>Log Out</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
                 </div>
             </div >
+
+            {/* Damage Report Review Modal (Admin/Super Admin only) */}
+            {selectedReport && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}>
+                    <div className="animate-pop-in" style={{ background: '#fff', borderRadius: '20px', width: '100%', maxWidth: '500px', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.3)' }}>
+                        <div style={{ padding: '20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FEF2F2' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <AlertTriangle color="#EF4444" size={24} />
+                                <h3 style={{ margin: 0, color: '#991B1B', fontSize: '1rem', fontWeight: 800 }}>Damage Report Review</h3>
+                            </div>
+                            <button onClick={() => setSelectedReport(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B' }}><X size={20} /></button>
+                        </div>
+
+                        <div style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                                <img src={selectedReport.machinePhoto} alt="Machine" style={{ width: '100px', height: '100px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #E2E8F0' }} />
+                                <div>
+                                    <h4 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800 }}>{selectedReport.machineName}</h4>
+                                    <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>ID: {selectedReport.machineId} | Branch: {selectedReport.branch}</p>
+                                    <div style={{ fontSize: '0.7rem', color: '#EF4444', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Awaiting Status: DAMAGED</div>
+                                </div>
+                            </div>
+
+                            <div style={{ background: '#F8FAFC', padding: '16px', borderRadius: '12px', marginBottom: '24px' }}>
+                                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '8px' }}>Staff Description</div>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#1E293B', lineHeight: 1.5 }}>{selectedReport.description}</p>
+                            </div>
+
+                            {selectedReport.images && selectedReport.images.length > 0 && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '12px' }}>Damage Photos</div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+                                        {selectedReport.images.map((img, idx) => (
+                                            <a key={idx} href={img} target="_blank" rel="noreferrer">
+                                                <img src={img} alt="Damage" style={{ width: '100%', aspectRatio: '1/1', borderRadius: '8px', objectFit: 'cover', border: '1px solid #E2E8F0', cursor: 'zoom-in' }} />
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '20px', display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={() => {
+                                        // Reject Logic
+                                        const reports = JSON.parse(localStorage.getItem('dev_damaged_reports') || '[]');
+                                        localStorage.setItem('dev_damaged_reports', JSON.stringify(reports.map(r => r.id === selectedReport.id ? { ...r, isRejected: true } : r)));
+
+                                        // Notify Staff
+                                        const staffNotif = {
+                                            id: `NOTIF-STF-REJ-${Date.now()}`,
+                                            type: 'Inventory', // Shows clean message without name prefix
+                                            priority: 'High',
+                                            recipientEmail: 'staff@gym.com',
+                                            status: 'Rejected',
+                                            title: 'Damage Report Rejected',
+                                            action: `Your damage report for equipment ${selectedReport.machineId} has been rejected by the Admin.`,
+                                            time: 'Just now',
+                                            timestamp: new Date().toISOString(),
+                                            unread: true,
+                                            isAuthNotif: true
+                                        };
+                                        const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+                                        const updatedNotifs = [staffNotif, ...devNotifs];
+                                        localStorage.setItem('dev_notifications', JSON.stringify(updatedNotifs));
+                                        if (setNotifications) setNotifications(updatedNotifs);
+
+                                        alert("Damage report rejected.");
+                                        setSelectedReport(null);
+                                    }}
+                                    style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontWeight: 800, cursor: 'pointer' }}
+                                >
+                                    Reject Report
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        // Approve Logic
+                                        const reports = JSON.parse(localStorage.getItem('dev_damaged_reports') || '[]');
+                                        localStorage.setItem('dev_damaged_reports', JSON.stringify(reports.map(r => r.id === selectedReport.id ? { ...r, isApproved: true } : r)));
+
+                                        const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
+                                        overrides[selectedReport.machineId] = 'Damaged';
+                                        localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
+
+                                        // Notify Staff
+                                        const staffNotif = {
+                                            id: `NOTIF-STF-APP-${Date.now()}`,
+                                            type: 'Inventory', // Shows clean message without name prefix
+                                            priority: 'High',
+                                            recipientEmail: 'staff@gym.com',
+                                            status: 'Approved',
+                                            title: 'Damage Report Approved',
+                                            action: `Your damage report for equipment ${selectedReport.machineId} has been approved by the Admin.`,
+                                            time: 'Just now',
+                                            timestamp: new Date().toISOString(),
+                                            unread: true,
+                                            isAuthNotif: true
+                                        };
+                                        const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+                                        const updatedNotifs = [staffNotif, ...devNotifs];
+                                        localStorage.setItem('dev_notifications', JSON.stringify(updatedNotifs));
+                                        if (setNotifications) setNotifications(updatedNotifs);
+
+                                        alert("Report approved! Equipment status updated to DAMAGED.");
+                                        setSelectedReport(null);
+                                    }}
+                                    style={{ flex: 1, padding: '14px', borderRadius: '12px', border: 'none', background: '#10B981', color: '#fff', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}
+                                >
+                                    Approve & Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

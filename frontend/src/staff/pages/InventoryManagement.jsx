@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Package, Search, AlertTriangle, CheckCircle2,
     Wrench, Eye, X, Send, QrCode, Printer, Download, Plus, Trash2
@@ -58,6 +58,21 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
+
+    // Apply Dev Overrides
+    useEffect(() => {
+        const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
+        if (Object.keys(overrides).length > 0) {
+            setInventory(prev => prev.map(item => {
+                const id = item.id || item._id;
+                if (overrides[id]) {
+                    return { ...item, status: overrides[id] };
+                }
+                return item;
+            }));
+        }
+    }, [inventoryData]);
+
     const [selectedItem, setSelectedItem] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [reportItem, setReportItem] = useState(null);
@@ -148,35 +163,119 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
 
     const handleSubmitReport = async (e) => {
         e.preventDefault();
-        if (!reportReason.trim()) return;
 
-        // Try to locate user token
-        const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
-
-        // Make the API request to notify Admin & Super Admin
-        try {
-            await apiRequest('/staff/inventory/report', 'POST', {
-                machineId: reportItem.id || reportItem._id,
-                machineName: reportItem.name,
-                status: newStatus,
-                description: reportReason
-            }, token);
-        } catch (error) {
-            console.error('Error sending maintenance notification', error);
+        // VALIDATION: Description and Image are required ONLY for 'Damaged'
+        if (newStatus === 'Damaged') {
+            if (!reportReason.trim()) {
+                alert('Please provide a description of the damage.');
+                return;
+            }
+            if (reportImages.length === 0) {
+                alert('At least one image is required for a damage report.');
+                return;
+            }
         }
 
-        // Update inventory state
-        setInventory(prev => prev.map(item => {
-            if ((item.id || item._id) === (reportItem.id || reportItem._id)) {
-                return {
-                    ...item,
-                    status: newStatus,
-                    lastObservation: reportReason, // Storing description
-                    statusUpdateDate: new Date().toISOString().split('T')[0]
-                };
-            }
-            return item;
-        }));
+        const staffUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+        const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Nimal Silva';
+        const staffBranch = 'Galle'; // Simulation: Staff is from Galle branch
+
+        const reportData = {
+            id: `REP-${Date.now()}`,
+            machineId: reportItem.id || reportItem._id,
+            machineName: reportItem.name,
+            machinePhoto: reportItem.photo,
+            machineSerial: reportItem.serial,
+            branch: staffBranch,
+            staffName: staffName,
+            status: newStatus,
+            description: reportReason,
+            images: reportImages.map(img => img.preview),
+            timestamp: new Date().toISOString(),
+            isApproved: false,
+            isRejected: false
+        };
+
+        // 1. GOOD STATUS: No description, no image, no notification, update immediately
+        if (newStatus === 'Good') {
+            setInventory(prev => prev.map(item =>
+                (item.id || item._id) === (reportItem.id || reportItem._id) ? { ...item, status: 'Good' } : item
+            ));
+            setShowReportModal(false);
+            return;
+        }
+
+        // 2. MAINTENANCE STATUS: Notify ONLY branch Admin (Daniel Perera)
+        if (newStatus === 'Maintenance') {
+            setInventory(prev => prev.map(item =>
+                (item.id || item._id) === (reportItem.id || reportItem._id) ? { ...item, status: 'Maintenance' } : item
+            ));
+
+            const notification = {
+                id: `NOTIF-${Date.now()}`,
+                type: 'Maintenance',
+                priority: 'Medium',
+                recipientEmail: 'admin@gym.com', // Daniel Perera (Admin)
+                title: 'Maintenance Required',
+                message: `Staff member ${staffName} reported that the machine ${reportItem.id || reportItem._id} requires maintenance.`,
+                timestamp: new Date().toISOString(),
+                unread: true,
+                isAuthNotif: true,
+                staffName: staffName,
+                action: 'reported maintenance required',
+                branch: staffBranch
+            };
+
+            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+            localStorage.setItem('dev_notifications', JSON.stringify([notification, ...devNotifs]));
+        }
+
+        // 3. DAMAGED STATUS: Notify branch Admin AND Super Admin, requires approval
+        if (newStatus === 'Damaged') {
+            const devReports = JSON.parse(localStorage.getItem('dev_damaged_reports') || '[]');
+            localStorage.setItem('dev_damaged_reports', JSON.stringify([reportData, ...devReports]));
+
+            // Notify Branch Admin (Daniel Perera)
+            const adminNotif = {
+                id: `NOTIF-ADM-${Date.now()}`,
+                type: 'Damaged',
+                priority: 'High',
+                recipientEmail: 'admin@gym.com',
+                title: 'Equipment Damage Reported',
+                message: `URGENT: ${staffName} reported ${reportItem.name} (${reportItem.id || reportItem._id}) as damaged in ${staffBranch}.`,
+                timestamp: reportData.timestamp,
+                unread: true,
+                isAuthNotif: true,
+                staffName: staffName,
+                action: 'reported equipment damage',
+                reportId: reportData.id,
+                equipmentName: reportItem.name,
+                branch: staffBranch
+            };
+
+            // Notify Super Admin (Alex Fernando)
+            const superNotif = {
+                id: `NOTIF-SUP-${Date.now()}`,
+                type: 'Damaged',
+                priority: 'High',
+                recipientEmail: 'superadmin@gym.com',
+                title: 'Equipment Damage Reported',
+                message: `URGENT: ${staffName} reported ${reportItem.name} (${reportItem.id || reportItem._id}) as damaged in ${staffBranch}.`,
+                timestamp: reportData.timestamp,
+                unread: true,
+                isAuthNotif: true,
+                staffName: staffName,
+                action: 'reported equipment damage',
+                reportId: reportData.id,
+                equipmentName: reportItem.name,
+                branch: staffBranch
+            };
+
+            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+            localStorage.setItem('dev_notifications', JSON.stringify([adminNotif, superNotif, ...devNotifs]));
+
+            alert(`Damage report for ${reportItem.name} sent to Admin and Super Admin for approval.`);
+        }
 
         setShowReportModal(false);
     };
@@ -534,51 +633,53 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                             ))}
                                         </div>
                                     </div>
-                                    <div style={{ marginBottom: '20px' }}>
-                                        <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</label>
-                                        <textarea
-                                            value={reportReason}
-                                            onChange={e => setReportReason(e.target.value)}
-                                            placeholder="Describe the issue in detail..."
-                                            rows={4}
-                                            required
-                                            style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.7rem', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
-                                        />
-                                    </div>
-
-                                    {(newStatus === 'Maintenance' || newStatus === 'Damaged') && (
-                                        <div style={{ marginBottom: '20px' }}>
-                                            <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Equipment Photos (Up to 20)</label>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
-                                                {reportImages.map((img, idx) => (
-                                                    <div key={idx} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-                                                        <img src={img.preview} alt={`upload-${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveImage(idx)}
-                                                            style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
-                                                        >
-                                                            <X size={12} />
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                {reportImages.length < 20 && (
-                                                    <label style={{
-                                                        aspectRatio: '1/1', border: '2px dashed #E2E8F0', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', transition: 'all 0.2s', background: '#F8FAFC'
-                                                    }} onMouseOver={(e) => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#3B82F6'; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#94A3B8'; }}>
-                                                        <Plus size={20} />
-                                                        <span style={{ fontSize: '0.55rem', marginTop: '4px', fontWeight: '600' }}>Add Photo</span>
-                                                        <input
-                                                            type="file"
-                                                            multiple
-                                                            accept="image/*"
-                                                            onChange={handleImageUpload}
-                                                            style={{ display: 'none' }}
-                                                        />
-                                                    </label>
-                                                )}
+                                    {newStatus === 'Damaged' && (
+                                        <>
+                                            <div style={{ marginBottom: '20px' }}>
+                                                <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</label>
+                                                <textarea
+                                                    value={reportReason}
+                                                    onChange={e => setReportReason(e.target.value)}
+                                                    placeholder="Describe the issue in detail..."
+                                                    rows={4}
+                                                    required={newStatus === 'Damaged'}
+                                                    style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.7rem', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                                                />
                                             </div>
-                                        </div>
+
+                                            <div style={{ marginBottom: '20px' }}>
+                                                <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Equipment Photos (At least 1 required)</label>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
+                                                    {reportImages.map((img, idx) => (
+                                                        <div key={idx} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                                                            <img src={img.preview} alt={`upload-${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveImage(idx)}
+                                                                style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                                                            >
+                                                                <X size={12} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    {reportImages.length < 20 && (
+                                                        <label style={{
+                                                            aspectRatio: '1/1', border: '2px dashed #E2E8F0', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', transition: 'all 0.2s', background: '#F8FAFC'
+                                                        }} onMouseOver={(e) => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#3B82F6'; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#94A3B8'; }}>
+                                                            <Plus size={20} />
+                                                            <span style={{ fontSize: '0.55rem', marginTop: '4px', fontWeight: '600' }}>Add Photo</span>
+                                                            <input
+                                                                type="file"
+                                                                multiple
+                                                                accept="image/*"
+                                                                onChange={handleImageUpload}
+                                                                style={{ display: 'none' }}
+                                                            />
+                                                        </label>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
 
                                     <div style={{ display: 'flex', gap: '10px' }}>

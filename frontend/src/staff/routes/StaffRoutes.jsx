@@ -5,16 +5,16 @@ import MembersManagement from '../pages/MembersManagement';
 import Payments from '../pages/Payments';
 import ProfilePage from '../../shared/pages/ProfilePage';
 
-const StaffRoutes = ({ activeTab, props, adminRole }) => {
+const StaffRoutes = ({ activeTab, props, viewRole }) => {
     switch (activeTab) {
         case 'dashboard':
-            return <StaffDashboard adminName={props.userName} />;
+            return <StaffDashboard adminName={props.userName} inventoryData={props.inventoryData} stats={props.stats} />;
         case 'inventory':
-            return <InventoryManagement inventoryData={props.inventoryData} userRole={adminRole} />;
+            return <InventoryManagement inventoryData={props.inventoryData} userRole={viewRole} />;
         case 'members':
-            return <MembersManagement userRole={adminRole} />;
+            return <MembersManagement userRole={viewRole} />;
         case 'payments':
-            return <Payments userRole={adminRole} />;
+            return <Payments userRole={viewRole} />;
         case 'profile':
             return (
                 <ProfilePage

@@ -187,6 +187,7 @@ exports.updateEquipment = async (req, res) => {
             if (req.user && req.user.role === 'staff') {
                 const staff = await Staff.findById(req.user.id);
                 if (staff) {
+                    // 1. Send to General Admin role (existing behavior)
                     await Notification.create({
                         type: 'Inventory',
                         recipientRole: 'admin',
@@ -196,8 +197,29 @@ exports.updateEquipment = async (req, res) => {
                         branch: staff.branch || 'Not Specified',
                         timestamp: new Date(),
                         message: `Equipment status changed: ${updatedEquipment.name} is now ${updatedEquipment.status} (was ${oldStatus})`,
-                        systemSource: 'Staff Portal'
+                        systemSource: 'Staff Portal',
+                        machineId: updatedEquipment.customId,
+                        machineName: updatedEquipment.name,
+                        status: updatedEquipment.status
                     });
+
+                    // 2. Send specifically to Super Admin (Requirement 8.3)
+                    await Notification.create({
+                        type: 'Inventory',
+                        recipientRole: 'super_admin',
+                        staffId: staff._id,
+                        staffName: `${staff.firstName} ${staff.lastName}`,
+                        staffEmail: staff.email,
+                        branch: staff.branch || 'Not Specified',
+                        timestamp: new Date(),
+                        message: `[ALERT] ${updatedEquipment.name} in ${staff.branch} updated to ${updatedEquipment.status}`,
+                        systemSource: 'Staff Portal',
+                        machineId: updatedEquipment.customId,
+                        machineName: updatedEquipment.name,
+                        status: updatedEquipment.status
+                    });
+
+                    console.log(`Dual notifications sent for ${updatedEquipment.name} status change.`);
                 }
             }
         }

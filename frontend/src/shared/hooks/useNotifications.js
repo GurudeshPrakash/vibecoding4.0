@@ -14,6 +14,23 @@ export const useNotifications = (isAuthenticated, loginRole) => {
         const token = localStorage.getItem('admin_token');
         const result = await apiRequest(`${apiBase}/notifications`, 'GET', null, token);
 
+        const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]').map(n => ({
+            id: n.id,
+            staffName: n.staffName,
+            action: n.action || n.message,
+            status: n.type === 'Damaged' ? 'Pending' : 'New',
+            time: new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            date: new Date(n.timestamp).toLocaleDateString(),
+            branch: n.branch || 'Main Branch',
+            type: n.type || 'System',
+            unread: n.unread !== false,
+            isAuthNotif: true,
+            reportId: n.reportId,
+            equipmentName: n.equipmentName,
+            priority: n.priority,
+            recipientEmail: n.recipientEmail
+        }));
+
         if (result.ok) {
             const apiNotifs = result.data.map(n => ({
                 id: n._id,
@@ -30,6 +47,11 @@ export const useNotifications = (isAuthenticated, loginRole) => {
                 activityLogId: n.activityLogId
             }));
 
+            // Prioritize dev notifications for immediate feedback
+            setNotifications([...devNotifs, ...apiNotifs]);
+        } else {
+            // Fallback to dev notifications only if API fails
+            setNotifications(devNotifs);
             // Merge with local mock notifications for persistent testing
             const localMocks = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
             setNotifications([...localMocks, ...apiNotifs]);
@@ -46,7 +68,7 @@ export const useNotifications = (isAuthenticated, loginRole) => {
             // Slow down background polling to 60s to reduce server load and jitter
             const interval = setInterval(() => {
                 fetchNotifications().catch(err => console.log('Background sync skipped:', err.message));
-            }, 60000);
+            }, 10000); // Polling every 10 seconds for more responsive feedback
             return () => clearInterval(interval);
         }
     }, [isAuthenticated, loginRole, fetchNotifications]);

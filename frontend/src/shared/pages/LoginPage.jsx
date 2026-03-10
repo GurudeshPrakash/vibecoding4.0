@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, ShieldCheck, UserCircle, Zap } from 'lucide-react';
 import logo from '../../shared/assets/logo1.png';
-import '../styles/Login.css';
+import '../../admin/styles/Login.css';
 
 const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
   const [email, setEmail] = useState('');
@@ -19,11 +19,74 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
     }
   }, []);
 
+  const DEV_USERS = [
+    {
+      firstName: 'Alex',
+      lastName: 'Fernando',
+      email: 'superadmin@gym.com',
+      password: 'SuperAdmin@123',
+      role: 'SUPER_ADMIN',
+      phone: '0711111111',
+      _id: 'DEV-SUPER-ADMIN'
+    },
+    {
+      firstName: 'Daniel',
+      lastName: 'Perera',
+      email: 'admin@gym.com',
+      password: 'Admin@123',
+      role: 'ADMIN',
+      phone: '0722222222',
+      _id: 'DEV-ADMIN'
+    },
+    {
+      firstName: 'Nimal',
+      lastName: 'Silva',
+      email: 'staff@gym.com',
+      password: 'Staff@123',
+      role: 'STAFF',
+      phone: '0733333333',
+      _id: 'DEV-STAFF'
+    }
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
+    // 1. Check Hardcoded Development Users First
+    const devUser = DEV_USERS.find(u => u.email === email && u.password === password);
+
+    if (devUser) {
+      // Simulate network delay for realistic feel
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      const userData = { ...devUser, token: 'dev-token-xyz-123' };
+
+      if (rememberMe) {
+        localStorage.setItem('unified_remember_me', email);
+      }
+
+      localStorage.setItem('admin_token', userData.token);
+      localStorage.setItem('admin_user', JSON.stringify({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        name: `${userData.firstName} ${userData.lastName}`,
+        userName: `${userData.firstName} ${userData.lastName}`,
+        userEmail: userData.email,
+        userRole: userData.role,
+        email: userData.email,
+        role: userData.role,
+        phone: userData.phone,
+        _id: userData._id
+      }));
+
+      onLogin(userData);
+      setIsLoading(false);
+      return;
+    }
+
+    // 2. Fallback to Backend Login if not a dev user
     try {
       const response = await fetch('http://localhost:5000/api/shared/login', {
         method: 'POST',
@@ -40,22 +103,26 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
           localStorage.removeItem('unified_remember_me');
         }
 
-        // Standardize storage for all roles
         localStorage.setItem('admin_token', data.token);
         localStorage.setItem('admin_user', JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
+          name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+          userName: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+          userEmail: data.email,
+          userRole: data.role,
           email: data.email,
           role: data.role,
-          phone: data.phone
+          phone: data.phone,
+          _id: data._id
         }));
 
         onLogin(data);
       } else {
-        setError(data.message || 'Authentication failed. Please check your credentials.');
+        setError(data.message || 'Invalid email or password.');
       }
     } catch (err) {
-      setError('Connection failed. Terminal offline.');
+      setError('Connection failed. Backend may be offline. Try Dev Users.');
     } finally {
       setIsLoading(false);
     }
@@ -75,13 +142,13 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
         </div>
 
         <div className="role-indicator-pill" style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
-          <button type="button" onClick={() => { setEmail('alex@powerworld.com'); setPassword('admin123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
+          <button type="button" onClick={() => { setEmail('superadmin@gym.com'); setPassword('SuperAdmin@123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
             <ShieldCheck size={14} color="#EF4444" /> TEST SUPER ADMIN
           </button>
-          <button type="button" onClick={() => { setEmail('daniel@powerworld.com'); setPassword('admin123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
+          <button type="button" onClick={() => { setEmail('admin@gym.com'); setPassword('Admin@123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
             <Zap size={14} color="#F59E0B" /> TEST ADMIN
           </button>
-          <button type="button" onClick={() => { setEmail('nimal@powerworld.com'); setPassword('staff123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
+          <button type="button" onClick={() => { setEmail('staff@gym.com'); setPassword('Staff@123'); }} style={{ cursor: 'pointer', border: '1px dashed #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px', background: '#F8FAFC', padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#475569' }}>
             <UserCircle size={14} color="#10B981" /> TEST STAFF
           </button>
         </div>

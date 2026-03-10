@@ -117,64 +117,54 @@
     position: absolute;
     top: calc(100% + 15px);
     right: 0;
-    width: 320px;
-    background: #f2f2f2;
+    width: 300px;
+    background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    box-shadow: 0 15px 35px var(--color-shadow);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
     z-index: 1000;
     overflow: hidden;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes popIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.dropdown-header-main {
-    padding: 24px 20px;
+.dropdown-content-simple {
+    padding: 32px 24px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
-    background: transparent;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    text-align: center;
 }
 
-.avatar-circle-large {
-    width: 60px;
-    height: 60px;
+.large-avatar-wrapper-centered {
+    margin-bottom: 20px;
+}
+
+.avatar-circle-large-centered {
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
-    background: white;
-    border: 2px solid var(--color-red);
+    background: var(--color-surface-muted);
+    border: 3px solid var(--color-red);
     position: relative;
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
-.avatar-circle-large img {
+.avatar-circle-large-centered img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.update-photo-overlay {
+.update-photo-overlay-centered {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     height: 35%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -184,132 +174,90 @@
     transition: 0.3s;
 }
 
-.avatar-circle-large:hover .update-photo-overlay {
+.avatar-circle-large-centered:hover .update-photo-overlay-centered {
     opacity: 1;
 }
 
-.user-details-stack {
+.user-info-stack-centered {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 6px;
+    margin-bottom: 28px;
+    width: 100%;
     text-align: left;
+    padding: 0 4px;
 }
 
-.user-full-name {
-    font-size: 1rem;
-    font-weight: 700;
+.staff-id-text {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-red);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.user-name-centered {
+    font-size: 1.15rem;
+    font-weight: 800;
     color: var(--color-text);
     margin: 0;
 }
 
-.user-role {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--color-red);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-}
-
-.dropdown-actions-buttons {
-    padding: 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.info-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.75rem;
+.user-email-centered,
+.user-phone-centered {
+    font-size: 0.85rem;
     color: var(--color-ash);
     font-weight: 500;
+    word-break: break-all;
 }
 
-.info-icon-dim {
-    color: var(--color-red);
-    opacity: 0.6;
+.dropdown-footer-simple {
+    width: 100%;
 }
 
-.dropdown-actions-section {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.dropdown-btn-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--color-text);
-    font-weight: 500;
-    font-size: 0.825rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.edit-btn {
-    background: white;
-    color: var(--color-text);
-    border: 1px solid var(--border-color);
-}
-
-.edit-btn:hover {
-    background: var(--color-surface-hover);
-    transform: translateY(-1px);
-}
-
-.remove-btn {
-    background: white;
-    color: var(--color-red);
-    border: 1.5px solid #ff4d4d;
-}
-
-.remove-btn:hover {
-    background: rgba(255, 0, 0, 0.1);
-    transform: translateY(-1px);
-}
-
-.dropdown-footer-logout {
-    padding: 12px;
-    border-top: 1px solid var(--border-color);
-}
-
-.logout-btn-dropdown {
+.logout-btn-full {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 12px;
+    padding: 16px;
     background: var(--color-red);
     color: white;
     font-weight: 800;
-    border-radius: 12px;
+    border-radius: 16px;
     border: none;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.3s ease;
+    font-size: 1rem;
 }
 
-.logout-btn-dropdown:hover {
+.logout-btn-full:hover {
     background: var(--color-red-dark);
-    transform: scale(0.98);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.2);
+}
+
+.logout-btn-full:active {
+    transform: translateY(0);
 }
 
 .dropdown-close-x {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 16px;
+    right: 16px;
     background: transparent;
     border: none;
     color: var(--color-ash);
     cursor: pointer;
+    z-index: 10;
+    transition: 0.2s;
+}
+
+.dropdown-close-x:hover {
+    color: var(--color-red);
+    transform: rotate(90deg);
 }
 
 /* Old search bar and profile section from index.css just in case they are used elsewhere */

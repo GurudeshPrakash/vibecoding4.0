@@ -160,3 +160,31 @@ exports.getAdminProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// @desc    Get all admins (Super Admin only)
+// @route   GET /api/admin/admins
+exports.getAllAdmins = async (req, res) => {
+    try {
+        const admins = await Admin.find({ role: 'admin' }).select('-password');
+        res.json(admins);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete an admin (Super Admin only)
+// @route   DELETE /api/admin/admins/:id
+exports.deleteAdmin = async (req, res) => {
+    try {
+        const admin = await Admin.findById(req.params.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        if (admin.role === 'super_admin') {
+            return res.status(403).json({ message: 'Cannot delete a Super Admin' });
+        }
+
+        await admin.deleteOne();
+        res.json({ message: 'Admin removed successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

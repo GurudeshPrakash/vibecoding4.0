@@ -63,21 +63,21 @@ const InventoryCard = ({
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                     <button
                         onClick={() => onView(item)}
-                        style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                        style={{ flex: 1.2, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                     >
-                        <Eye size={12} /> View
+                        <Eye size={12} /> Details
                     </button>
                     <button
                         onClick={() => onQr(item)}
-                        style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                        style={{ flex: 0.8, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                     >
                         <QrCode size={12} /> QR
                     </button>
                     <button
-                        onClick={() => onUpdate(item)}
-                        style={{ flex: 1, padding: '8px', background: 'rgba(16, 185, 129, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                        onClick={() => onRemove(item.id)}
+                        style={{ flex: 1, padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                     >
-                        Edit
+                        <Trash2 size={12} /> Delete
                     </button>
                 </div>
             </div>

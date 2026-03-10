@@ -42,7 +42,6 @@ const EquipmentDetailModal = ({
                             ['Model', item.model || '—'],
                             ['Location', item.area || '—'],
                             ['Category', item.category || '—'],
-                            ['MFG Year', item.mfgYear || '—'],
                             ['Last Maintenance', item.lastMaintenance || '—'],
                             ['Next Maintenance', item.nextMaintenance || '—'],
                         ].map(([label, val]) => (

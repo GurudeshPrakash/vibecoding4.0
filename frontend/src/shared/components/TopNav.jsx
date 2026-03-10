@@ -71,10 +71,17 @@ const TopNav = ({
     const unreadCount = activeNotifications.filter(n => n.unread).length;
 
     const markAllRead = async () => {
-        // Optimistic update
+        // Optimistic update for UI
         setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
 
-        // Persist to DB for auth notifs
+        // Persist dev notifications to localStorage
+        const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+        if (devNotifs.length > 0) {
+            const updatedDev = devNotifs.map(n => ({ ...n, unread: false }));
+            localStorage.setItem('dev_notifications', JSON.stringify(updatedDev));
+        }
+
+        // Persist to DB for auth notifs (if any)
         const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
         const token = localStorage.getItem('admin_token');
         if (token) {

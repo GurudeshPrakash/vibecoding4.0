@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+/**
+ * @module StaffModule
+ * @status STABLE - LOCKED
+ * @description This module is development-complete. Avoid modifications unless specifically requested.
+ */
+import React, { useState, useEffect } from 'react';
 import { Search, UserCheck, UserMinus, QrCode, Clock, ArrowRight } from 'lucide-react';
 import '../styles/CheckIns.css';
 

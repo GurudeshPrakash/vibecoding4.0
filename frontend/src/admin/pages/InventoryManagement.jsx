@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Package, Search, AlertTriangle, CheckCircle2,
     Wrench, Plus
@@ -15,11 +15,10 @@ import {
     MOCK_INVENTORY
 } from '../constants/mockData';
 
-// Feature Components
-import InventoryCard from '../components/InventoryCard';
 import EquipmentDetailModal from '../components/EquipmentDetailModal';
-import MaintenanceReportModal from '../components/MaintenanceReportModal';
+import EquipmentAddEditModal from '../components/EquipmentAddEditModal';
 import EquipmentQrModal from '../components/EquipmentQrModal';
+import InventoryCard from '../components/InventoryCard';
 
 const InventoryManagement = () => {
     // ─── State ──────────────────────────────────────────────────────────────
@@ -37,13 +36,61 @@ const InventoryManagement = () => {
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
     const [selectedItem, setSelectedItem] = useState(null);
-    const [showReportModal, setShowReportModal] = useState(false);
-    const [reportItem, setReportItem] = useState(null);
-    const [newStatus, setNewStatus] = useState('');
-    const [reportReason, setReportReason] = useState('');
-    const [reportSubmitted, setReportSubmitted] = useState(false);
+    const [showAddEditModal, setShowAddEditModal] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
     const [qrItem, setQrItem] = useState(null);
-    const [reportImages, setReportImages] = useState([]);
+
+    // ─── Service Reminders ──────────────────────────────────────────────────
+    useEffect(() => {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const formatDate = (d) => d.toISOString().split('T')[0];
+        const todayStr = formatDate(today);
+        const tomorrowStr = formatDate(tomorrow);
+
+        const reminders = [];
+        inventory.forEach(item => {
+            if (item.nextMaintenance) {
+                if (item.nextMaintenance === todayStr) {
+                    reminders.push({
+                        id: `SR-${item.id}-today`,
+                        type: 'Maintenance',
+                        priority: 'High',
+                        title: 'Service Required Today',
+                        message: `Equipment ${item.id} (${item.name}) must be serviced today.`,
+                        equipmentId: item.id,
+                        timestamp: new Date().toISOString(),
+                        unread: true
+                    });
+                } else if (item.nextMaintenance === tomorrowStr) {
+                    reminders.push({
+                        id: `SR-${item.id}-tom`,
+                        type: 'Maintenance',
+                        priority: 'Medium',
+                        title: 'Service Required Tomorrow',
+                        message: `Equipment ${item.id} (${item.name}) requires service tomorrow.`,
+                        equipmentId: item.id,
+                        timestamp: new Date().toISOString(),
+                        unread: true
+                    });
+                }
+            }
+        });
+
+        if (reminders.length > 0) {
+            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+            // Filter out ones already added (by ID)
+            const existingIds = new Set(devNotifs.map(n => n.id));
+            const newReminders = reminders.filter(r => !existingIds.has(r.id));
+            
+            if (newReminders.length > 0) {
+                localStorage.setItem('dev_notifications', JSON.stringify([...reminders, ...devNotifs]));
+                // Trigger an event to refresh TopNav if needed (TopNav polls so it should be fine)
+            }
+        }
+    }, [inventory]);
 
     // ─── Derived Data ───────────────────────────────────────────────────────
     const branchItems = inventory.filter(i => i.branchId === activeBranchId);
@@ -65,25 +112,30 @@ const InventoryManagement = () => {
     };
 
     // ─── Handlers ───────────────────────────────────────────────────────────
-    const handleAddEquipment = () => {
-        const name = prompt('Enter Equipment Name:');
-        if (!name) return;
-        const newId = `EQ-${Math.floor(1000 + Math.random() * 9000)}`;
-        const newItem = {
-            id: newId,
-            branchId: activeBranchId,
-            name,
-            category: 'Strength',
-            status: 'Good',
-            area: 'General Area',
-            brand: 'Standard',
-            serial: `SN-${newId}`,
-            lastMaintenance: new Date().toISOString().split('T')[0],
-            photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800'
-        };
-        const updated = [...inventory, newItem];
+    const handleOpenAdd = () => {
+        setEditingItem(null);
+        setShowAddEditModal(true);
+    };
+
+    const handleOpenEdit = (item) => {
+        setEditingItem(item);
+        setShowAddEditModal(true);
+    };
+
+    const handleSaveEquipment = (formData) => {
+        let updated;
+        if (editingItem) {
+            updated = inventory.map(item => item.id === editingItem.id ? { ...item, ...formData } : item);
+        } else {
+            const newItem = {
+                ...formData,
+                status: 'Good' // Default to Good
+            };
+            updated = [newItem, ...inventory];
+        }
         setInventory(updated);
         localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
+        setShowAddEditModal(false);
     };
 
     const handleRemoveEquipment = (id) => {
@@ -91,39 +143,6 @@ const InventoryManagement = () => {
         const updated = inventory.filter(i => i.id !== id);
         setInventory(updated);
         localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
-    };
-
-    const handleOpenReport = (item) => {
-        setReportItem(item);
-        setNewStatus(item.status);
-        setReportReason('');
-        setReportImages([]);
-        setReportSubmitted(false);
-        setShowReportModal(true);
-    };
-
-    const handleImageUpload = (e) => {
-        const files = Array.from(e.target.files);
-        const availableSlots = 20 - reportImages.length;
-        const newImages = files.slice(0, availableSlots).map(file => ({
-            file,
-            preview: URL.createObjectURL(file)
-        }));
-        setReportImages(prev => [...prev, ...newImages]);
-    };
-
-    const handleRemoveImage = (index) => {
-        const updatedImages = [...reportImages];
-        URL.revokeObjectURL(updatedImages[index].preview);
-        updatedImages.splice(index, 1);
-        setReportImages(updatedImages);
-    };
-
-    const handleSubmitReport = (e) => {
-        e.preventDefault();
-        if (!reportReason.trim()) return;
-        console.log('Update report submitted for:', reportItem?.id, 'Reason:', reportReason);
-        setReportSubmitted(true);
     };
 
     const handlePrintQR = () => {
@@ -176,7 +195,7 @@ const InventoryManagement = () => {
                     <h1>Inventory Management</h1>
                     <p>Manage branch-specific equipment and monitor conditions.</p>
                 </div>
-                <button onClick={handleAddEquipment} className="sm-btn-add" style={{ height: 'fit-content' }}>
+                <button onClick={handleOpenAdd} className="sm-btn-add" style={{ height: 'fit-content' }}>
                     <Plus size={18} /> Add Equipment
                 </button>
             </header>
@@ -295,7 +314,7 @@ const InventoryManagement = () => {
                         statusConfig={STATUS_CONFIG}
                         onView={setSelectedItem}
                         onQr={setQrItem}
-                        onUpdate={handleOpenReport}
+                        onUpdate={handleOpenEdit}
                         onRemove={handleRemoveEquipment}
                     />
                 ))}
@@ -311,24 +330,17 @@ const InventoryManagement = () => {
             <EquipmentDetailModal
                 item={selectedItem}
                 onClose={() => setSelectedItem(null)}
-                onReportIssue={handleOpenReport}
+                onReportIssue={handleOpenEdit}
                 statusConfig={STATUS_CONFIG}
             />
 
-            <MaintenanceReportModal
-                show={showReportModal}
-                onClose={() => setShowReportModal(false)}
-                item={reportItem}
-                statusConfig={STATUS_CONFIG}
-                newStatus={newStatus}
-                setNewStatus={setNewStatus}
-                reportReason={reportReason}
-                setReportReason={setReportReason}
-                reportSubmitted={reportSubmitted}
-                onSubmit={handleSubmitReport}
-                reportImages={reportImages}
-                onImageUpload={handleImageUpload}
-                onRemoveImage={handleRemoveImage}
+            <EquipmentAddEditModal
+                show={showAddEditModal}
+                onClose={() => setShowAddEditModal(false)}
+                onSave={handleSaveEquipment}
+                editingItem={editingItem}
+                branches={ADMIN_BRANCHES}
+                defaultBranchId={activeBranchId}
             />
 
             <EquipmentQrModal

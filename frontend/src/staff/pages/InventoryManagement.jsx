@@ -1,3 +1,8 @@
+/**
+ * @module StaffModule
+ * @status STABLE - LOCKED
+ * @description This module is development-complete. Avoid modifications unless specifically requested.
+ */
 import React, { useState, useEffect } from 'react';
 import {
     Package, Search, AlertTriangle, CheckCircle2,
@@ -130,9 +135,9 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
 
     const counts = {
         total: inventory.length,
-        good: inventory.filter(i => i.status === 'Good' || i.status === 'Available').length,
+        good: inventory.filter(i => i.status === 'Good').length,
         maintenance: inventory.filter(i => i.status === 'Maintenance').length,
-        dismantled: inventory.filter(i => i.status === 'Dismantled' || i.status === 'Damaged').length,
+        dismantled: inventory.filter(i => i.status === 'Dismantled').length,
     };
 
     const handleOpenReport = (item) => {
@@ -330,7 +335,18 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             {/* Header */}
             <header className="sa-header" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="sa-welcome">
-                    <h1>Inventory Management</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                        <h1>Inventory Management</h1>
+                        <span style={{ 
+                            background: '#10B981', 
+                            color: '#fff', 
+                            fontSize: '10px', 
+                            padding: '4px 10px', 
+                            borderRadius: '100px', 
+                            fontWeight: '900',
+                            letterSpacing: '0.05em'
+                        }}>STABLE MODULE</span>
+                    </div>
                     <p>View and manage all gym equipment, facilities, and maintenance status.</p>
                 </div>
             </header>
@@ -583,9 +599,9 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                     ))}
                                 </div>
                                 <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                                    <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Close</button>
-                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '12px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                                        <AlertTriangle size={16} /> Report Issue
+                                    <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.65rem' }}>Close</button>
+                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.65rem' }}>
+                                        <AlertTriangle size={14} /> Report Issue
                                     </button>
                                 </div>
                             </div>
@@ -617,10 +633,10 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                                     type="button"
                                                     onClick={() => setNewStatus(status)}
                                                     style={{
-                                                        padding: '10px',
+                                                        padding: '6px',
                                                         borderRadius: '8px',
                                                         cursor: 'pointer',
-                                                        fontSize: '0.65rem',
+                                                        fontSize: '0.62rem',
                                                         fontWeight: '600',
                                                         color: newStatus === status ? (STATUS_CONFIG[status]?.color || '#475569') : '#475569',
                                                         background: newStatus === status ? (STATUS_CONFIG[status]?.bg || '#F8FAFC') : '#F8FAFC',

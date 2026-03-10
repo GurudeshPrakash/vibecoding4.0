@@ -1,3 +1,8 @@
+/**
+ * @module StaffModule
+ * @status STABLE - LOCKED
+ * @description This module is development-complete. Avoid modifications unless specifically requested.
+ */
 import React from 'react';
 import Sidebar from '../../shared/components/Sidebar';
 import TopNav from '../../shared/components/TopNav';

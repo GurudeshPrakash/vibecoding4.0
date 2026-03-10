@@ -67,8 +67,8 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
         localStorage.setItem('unified_remember_me', email);
       }
 
-      localStorage.setItem('admin_token', userData.token);
-      localStorage.setItem('admin_user', JSON.stringify({
+      sessionStorage.setItem('admin_token', userData.token);
+      sessionStorage.setItem('admin_user', JSON.stringify({
         firstName: userData.firstName,
         lastName: userData.lastName,
         name: `${userData.firstName} ${userData.lastName}`,
@@ -103,8 +103,8 @@ const UnifiedLogin = ({ onLogin, onBack, onGoToSignUp }) => {
           localStorage.removeItem('unified_remember_me');
         }
 
-        localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('admin_user', JSON.stringify({
+        sessionStorage.setItem('admin_token', data.token);
+        sessionStorage.setItem('admin_user', JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
           name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),

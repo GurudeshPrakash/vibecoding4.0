@@ -4,6 +4,8 @@ import {
     DollarSign
 } from 'lucide-react';
 
+import taskService from '../../shared/services/taskService';
+
 // Feature Components
 import MiniCalendar from '../components/MiniCalendar';
 import StatCard from '../components/StatCard';
@@ -100,7 +102,7 @@ const AdminDashboard = ({
         }
         try {
             setIsProcessing(true);
-            const token = localStorage.getItem('admin_token');
+            const token = sessionStorage.getItem('admin_token');
             const response = await fetch(`http://localhost:5000/api/equipment/requests/${requestId}/${action}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -108,6 +110,36 @@ const AdminDashboard = ({
             });
 
             if (response.ok) {
+                // NEW WORKFLOW: Create Physical Removal Task on Approval
+                if (action === 'approve') {
+                    const request = dismantleRequests.find(r => r._id === requestId);
+                    if (request) {
+                        taskService.createTask({
+                            request_id: requestId,
+                            equipment_name: request.equipmentName || request.machineName,
+                            location: request.location || request.branch,
+                            remarks: adminComment || 'Dismantle request approved.'
+                        });
+
+                        // Notify Staff (Simulation)
+                        const staffNotif = {
+                            id: `NOTIF-STF-DIS-${Date.now()}`,
+                            type: 'Inventory',
+                            priority: 'High',
+                            recipientEmail: 'staff@gym.com',
+                            status: 'Approved',
+                            title: 'Dismantle Approved',
+                            action: `Your dismantle request for ${request.equipmentName || requestId} has been approved. Proceed with physical removal.`,
+                            time: 'Just now',
+                            timestamp: new Date().toISOString(),
+                            unread: true,
+                            isAuthNotif: true
+                        };
+                        const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+                        localStorage.setItem('dev_notifications', JSON.stringify([staffNotif, ...devNotifs]));
+                    }
+                }
+
                 alert(`Successfully ${action}d dismantle request.`);
                 setDismantleRequests(prev => prev.filter(r => r._id !== requestId));
                 setSelectedRequest(null);
@@ -123,6 +155,14 @@ const AdminDashboard = ({
         }
     };
 
+
+    // Mock Data for Performance Table
+    const performanceData = [
+        { branch: 'Colombo City Gym', members: 450, checkins: 120, revenue: '1.2M', issues: 3 },
+        { branch: 'Kandy Fitness Center', members: 320, checkins: 85, revenue: '850K', issues: 1 },
+        { branch: 'Galle Power Hub', members: 210, checkins: 45, revenue: '450K', issues: 0 },
+        { branch: 'Negombo Fitness', members: 180, checkins: 30, revenue: '380K', issues: 2 },
+    ];
 
     return (
         <div className="admin-dashboard">

@@ -54,7 +54,7 @@ const Toast = ({ message, type = 'success', visible }) => (
     </div>
 );
 
-const StaffManagement = () => {
+const StaffManagement = ({ showCreateModal = false }) => {
     // ── State ────────────────────────────────────────────────────────────────
     const [staff, setStaff] = useState(() => {
         try {
@@ -64,9 +64,9 @@ const StaffManagement = () => {
     });
 
     const [isLoading, setIsLoading] = useState(false);
-    const [modalMode, setModalMode] = useState(null); // 'edit' | 'view' | 'add'
-    const [selectedStaff, setSelectedStaff] = useState(null);
-    const [formData, setFormData] = useState({});
+    const [modalMode, setModalMode] = useState(showCreateModal ? 'add' : null); // 'edit' | 'view' | 'add'
+    const [formData, setFormData] = useState(showCreateModal ? EMPTY_FORM : {});
+
     const [formErrors, setFormErrors] = useState({});
     const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
 

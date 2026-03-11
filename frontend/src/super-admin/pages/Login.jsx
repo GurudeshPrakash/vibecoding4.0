@@ -36,9 +36,9 @@ const SuperAdminLogin = ({ onLogin, onBack }) => {
                     return;
                 }
 
-                localStorage.setItem('admin_token', data.token);
-                localStorage.setItem('admin_current_log', data.logId);
-                localStorage.setItem('admin_user', JSON.stringify({
+                sessionStorage.setItem('admin_token', data.token);
+                sessionStorage.setItem('admin_current_log', data.logId);
+                sessionStorage.setItem('admin_user', JSON.stringify({
                     firstName: data.firstName,
                     lastName: data.lastName,
                     email: data.email,

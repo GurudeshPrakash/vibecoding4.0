@@ -1201,3 +1201,123 @@
     font-weight: 800;
     color: var(--color-text);
 }
+
+/* Branch Details Page Premium Styles */
+.branch-details-page {
+    animation: slideUpFade 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.branch-details-page .sa-card {
+    border-radius: 32px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.3s ease;
+}
+
+.branch-details-page .sa-card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card-mini {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #E2E8F0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card-mini:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-red);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.06);
+}
+
+.section-content {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-red);
+    transition: all 0.3s ease;
+}
+
+.sa-card:hover .detail-item-icon {
+    background: var(--color-red);
+    color: #fff;
+    transform: rotate(5deg) scale(1.1);
+}
+
+/* Custom Scrollbar for Details */
+.sm-table-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.sm-table-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.sm-table-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.sm-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.branch-action-wide {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 800;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.branch-action-wide:hover {
+    background: #fff;
+    color: var(--color-red);
+    transform: translateX(8px);
+}
+
+.gallery-img:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.gallery-add:hover {
+    border-color: var(--color-red);
+    color: var(--color-red);
+    background: #fff;
+    transform: translateY(-4px);
+}
+
+.section-content.loading {
+    filter: blur(4px);
+    opacity: 0.6;
+    pointer-events: none;
+    user-select: none;
+}

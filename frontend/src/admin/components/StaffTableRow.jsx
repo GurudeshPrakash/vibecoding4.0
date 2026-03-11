@@ -1,13 +1,11 @@
 import React from 'react';
-import { Eye, Edit2, Trash2, MapPin } from 'lucide-react';
-import StatusBadge from '../../shared/components/ui/StatusBadge';
+import { Eye, Trash2, MapPin, Clock } from 'lucide-react';
 
 const StaffTableRow = ({
     member,
     branchName,
     avatarColor,
     onView,
-    onEdit,
     onDelete
 }) => {
     return (
@@ -45,7 +43,12 @@ const StaffTableRow = ({
                 </span>
             </td>
             <td className="sm-phone">{member.phone || '—'}</td>
-            <td><StatusBadge status={member.status} /></td>
+            <td>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#cbd5e1' }}></div>
+                    <span>Offline</span>
+                </div>
+            </td>
             <td className="sm-actions-cell">
                 <div className="sm-action-btns">
                     <button
@@ -55,14 +58,6 @@ const StaffTableRow = ({
                     >
                         <Eye size={14} />
                         <span>View</span>
-                    </button>
-                    <button
-                        className="sm-action-btn sm-btn-edit"
-                        title="Edit Staff"
-                        onClick={() => onEdit(member)}
-                    >
-                        <Edit2 size={14} />
-                        <span>Edit</span>
                     </button>
                     <button
                         className="sm-action-btn sm-btn-deactivate"

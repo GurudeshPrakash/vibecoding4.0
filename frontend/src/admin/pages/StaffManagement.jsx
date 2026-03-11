@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Loader2, X, Users, Plus, CheckCircle2,
-    MapPin, XCircle
+    MapPin, XCircle, Clock
 } from 'lucide-react';
 
 // Shared UI Components
@@ -162,8 +162,7 @@ const StaffManagement = ({ showCreateModal = false }) => {
     // ── Stats ────────────────────────────────────────────────────────────────
     const stats = {
         total: staff.length,
-        active: staff.filter(s => s.status === 'Active').length,
-        inactive: staff.filter(s => s.status === 'Inactive').length,
+        online: 0,
         branches: ADMIN_BRANCHES.length,
     };
 
@@ -185,19 +184,26 @@ const StaffManagement = ({ showCreateModal = false }) => {
                         <p className="sm-page-subtitle">Assign and manage staff for your 6 branches.</p>
                     </div>
                 </div>
-                {staff.length < 6 && (
-                    <button className="sm-btn-add" onClick={openAdd}>
-                        <Plus size={18} /> Add Staff
-                    </button>
-                )}
+                <button 
+                    className="sm-btn-add" 
+                    onClick={() => {
+                        if (staff.length >= 6) {
+                            alert("Maximum staff limit reached. You cannot add more than 6 staff members.");
+                        } else {
+                            openAdd();
+                        }
+                    }}
+                >
+                    <Plus size={18} /> Add Staff
+                </button>
             </div>
 
             <div className="sm-stats-grid">
                 {[
                     { label: 'Total Staff', value: stats.total, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)', icon: <Users size={20} color="#3B82F6" /> },
-                    { label: 'Active', value: stats.active, color: '#10B981', bg: 'rgba(16,185,129,0.08)', icon: <CheckCircle2 size={20} color="#10B981" /> },
-                    { label: 'Inactive', value: stats.inactive, color: '#EF4444', bg: 'rgba(239,68,68,0.08)', icon: <XCircle size={20} color="#EF4444" /> },
-                    { label: 'Assigned Branches', value: stats.branches, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', icon: <MapPin size={20} color="#F59E0B" /> },
+                    { label: 'Online Now', value: stats.online, color: '#10B981', bg: 'rgba(16,185,129,0.08)', icon: <CheckCircle2 size={20} color="#10B981" /> },
+                    { label: 'Total Branches', value: stats.branches, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', icon: <MapPin size={20} color="#F59E0B" /> },
+                    { label: 'System Status', value: 'Live', color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)', icon: <Clock size={20} color="#8B5CF6" /> },
                 ].map((card, i) => (
                     <div key={i} className="sm-stat-card">
                         <div className="sm-stat-icon" style={{ background: card.bg }}>{card.icon}</div>
@@ -232,7 +238,6 @@ const StaffManagement = ({ showCreateModal = false }) => {
                                         branchName={getBranchName(member.branchId)}
                                         avatarColor={getAvatarColor(member.firstName)}
                                         onView={openView}
-                                        onEdit={openEdit}
                                         onDelete={deleteStaff}
                                     />
                                 ))
@@ -253,6 +258,7 @@ const StaffManagement = ({ showCreateModal = false }) => {
                             member={member}
                             branchName={getBranchName(member.branchId)}
                             avatarColor={getAvatarColor(member.firstName)}
+                            onView={openView}
                         />
                     ))}
                 </div>
@@ -275,9 +281,13 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 show={modalMode === 'view'}
                 onClose={closeModal}
                 staff={selectedStaff}
+                branches={ADMIN_BRANCHES}
                 branchName={getBranchName(selectedStaff?.branchId)}
                 avatarColor={selectedStaff ? getAvatarColor(selectedStaff.firstName) : ''}
-                onEdit={openEdit}
+                onUpdate={(id, updatedData) => {
+                    persist(staff.map(s => s._id === id ? { ...s, ...updatedData } : s));
+                    showToast('Staff details updated successfully!');
+                }}
                 formatDate={formatDate}
             />
         </div>

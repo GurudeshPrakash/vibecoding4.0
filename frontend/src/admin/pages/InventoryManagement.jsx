@@ -210,7 +210,7 @@ const InventoryManagement = () => {
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
-                        <span className="label">Available</span>
+                        <span className="label">Good</span>
                         <h2 className="value" style={{ color: '#000' }}>{counts.good}</h2>
                     </div>
                 </div>

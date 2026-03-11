@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiRequest } from '../api/apiService';
-import { MOCK_INVENTORY } from '../../admin/constants/mockData';
 
 /**
  * Custom hook for equipment data management.
@@ -17,10 +16,10 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
         if (!isAuthenticated || !loginRole) return;
         if (!isPolling) setIsLoading(true);
 
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         const result = await apiRequest('/equipment', 'GET', null, token);
 
-        if (result.ok && result.data && result.data.length > 0) {
+        if (result.ok) {
             setInventoryData(result.data.map(item => ({
                 ...item,
                 id: item._id,
@@ -36,27 +35,20 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
                 warranty: item.warranty,
                 createdAt: item.createdAt
             })));
-        } else {
-            // Fallback to MOCK_INVENTORY for Permanent Test Setup
-            setInventoryData(MOCK_INVENTORY.map(item => ({
-                ...item,
-                id: item.id || item._id,
-                photo: item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'
-            })));
         }
         if (!isPolling) setIsLoading(false);
     }, [isAuthenticated, loginRole]);
 
     const fetchPendingRequests = useCallback(async () => {
         if (!isAuthenticated || loginRole !== 'admin') return;
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         const result = await apiRequest('/equipment/pending-requests', 'GET', null, token);
         if (result.ok) setDismantleRequests(result.data);
     }, [isAuthenticated, loginRole]);
 
     const fetchDismantledHistory = useCallback(async () => {
         if (!isAuthenticated || !loginRole) return;
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         const result = await apiRequest('/equipment/dismantled-history', 'GET', null, token);
         if (result.ok) setDismantledHistory(result.data);
     }, [isAuthenticated, loginRole]);
@@ -65,7 +57,7 @@ export const useEquipmentData = (isAuthenticated, loginRole) => {
         if (!requestId) return;
         if (!window.confirm('Confirm Physical Removal: Has this equipment been completely removed from the gym?')) return;
 
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         const result = await apiRequest(`/equipment/dismantle-finalize/${requestId}`, 'DELETE', null, token);
 
         if (result.ok) {

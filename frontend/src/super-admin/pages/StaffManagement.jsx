@@ -47,7 +47,7 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
     const fetchStaff = async () => {
         if (staffList.length === 0) setIsLoading(true);
         try {
-            const token = localStorage.getItem('admin_token');
+            const token = sessionStorage.getItem('admin_token');
             const response = await fetch('http://localhost:5000/api/admin/staff', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -81,7 +81,7 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
 
     const fetchBranches = async () => {
         try {
-            const token = localStorage.getItem('admin_token');
+            const token = sessionStorage.getItem('admin_token');
             const response = await fetch('http://localhost:5000/api/admin/branches', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -125,7 +125,7 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         const url = editingStaff
             ? `http://localhost:5000/api/admin/staff/${editingStaff._id}`
             : 'http://localhost:5000/api/admin/staff';
@@ -192,7 +192,7 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
     };
 
     const handleToggleStatus = async (staff) => {
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         const newStatus = staff.status === 'Inactive' ? 'Active' : 'Inactive';
         if (!window.confirm(`Are you sure you want to change status for ${staff.firstName} to ${newStatus}?`)) return;
 

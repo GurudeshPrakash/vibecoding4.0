@@ -48,28 +48,41 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
         ? branches 
         : branches.filter(b => b.key === selectedBranch);
 
+    // Function to find the peak point for a branch in the current data
+    const getPeakPoint = (branchKey) => {
+        let maxVal = -1;
+        let peakTime = '';
+        displayData.forEach(d => {
+            if (d[branchKey] > maxVal) {
+                maxVal = d[branchKey];
+                peakTime = d.time;
+            }
+        });
+        return { time: peakTime, value: maxVal };
+    };
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={displayData}
-                    margin={{ top: 20, right: 30, left: 10, bottom: 30 }}
+                    margin={{ top: 20, right: 10, left: 5, bottom: 35 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis 
                         dataKey="time" 
                         axisLine={false} 
                         tickLine={false} 
-                        tick={{ fontSize: 10, fontWeight: 700, fill: '#94A3B8', dy: 10 }}
+                        tick={{ fontSize: 10, fontWeight: 800, fill: '#64748B', dy: 10 }}
                         interval={1}
-                        padding={{ left: 30, right: 30 }}
+                        padding={{ left: 15, right: 15 }}
                     />
                     <YAxis 
                         domain={[0, 100]}
                         ticks={[0, 25, 50, 75, 100]}
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10, fontWeight: 700, fill: '#94A3B8' }}
+                        tick={{ fontSize: 10, fontWeight: 800, fill: '#64748B' }}
                         width={40}
                     />
                     <Tooltip 
@@ -81,20 +94,23 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                             background: '#fff'
                         }}
                         labelStyle={{ fontWeight: 900, color: '#1E293B', marginBottom: '8px', fontSize: '0.9rem' }}
-                        itemStyle={{ fontSize: '0.85rem', fontWeight: 700, padding: '4px 0' }}
+                        itemStyle={{ fontSize: '0.8rem', fontWeight: 900, padding: '4px 0' }}
+                        formatter={(value, name) => [`${value} Members`, name]}
                     />
                     <Legend 
-                        layout="vertical" 
-                        align="right" 
-                        verticalAlign="middle" 
+                        layout="horizontal" 
+                        align="center" 
+                        verticalAlign="bottom" 
                         iconType="circle"
-                        iconSize={6}
+                        iconSize={5}
                         wrapperStyle={{ 
-                            paddingLeft: '20px',
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
+                            paddingTop: '18px',
+                            fontSize: '0.6rem',
+                            fontWeight: 800,
                             color: '#475569',
-                            textTransform: 'uppercase'
+                            textTransform: 'uppercase',
+                            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+                            letterSpacing: '0.05em'
                         }}
                     />
                     
@@ -106,25 +122,43 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                             stroke={branch.color} 
                             strokeWidth={3} 
                             dot={false}
-                            activeDot={{ r: 6, fill: branch.color, stroke: '#fff', strokeWidth: 2 }}
-                            animationDuration={300} // Faster transition for "live" feel
+                            activeDot={{ r: 5, fill: branch.color, stroke: '#fff', strokeWidth: 2 }}
+                            animationDuration={300}
                             isAnimationActive={true}
                         />
                     ))}
 
-                    {/* Peak Dot for selected branch */}
-                    {selectedBranch !== 'All' && filteredBranches.map(branch => (
-                        <ReferenceDot 
-                            key={`peak-${branch.key}`}
-                            x={branch.peakTime} 
-                            y={displayData.find(d => d.time === branch.peakTime)?.[branch.key] || 0} 
-                            r={5} 
-                            fill={branch.color} 
-                            stroke="#fff" 
-                            strokeWidth={2}
-                            isFront={true}
-                        />
-                    ))}
+                    {/* Peak Point highlighting for the selected branch (or all if filtered) */}
+                    {filteredBranches.map(branch => {
+                        const peak = getPeakPoint(branch.key);
+                        const isMainPeak = selectedBranch !== 'All';
+                        
+                        return (
+                            <React.Fragment key={`peak-group-${branch.key}`}>
+                                {/* Outer glow for peak */}
+                                {isMainPeak && (
+                                    <ReferenceDot 
+                                        x={peak.time} 
+                                        y={peak.value} 
+                                        r={11} 
+                                        fill={branch.color} 
+                                        stroke="none" 
+                                        fillOpacity={0.15}
+                                        isFront={false}
+                                    />
+                                )}
+                                <ReferenceDot 
+                                    x={peak.time} 
+                                    y={peak.value} 
+                                    r={isMainPeak ? 5.5 : 4} 
+                                    fill={branch.color} 
+                                    stroke="#fff" 
+                                    strokeWidth={isMainPeak ? 2.5 : 1.5}
+                                    isFront={true}
+                                />
+                            </React.Fragment>
+                        );
+                    })}
                 </LineChart>
             </ResponsiveContainer>
         </div>

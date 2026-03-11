@@ -174,7 +174,7 @@ const AdminDashboard = ({
                                 </div>
                             </div>
                         </div>
-                        <div style={{ padding: '0 20px 20px 20px', marginLeft: 0, height: '420px' }}>
+                        <div style={{ padding: '0 20px 0 20px', marginLeft: 0, height: '300px' }}>
                             <BranchUsageChart selectedBranch={selectedBranch} liveData={hourlyUsage} />
                         </div>
                     </div>

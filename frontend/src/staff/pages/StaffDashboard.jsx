@@ -117,14 +117,15 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                         <h1>Dashboard</h1>
                         <span style={{ 
-                            background: '#10B981', 
-                            color: '#fff', 
-                            fontSize: '10px', 
-                            padding: '4px 10px', 
+                            background: 'rgba(239, 68, 68, 0.1)', 
+                            color: '#EF4444', 
+                            fontSize: '0.65rem', 
+                            padding: '4px 12px', 
                             borderRadius: '100px', 
-                            fontWeight: '900',
-                            letterSpacing: '0.05em'
-                        }}>STABLE MODULE</span>
+                            fontWeight: '800',
+                            letterSpacing: '0.05em',
+                            border: '1px solid rgba(239, 68, 68, 0.2)'
+                        }}>GALLE BRANCH</span>
                     </div>
                     <p>Welcome to your daily shift overview. Have a great day!</p>
                 </div>

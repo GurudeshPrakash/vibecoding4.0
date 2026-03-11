@@ -1,6 +1,6 @@
 .admin-dashboard {
     padding: 24px 32px;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 60px);
     overflow-y: auto;
     background: #F8FAFC;
     color: var(--color-text);
@@ -811,7 +811,7 @@
 
 .branch-card-media {
     position: relative;
-    height: 220px;
+    height: 180px;
     overflow: hidden;
 }
 
@@ -859,15 +859,15 @@
 }
 
 .branch-card-body {
-    padding: 24px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .branch-main-info h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.35rem;
+    margin: 0 0 4px 0;
+    font-size: 1.2rem;
     font-weight: 900;
     color: #1E293B;
     letter-spacing: -0.02em;
@@ -876,22 +876,22 @@
 .branch-meta-row {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     color: #64748B;
 }
 
 .branch-meta-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
+    gap: 5px;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 .branch-actions-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
 }
 
 .branch-action-pill {
@@ -899,12 +899,12 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 12px;
-    border-radius: 16px;
+    padding: 10px;
+    border-radius: 12px;
     border: 1.5px solid #F1F5F9;
     background: #F8FAFC;
     color: #475569;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
     transition: all 0.2s ease;
     cursor: pointer;

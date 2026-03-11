@@ -117,7 +117,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this equipment?')) return;
+        if (!window.confirm('Are you sure you want to remove this equipment?')) return;
         // Mocking for now, in production call API
         setInventory(prev => prev.filter(item => (item.id || item._id) !== id));
     };
@@ -338,14 +338,15 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                         <h1>Inventory Management</h1>
                         <span style={{ 
-                            background: '#10B981', 
-                            color: '#fff', 
-                            fontSize: '10px', 
-                            padding: '4px 10px', 
+                            background: 'rgba(239, 68, 68, 0.1)', 
+                            color: '#EF4444', 
+                            fontSize: '0.65rem', 
+                            padding: '4px 12px', 
                             borderRadius: '100px', 
-                            fontWeight: '900',
-                            letterSpacing: '0.05em'
-                        }}>STABLE MODULE</span>
+                            fontWeight: '800',
+                            letterSpacing: '0.05em',
+                            border: '1px solid rgba(239, 68, 68, 0.2)'
+                        }}>GALLE BRANCH</span>
                     </div>
                     <p>View and manage all gym equipment, facilities, and maintenance status.</p>
                 </div>
@@ -600,8 +601,8 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                 </div>
                                 <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
                                     <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.65rem' }}>Close</button>
-                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.65rem' }}>
-                                        <Edit2 size={14} /> Edit Details
+                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '8px', background: '#FEF2F2', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.65rem' }}>
+                                        <Wrench size={14} /> Report
                                     </button>
                                 </div>
                             </div>

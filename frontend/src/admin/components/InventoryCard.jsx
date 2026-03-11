@@ -19,11 +19,12 @@ const InventoryCard = ({
     };
 
     return (
-        <div className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-            <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
+        <div className="sa-card sa-inventory-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+            <div className="sa-card-img-wrapper" style={{ overflow: 'hidden', position: 'relative' }}>
                 <img
                     src={item.photo}
                     alt={item.name}
+                    className="sa-card-img"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={e => { e.target.style.display = 'none'; }}
                 />

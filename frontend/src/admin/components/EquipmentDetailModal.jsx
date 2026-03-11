@@ -53,8 +53,8 @@ const EquipmentDetailModal = ({
                     </div>
                     <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
                         <button onClick={onClose} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Close</button>
-                        <button onClick={() => { onReportIssue(item); onClose(); }} style={{ flex: 1, padding: '12px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                            <Edit2 size={16} /> Edit Details
+                        <button onClick={() => { onReportIssue(item); onClose(); }} style={{ flex: 1, padding: '12px', background: '#FEF2F2', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
+                            <Wrench size={16} /> Report
                         </button>
                     </div>
                 </div>

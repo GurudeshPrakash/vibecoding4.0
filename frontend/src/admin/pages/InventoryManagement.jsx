@@ -138,7 +138,7 @@ const InventoryManagement = () => {
     };
 
     const handleRemoveEquipment = (id) => {
-        if (!window.confirm('Remove this equipment from inventory?')) return;
+        if (!window.confirm('Are you sure you want to remove this equipment?')) return;
         const updated = inventory.filter(i => i.id !== id);
         setInventory(updated);
         localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
@@ -305,7 +305,7 @@ const InventoryManagement = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                 {filtered.map(item => (
                     <InventoryCard
                         key={item.id}

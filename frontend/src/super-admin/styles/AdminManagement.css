@@ -87,20 +87,20 @@
 /* Summary Grid */
 .sa-summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     margin-bottom: 40px;
 }
 
 .sa-stat-card {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 20px 24px;
+    border-radius: 16px;
+    padding: 16px 20px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -112,9 +112,9 @@
 }
 
 .sa-stat-card .icon-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;

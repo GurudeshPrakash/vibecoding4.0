@@ -23,9 +23,13 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
             setBranches(JSON.parse(savedBranches));
         } else {
             // Fallback if none created yet
-            setBranches(Array.from({ length: 24 }, (_, i) => ({
+            const branchNames = [
+                'Colombo City Gym', 'Kandy Fitness Center', 'Galle Power Hub', 
+                'Negombo Fitness', 'Kurunegala Gym', 'Matara Fitness Hub'
+            ];
+            setBranches(branchNames.map((name, i) => ({
                 _id: `b${i + 1}`,
-                name: `Branch ${String(i + 1).padStart(2, '0')}`
+                name: name
             })));
         }
     }, [showModal]);
@@ -49,7 +53,7 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
                 phone: '0771234567',
                 nic: '199512345678',
                 lastLogin: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-                assignedBranches: ['Branch 01', 'Branch 02', 'Branch 03', 'Branch 04', 'Branch 05', 'Branch 06'],
+                assignedBranches: ['Colombo City Gym', 'Kandy Fitness Center'],
                 profilePic: '/MDH_8729webqualitysquare.webp'
             },
             {
@@ -60,7 +64,7 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
                 phone: '0779990000',
                 nic: '199098765432',
                 lastLogin: null,
-                assignedBranches: ['Branch 07', 'Branch 08', 'Branch 09', 'Branch 10', 'Branch 11', 'Branch 12'],
+                assignedBranches: ['Galle Power Hub', 'Negombo Fitness'],
                 profilePic: '/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg'
             },
             {
@@ -71,7 +75,7 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
                 phone: '0772222222',
                 nic: '199212344321',
                 lastLogin: new Date(Date.now() - 1000 * 60 * 65).toISOString(),
-                assignedBranches: ['Branch 13', 'Branch 14', 'Branch 15', 'Branch 16', 'Branch 17', 'Branch 18'],
+                assignedBranches: ['Kurunegala Gym'],
                 profilePic: '/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg'
             },
             {
@@ -82,7 +86,7 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
                 phone: '0768882222',
                 nic: '199877776666',
                 lastLogin: null,
-                assignedBranches: ['Branch 19', 'Branch 20', 'Branch 21', 'Branch 22', 'Branch 23', 'Branch 24'],
+                assignedBranches: ['Matara Fitness Hub'],
                 profilePic: '/download.jpg'
             },
         ];

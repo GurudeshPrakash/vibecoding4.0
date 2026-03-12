@@ -22,6 +22,7 @@ const StaffTableRow = ({
                             color: avatarColor,
                             cursor: 'pointer',
                             overflow: 'hidden',
+                            borderRadius: '50%',
                             border: '2px solid #fff',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                         }}

@@ -38,6 +38,92 @@ const StaffFormModal = ({
                 </div>
 
                 <form onSubmit={onSubmit} className="sm-form" noValidate>
+                    {/* Profile Photo Upload Section */}
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
+                        <div style={{ position: 'relative' }}>
+                            <div 
+                                style={{ 
+                                    width: '120px', 
+                                    height: '120px', 
+                                    borderRadius: '50%', 
+                                    overflow: 'hidden', 
+                                    border: '4px solid #fff', 
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                    background: '#F8FAFC',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.borderColor = 'var(--color-red)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = '#fff'; }}
+                                onClick={() => document.getElementById('staff-photo-upload').click()}
+                            >
+                                {formData.photo ? (
+                                    <img 
+                                        src={formData.photo} 
+                                        alt="Profile Preview" 
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                    />
+                                ) : (
+                                    <div style={{ textAlign: 'center', color: '#94A3B8' }}>
+                                        <div style={{ background: '#F1F5F9', padding: '12px', borderRadius: '50%', marginBottom: '4px' }}>
+                                            <Plus size={32} />
+                                        </div>
+                                        <div style={{ fontSize: '0.6rem', fontWeight: '800', textTransform: 'uppercase' }}>Add Photo</div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <input 
+                                type="file" 
+                                id="staff-photo-upload" 
+                                hidden 
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => {
+                                            onChange({ target: { name: 'photo', value: reader.result } });
+                                        };
+                                        reader.readAsDataURL(file);
+                                    }
+                                }}
+                            />
+
+                            {formData.photo && (
+                                <button
+                                    type="button"
+                                    onClick={() => onChange({ target: { name: 'photo', value: '' } })}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: '4px',
+                                        right: '4px',
+                                        background: '#EF4444',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: '32px',
+                                        height: '32px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                    title="Remove Photo"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="sm-form-grid">
                         {mode === 'edit' && (
                             <div className="sm-form-group sm-half">

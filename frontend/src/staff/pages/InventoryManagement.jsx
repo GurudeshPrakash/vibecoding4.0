@@ -11,6 +11,7 @@ import {
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../shared/assets/logo1.png';
 import '../styles/InventoryManagement.css';
+import { ADMIN_BRANCHES } from '../../admin/constants/mockData';
 
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
@@ -23,18 +24,18 @@ const MOCK_INVENTORY = [
     { id: 'TM-001', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-001', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
     { id: 'TM-002', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-002', lastMaintenance: '2025-12-01', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
     { id: 'EB-001', name: 'Upright Stationary Bike', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Matrix', model: 'U50', serial: 'SN-EB-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LP-001', name: '45-Degree Leg Press', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LP', serial: 'SN-LP-001', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CC-001', name: 'Dual Cable Crossover', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Precor', model: 'FTS-Glide', serial: 'SN-CC-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
+    { id: 'LP-001', name: '45-Degree Leg Press', category: 'Weight Machine', status: 'Good', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LP', serial: 'SN-LP-001', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
+    { id: 'CC-001', name: 'Dual Cable Crossover', category: 'Weight Machine', status: 'Good', area: 'Strength Zone', brand: 'Precor', model: 'FTS-Glide', serial: 'SN-CC-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
     { id: 'RM-001', name: 'Concept2 RowErg', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RM-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
     { id: 'FB-001', name: 'Adjustable Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-FB-001', lastMaintenance: '2025-11-20', nextMaintenance: '2026-05-20', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'SM-001', name: 'Pro Smith Machine', category: 'Strength', status: 'Dismantled', area: 'Strength Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-001', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
+    { id: 'SM-001', name: 'Pro Smith Machine', category: 'Weight Machine', status: 'Dismantled', area: 'Strength Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-001', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
     { id: 'DB-001', name: 'Dumbbell Set (5kg-50kg)', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Rubber Hex', serial: 'SN-DB-SET-01', lastMaintenance: '2026-01-05', nextMaintenance: '2026-07-05', photo: 'https://images.unsplash.com/photo-1586401100295-7a8096fd231a?auto=format&fit=crop&q=80&w=800' },
     { id: 'BC-001', name: 'Olympic Barbell', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Ohio Bar', serial: 'SN-BC-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-08-10', photo: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&q=80&w=800' },
     { id: 'EL-001', name: 'Elliptical Trainer E7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-001', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CH-001', name: 'Chest Press Machine', category: 'Strength', status: 'Good', area: 'Strength Zone', brand: 'Matrix', model: 'G7-S13', serial: 'SN-CH-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LD-001', name: 'Lat Pulldown Station', category: 'Strength', status: 'Maintenance', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LD', serial: 'SN-LD-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1591940746222-e8d2f7f00ce2?auto=format&fit=crop&q=80&w=800' },
+    { id: 'CH-001', name: 'Chest Press Machine', category: 'Weight Machine', status: 'Good', area: 'Strength Zone', brand: 'Matrix', model: 'G7-S13', serial: 'SN-CH-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80&w=800' },
+    { id: 'LD-001', name: 'Lat Pulldown Station', category: 'Weight Machine', status: 'Maintenance', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LD', serial: 'SN-LD-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1591940746222-e8d2f7f00ce2?auto=format&fit=crop&q=80&w=800' },
     { id: 'KB-001', name: 'Kettlebell Set (4kg-32kg)', category: 'Free Weights', status: 'Good', area: 'Functional Area', brand: 'Eleiko', model: 'Training KB', serial: 'SN-KB-SET-01', lastMaintenance: '2026-02-20', nextMaintenance: '2026-08-20', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'PR-001', name: 'Power Rack System', category: 'Strength', status: 'Good', area: 'Power Zone', brand: 'Rogue', model: 'R-3', serial: 'SN-PR-001', lastMaintenance: '2026-01-10', nextMaintenance: '2026-07-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
+    { id: 'PR-001', name: 'Power Rack System', category: 'Weight Machine', status: 'Good', area: 'Power Zone', brand: 'Rogue', model: 'R-3', serial: 'SN-PR-001', lastMaintenance: '2026-01-10', nextMaintenance: '2026-07-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
     { id: 'TM-204-01', name: 'Pro-Series Treadmill G7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T Elevation', serial: 'SN-TM-2024-001X', mfgYear: '2024', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
     { id: 'EB-102-05', name: 'Matrix Upright Bike U50', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Matrix', model: 'U50 V2', serial: 'SN-EB-2023-112B', mfgYear: '2023', lastMaintenance: '2025-12-01', nextMaintenance: '2026-02-28', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
     { id: 'LP-305-12', name: 'Plate-Loaded Leg Press', category: 'Weight Machine', status: 'Good', area: 'Leg Zone', brand: 'Hammer Strength', model: 'MTS Leg Press', serial: 'SN-LP-2022-998C', mfgYear: '2022', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
@@ -55,26 +56,48 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
 
-    // Sync with live data from hook
-    useEffect(() => {
-        if (inventoryData && inventoryData.length > 0) {
-            setInventory(inventoryData);
-        }
-    }, [inventoryData]);
+    const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
+    const branchId = staffUser.branchId || 'b3';
+    const branchName = ADMIN_BRANCHES.find(b => b._id === branchId)?.name || 'GALLE POWER HUB';
 
-    // Apply Dev Overrides
+    // 1. Initial Load & Polling from Main DB
+    useEffect(() => {
+        const refreshInventory = () => {
+            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+            if (invDb.length > 0) {
+                const mappedDb = invDb.map(item => {
+                    let category = item.category;
+                    if (category === 'Strength') category = 'Weight Machine';
+                    if (!CATEGORIES.includes(category)) category = 'Weight Machine';
+                    return { ...item, category };
+                });
+
+                if (userRole === 'staff') {
+                    setInventory(mappedDb.filter(i => i.branchId === branchId));
+                } else {
+                    setInventory(mappedDb);
+                }
+            }
+        };
+
+        refreshInventory();
+        const interval = setInterval(refreshInventory, 500); // Live sync
+        return () => clearInterval(interval);
+    }, [userRole, branchId]);
+
+    // 2. Apply Persistence & Dev Overrides
     useEffect(() => {
         const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
         if (Object.keys(overrides).length > 0) {
             setInventory(prev => prev.map(item => {
-                const id = item.id || item._id;
+                const id = (item.id || item._id);
                 if (overrides[id]) {
                     return { ...item, status: overrides[id] };
                 }
                 return item;
             }));
         }
-    }, [inventoryData]);
+    }, [inventoryData, branchId]);
 
 
     const [selectedItem, setSelectedItem] = useState(null);
@@ -134,9 +157,9 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
 
     const counts = {
         total: inventory.length,
-        good: inventory.filter(i => i.status === 'Good').length,
+        good: inventory.filter(i => i.status === 'Good' || i.status === 'Available').length,
         maintenance: inventory.filter(i => i.status === 'Maintenance').length,
-        dismantled: inventory.filter(i => i.status === 'Dismantled').length,
+        damaged: inventory.filter(i => i.status === 'Damaged').length,
     };
 
     const handleOpenReport = (item) => {
@@ -151,6 +174,10 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
         const availableSlots = 20 - reportImages.length;
+        if (availableSlots <= 0) {
+            alert('Maximum 20 photos allowed.');
+            return;
+        }
         const newImages = files.slice(0, availableSlots).map(file => ({
             file,
             preview: URL.createObjectURL(file)
@@ -169,21 +196,13 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
         e.preventDefault();
 
         // VALIDATION: Description and Image are required ONLY for 'Damaged'
-        if (newStatus === 'Damaged') {
-            if (!reportReason.trim()) {
-                alert('Please provide a description of the damage.');
-                return;
-            }
-            if (reportImages.length === 0) {
-                alert('At least one image is required for a damage report.');
-                return;
-            }
+        const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Staff Member';
+
+        // Validation for ALL required fields
+        if (!newStatus) {
+            alert('Please select a status.');
+            return;
         }
-
-        const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
-
-        const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Nimal Silva';
-        const staffBranch = 'Galle'; // Simulation: Staff is from Galle branch
 
         const reportData = {
             id: `REP-${Date.now()}`,
@@ -191,7 +210,8 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             machineName: reportItem.name,
             machinePhoto: reportItem.photo,
             machineSerial: reportItem.serial,
-            branch: staffBranch,
+            branchId: branchId,
+            branch: branchName,
             staffName: staffName,
             status: newStatus,
             description: reportReason,
@@ -201,85 +221,110 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             isRejected: false
         };
 
-        // 1. GOOD STATUS: No description, no image, no notification, update immediately
+        // 1. GOOD STATUS: No description, no image, update immediately
         if (newStatus === 'Good') {
-            setInventory(prev => prev.map(item =>
-                (item.id || item._id) === (reportItem.id || reportItem._id) ? { ...item, status: 'Good' } : item
-            ));
-            setShowReportModal(false);
-            return;
-        }
+            const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
+            overrides[reportItem.id || reportItem._id] = 'Good';
+            localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
+            
+            // Sync with inventory db
+            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+            const updatedInv = invDb.map(item => (item.id === reportItem.id) ? { ...item, status: 'Good' } : item);
+            localStorage.setItem('admin_inventory_db', JSON.stringify(updatedInv));
 
-        // 2. MAINTENANCE STATUS: Notify ONLY branch Admin (Daniel Perera)
-        if (newStatus === 'Maintenance') {
-            setInventory(prev => prev.map(item =>
-                (item.id || item._id) === (reportItem.id || reportItem._id) ? { ...item, status: 'Maintenance' } : item
-            ));
-
+            // Notify Admin
+            const adminEmail = `admin_${branchId}@gym.com`;
             const notification = {
                 id: `NOTIF-${Date.now()}`,
-                type: 'Maintenance',
-                priority: 'Medium',
-                recipientEmail: 'admin@gym.com', // Daniel Perera (Admin)
-                title: 'Maintenance Required',
-                message: `Staff member ${staffName} reported that the machine ${reportItem.id || reportItem._id} requires maintenance.`,
+                type: 'Inventory',
+                priority: 'Low',
+                recipientEmail: adminEmail,
+                title: 'Status Updated',
+                message: `Staff ${staffName} from ${branchName} updated ${reportItem.name} status to Good.`,
                 timestamp: new Date().toISOString(),
                 unread: true,
                 isAuthNotif: true,
                 staffName: staffName,
-                action: 'reported maintenance required',
-                branch: staffBranch
+                action: 'marked equipment as Good',
+                branchId: branchId
+            };
+            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
+            localStorage.setItem('dev_notifications', JSON.stringify([notification, ...devNotifs]));
+
+            alert('Status updated to Good. Admin notified.');
+            setShowReportModal(false);
+            window.location.reload();
+            return;
+        }
+
+        // 2. MAINTENANCE STATUS: Directly change, Notify ONLY branch Admin
+        if (newStatus === 'Maintenance') {
+            const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
+            overrides[reportItem.id || reportItem._id] = 'Maintenance';
+            localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
+
+            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+            const updatedInv = invDb.map(item => (item.id === reportItem.id) ? { ...item, status: 'Maintenance' } : item);
+            localStorage.setItem('admin_inventory_db', JSON.stringify(updatedInv));
+
+            const adminEmail = `admin_${branchId}@gym.com`; // Branch-specific admin
+            const notification = {
+                id: `NOTIF-${Date.now()}`,
+                type: 'Maintenance',
+                priority: 'Medium',
+                recipientEmail: adminEmail,
+                title: 'Maintenance Logged',
+                message: `Staff ${staffName} from ${branchName} marked ${reportItem.name} as under maintenance.`,
+                timestamp: new Date().toISOString(),
+                unread: true,
+                isAuthNotif: true,
+                staffName: staffName,
+                action: 'marked equipment as maintenance',
+                branchId: branchId
             };
 
             const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
             localStorage.setItem('dev_notifications', JSON.stringify([notification, ...devNotifs]));
+            
+            alert('Equipment status updated to Maintenance. Admin notified.');
+            setShowReportModal(false);
+            window.location.reload();
+            return;
         }
 
-        // 3. DAMAGED STATUS: Notify branch Admin AND Super Admin, requires approval
+        // 3. DAMAGED STATUS: Do NOT change immediately, Notify branch Admin for approval
         if (newStatus === 'Damaged') {
+            // Mandatory check for report fields
+            if (!reportReason.trim() || reportImages.length === 0) {
+                alert('Description and at least 1 photo are mandatory for Damaged reports.');
+                return;
+            }
+
             const devReports = JSON.parse(localStorage.getItem('dev_damaged_reports') || '[]');
             localStorage.setItem('dev_damaged_reports', JSON.stringify([reportData, ...devReports]));
 
-            // Notify Branch Admin (Daniel Perera)
+            const adminEmail = `admin_${branchId}@gym.com`;
             const adminNotif = {
-                id: `NOTIF-ADM-${Date.now()}`,
+                id: `NOTIF-DAM-${Date.now()}`,
                 type: 'Damaged',
                 priority: 'High',
-                recipientEmail: 'admin@gym.com',
-                title: 'Equipment Damage Reported',
-                message: `URGENT: ${staffName} reported ${reportItem.name} (${reportItem.id || reportItem._id}) as damaged in ${staffBranch}.`,
+                recipientEmail: adminEmail, // Branch Admin Approval Required
+                title: 'Approval Required: Damaged Equipment',
+                message: `${staffName} reported ${reportItem.name} as DAMAGED. Approval required to update status.`,
                 timestamp: reportData.timestamp,
                 unread: true,
                 isAuthNotif: true,
                 staffName: staffName,
-                action: 'reported equipment damage',
+                action: 'requested damage approval',
                 reportId: reportData.id,
-                equipmentName: reportItem.name,
-                branch: staffBranch
-            };
-
-            // Notify Super Admin (Alex Fernando)
-            const superNotif = {
-                id: `NOTIF-SUP-${Date.now()}`,
-                type: 'Damaged',
-                priority: 'High',
-                recipientEmail: 'superadmin@gym.com',
-                title: 'Equipment Damage Reported',
-                message: `URGENT: ${staffName} reported ${reportItem.name} (${reportItem.id || reportItem._id}) as damaged in ${staffBranch}.`,
-                timestamp: reportData.timestamp,
-                unread: true,
-                isAuthNotif: true,
-                staffName: staffName,
-                action: 'reported equipment damage',
-                reportId: reportData.id,
-                equipmentName: reportItem.name,
-                branch: staffBranch
+                branchId: branchId
             };
 
             const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
-            localStorage.setItem('dev_notifications', JSON.stringify([adminNotif, superNotif, ...devNotifs]));
+            localStorage.setItem('dev_notifications', JSON.stringify([adminNotif, ...devNotifs]));
 
-            alert(`Damage report for ${reportItem.name} sent to Admin and Super Admin for approval.`);
+            alert(`Damage report sent to ${branchName} Admin for approval. Status will update once approved.`);
+            setShowReportModal(false);
         }
         // Update inventory state
         setInventory(prev => prev.map(item => {
@@ -391,7 +436,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
                         <span className="label">Damaged</span>
-                        <h2 className="value">{counts.dismantled}</h2>
+                        <h2 className="value">{counts.damaged}</h2>
                     </div>
                 </div>
             </section>
@@ -540,7 +585,9 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                     <div>
                                         <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', marginBottom: '6px' }}>Category</label>
                                         <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                                            {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
+                                            <option value="Cardio">Cardio</option>
+                                            <option value="Weight Machine">Weight Machine</option>
+                                            <option value="Free Weights">Free Weights</option>
                                         </select>
                                     </div>
                                     <div>
@@ -611,10 +658,10 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                         </div>
                                     ))}
                                 </div>
-                                <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                                    <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.65rem' }}>Close</button>
-                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '8px', background: '#FEF2F2', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.65rem' }}>
-                                        <Wrench size={14} /> Report
+                                <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
+                                    <button onClick={() => setSelectedItem(null)} style={{ flex: 1, padding: '12px 24px', background: '#F1F5F9', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', color: '#64748B', fontSize: '0.72rem', fontFamily: "'Inter', sans-serif", transition: 'all 0.2s' }}>Close</button>
+                                    <button onClick={() => { setSelectedItem(null); handleOpenReport(selectedItem); }} style={{ flex: 1, padding: '12px 24px', background: '#FEF2F2', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '0.72rem', fontFamily: "'Inter', sans-serif", transition: 'all 0.2s' }}>
+                                        <Wrench size={16} /> Report
                                     </button>
                                 </div>
                             </div>
@@ -707,6 +754,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                                         </label>
                                                     )}
                                                 </div>
+                                                <p style={{ margin: '8px 0 0', fontSize: '0.65rem', color: '#64748B', fontWeight: '600' }}>Maximum 20 photos allowed.</p>
                                             </div>
                                         </>
                                     )}
@@ -714,7 +762,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: '#64748B', fontSize: '0.72rem' }}>Cancel</button>
                                         <button type="submit" style={{ flex: 2, padding: '12px', background: '#1E3A5F', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.72rem' }}>
-                                            <Send size={16} /> Save Changes
+                                            <Send size={16} /> Send Message
                                         </button>
                                     </div>
                                 </form>

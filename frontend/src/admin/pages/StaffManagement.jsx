@@ -34,6 +34,7 @@ const makeEditForm = (member) => ({
     branchId: member?.branchId || '',
     joinDate: member?.joinDate || '',
     status: member?.status || 'Active',
+    photo: member?.photo || '',
 });
 
 const EMPTY_FORM = {
@@ -44,6 +45,7 @@ const EMPTY_FORM = {
     branchId: '',
     joinDate: new Date().toISOString().split('T')[0],
     status: 'Active',
+    photo: '',
 };
 
 // ─── Toast Sub-component ───────────────────────────────────────────────────
@@ -68,7 +70,6 @@ const StaffManagement = ({ showCreateModal = false }) => {
     const [modalMode, setModalMode] = useState(showCreateModal ? 'add' : null); // 'edit' | 'view' | 'add'
     const [formData, setFormData] = useState(showCreateModal ? EMPTY_FORM : {});
     const [formErrors, setFormErrors] = useState({});
-    const [selectedStaff, setSelectedStaff] = useState(null);
     const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
 
     // ── Persist ──────────────────────────────────────────────────────────────

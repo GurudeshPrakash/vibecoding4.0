@@ -18,7 +18,8 @@ const Reports = () => {
         { subject: 'Kandy', A: 98, B: 130, fullMark: 150 },
         { subject: 'Galle', A: 86, B: 130, fullMark: 150 },
         { subject: 'Negombo', A: 99, B: 100, fullMark: 150 },
-        { subject: 'Jaffna', A: 85, B: 90, fullMark: 150 },
+        { subject: 'Kurunegala', A: 85, B: 90, fullMark: 150 },
+        { subject: 'Matara', A: 75, B: 95, fullMark: 150 },
     ];
 
     const stats = [
@@ -33,7 +34,7 @@ const Reports = () => {
             <header className="sa-header">
                 <div className="sa-welcome">
                     <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>Network Intelligence</h1>
-                    <p style={{ margin: 0, marginTop: '4px' }}>Strategic insights and performance metrics across all 24 branches.</p>
+                    <p style={{ margin: 0, marginTop: '4px' }}>Strategic insights and performance metrics across all 6 branches.</p>
                 </div>
 
                 <div className="sa-actions">

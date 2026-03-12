@@ -10,6 +10,8 @@ import {
     Plus,
     Bell,
     Search,
+    Package,
+    AlertTriangle,
     ShieldCheck,
     Clock,
     Activity,
@@ -279,15 +281,15 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
             } catch (e) { }
         }
         return {
-            totalBranches: 24,
+            totalBranches: 6,
             totalAdmins: 4,
             totalStaff: 156,
             totalMembers: 4850,
             activeMembers: 4200,
             todayRevenue: 125000,
             newMembersToday: 12,
-            acGyms: 16,
-            nonAcGyms: 8,
+            acGyms: 3,
+            nonAcGyms: 3,
             revenueTrend: [
                 { month: 'Jan', revenue: 8.5 },
                 { month: 'Feb', revenue: 9.2 },
@@ -317,11 +319,12 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 { name: 'Dec', members: 0 },
             ],
             branchPerformance: [
-                { name: 'Colombo 07', performance: 95 },
-                { name: 'Kandy Central', performance: 88 },
-                { name: 'Galle Fort', performance: 82 },
+                { name: 'Colombo City', performance: 95 },
+                { name: 'Kandy Fitness', performance: 88 },
+                { name: 'Galle Power', performance: 82 },
                 { name: 'Negombo Beach', performance: 75 },
-                { name: 'Jaffna Town', performance: 70 },
+                { name: 'Kurunegala Gym', performance: 70 },
+                { name: 'Matara Hub', performance: 65 },
             ],
             recentActivities: [
                 { id: 1, user: 'John Doe', action: 'registered as a new member', time: '2 mins ago', type: 'member' },
@@ -356,6 +359,11 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                     .filter(m => m.joinedDate === todayStr || (m.createdAt && m.createdAt.startsWith(todayStr)))
                     .length;
 
+                // Inventory Stats
+                const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+                const totalEquipmentCount = invDb.length;
+                const damagedEquipmentCount = invDb.filter(i => i.status === 'Damaged').length;
+
                 // Update current month growth in trends
                 const updatedRevenueTrend = [...prev.revenueTrend];
                 // For demonstration, we simulate current month revenue as partial
@@ -375,15 +383,17 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
 
                 return {
                     ...prev,
-                    totalBranches: branchesDb.length || 24,
+                    totalBranches: branchesDb.length || 6,
                     totalAdmins: adminsDb.length || 4,
                     totalStaff: staffDb.length || 156,
                     totalMembers: membersDb.length || 4850,
                     activeMembers: membersDb.filter(m => m.status === 'Active').length || 4200,
                     todayRevenue: todayRevenueCount || 125000,
                     newMembersToday: newMembersTodayCount || 12,
-                    acGyms: branchesDb.filter(b => b.type === 'AC').length || 16,
-                    nonAcGyms: branchesDb.filter(b => b.type === 'Non-AC').length || 8,
+                    totalEquipment: totalEquipmentCount,
+                    damagedEquipment: damagedEquipmentCount,
+                    acGyms: branchesDb.filter(b => b.type === 'AC').length || 3,
+                    nonAcGyms: branchesDb.filter(b => b.type === 'Non-AC').length || 3,
                     revenueTrend: updatedRevenueTrend,
                     memberGrowth: updatedMemberGrowth
                 };
@@ -483,7 +493,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                 </div>
             </header>
 
-            <section className="sa-summary-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+            <section className="sa-summary-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
                 {/* Row 1: Core System Entities */}
                 <div className="sa-stat-card primary" onClick={() => { if (!isLocked) { setActiveTab('locations'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000' }}>
@@ -543,6 +553,26 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span className="label">New Members Today</span>
                         <h2 className="value">{statsState?.newMembersToday}</h2>
+                    </div>
+                </div>
+
+                <div className="sa-stat-card" onClick={() => navigate('/super-admin/inventory')} style={{ cursor: 'pointer' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}>
+                        <Package size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Total Equipment</span>
+                        <h2 className="value">{statsState?.totalEquipment?.toLocaleString()}</h2>
+                    </div>
+                </div>
+
+                <div className="sa-stat-card" onClick={() => navigate('/super-admin/inventory')} style={{ cursor: 'pointer' }}>
+                    <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
+                        <AlertTriangle size={24} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="label">Damaged Equipment</span>
+                        <h2 className="value">{statsState?.damagedEquipment?.toLocaleString()}</h2>
                     </div>
                 </div>
             </section>

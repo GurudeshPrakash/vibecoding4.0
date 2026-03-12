@@ -162,6 +162,8 @@ const AdminDashboard = ({
         { branch: 'Kandy Fitness Center', members: 320, checkins: 85, revenue: '850K', issues: 1 },
         { branch: 'Galle Power Hub', members: 210, checkins: 45, revenue: '450K', issues: 0 },
         { branch: 'Negombo Fitness', members: 180, checkins: 30, revenue: '380K', issues: 2 },
+        { branch: 'Kurunegala Gym', members: 165, checkins: 25, revenue: '310K', issues: 1 },
+        { branch: 'Matara Fitness Hub', members: 142, checkins: 20, revenue: '280K', issues: 0 },
     ];
 
     return (

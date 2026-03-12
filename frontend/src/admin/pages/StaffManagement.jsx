@@ -63,10 +63,10 @@ const StaffManagement = ({ showCreateModal = false }) => {
         } catch { return DEFAULT_STAFF; }
     });
 
+    const [selectedStaff, setSelectedStaff] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [modalMode, setModalMode] = useState(showCreateModal ? 'add' : null); // 'edit' | 'view' | 'add'
     const [formData, setFormData] = useState(showCreateModal ? EMPTY_FORM : {});
-
     const [formErrors, setFormErrors] = useState({});
     const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
 
@@ -181,7 +181,7 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 <div className="sm-page-title-block">
                     <div>
                         <h1 className="sm-page-title">Staff Management</h1>
-                        <p className="sm-page-subtitle">Assign and manage staff for your 6 branches.</p>
+                        <p className="sm-page-subtitle">Assign and manage staff for your {ADMIN_BRANCHES.length} branches.</p>
                     </div>
                 </div>
                 <button 

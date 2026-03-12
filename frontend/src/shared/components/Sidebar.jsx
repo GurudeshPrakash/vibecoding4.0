@@ -24,16 +24,16 @@ const Sidebar = ({ onLogoutTrigger }) => {
         { id: 'adm-staff', label: 'Staff management', icon: <Users size={18} />, path: '/admin/staff' },
         { id: 'adm-branches', label: 'Branch management', icon: <MapPin size={18} />, path: '/admin/locations' },
         { id: 'adm-inventory', label: 'Inventory management', icon: <Package size={18} />, path: '/admin/inventory' },
-        { id: 'adm-members', label: 'Members management', icon: <Users size={18} />, path: '/admin/members' },
-        { id: 'adm-payments', label: 'Payments', icon: <DollarSign size={18} />, path: '/admin/payments' },
-        { id: 'adm-reports', label: 'Reports', icon: <ClipboardList size={18} />, path: '/admin/reports' },
+        { id: 'adm-members', label: 'Members management', icon: <Users size={18} />, path: '/admin/members', disabled: true },
+        { id: 'adm-payments', label: 'Payments', icon: <DollarSign size={18} />, path: '/admin/payments', disabled: true },
+        { id: 'adm-reports', label: 'Reports', icon: <ClipboardList size={18} />, path: '/admin/reports', disabled: true },
     ];
 
     const staffMenu = [
         { id: 'stf-dashboard', label: 'Staff dashboard', icon: <LayoutDashboard size={18} />, path: '/staff/dashboard' },
         { id: 'stf-inventory', label: 'Inventory management', icon: <Package size={18} />, path: '/staff/inventory' },
-        { id: 'stf-members', label: 'Members management', icon: <Users size={18} />, path: '/staff/members' },
-        { id: 'stf-payments', label: 'Payments', icon: <DollarSign size={18} />, path: '/staff/payments' },
+        { id: 'stf-members', label: 'Members management', icon: <Users size={18} />, path: '/staff/members', disabled: true },
+        { id: 'stf-payments', label: 'Payments', icon: <DollarSign size={18} />, path: '/staff/payments', disabled: true },
     ];
 
 
@@ -59,7 +59,7 @@ const Sidebar = ({ onLogoutTrigger }) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     {menuItems.map((item) => (
                         <div key={item.id} style={{ position: 'relative' }}>
-                            {isRestricted ? (
+                            {(isRestricted || item.disabled) ? (
                                 <div
                                     className="nav-item blocked"
                                     style={{
@@ -68,12 +68,23 @@ const Sidebar = ({ onLogoutTrigger }) => {
                                         alignItems: 'center',
                                         gap: '12px',
                                         padding: '10px 20px',
-                                        color: '#94A3B8',
-                                        filter: 'grayscale(1)'
+                                        color: '#CBD5E1',
+                                        opacity: item.disabled && !isRestricted ? 0.55 : 1,
+                                        justifyContent: 'space-between'
                                     }}
                                 >
-                                    {item.icon}
-                                    <span style={{ fontSize: '0.815rem', fontWeight: '500' }}>{item.label}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span style={{ color: '#CBD5E1' }}>{item.icon}</span>
+                                        <span style={{ fontSize: '0.815rem', fontWeight: '500' }}>{item.label}</span>
+                                    </div>
+                                    {item.disabled && !isRestricted && (
+                                        <span style={{
+                                            fontSize: '0.58rem', fontWeight: 800,
+                                            background: '#F1F5F9', color: '#94A3B8',
+                                            padding: '2px 7px', borderRadius: '6px',
+                                            letterSpacing: '0.05em', flexShrink: 0
+                                        }}>SOON</span>
+                                    )}
                                 </div>
                             ) : (
                                 <NavLink

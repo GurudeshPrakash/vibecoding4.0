@@ -1,11 +1,139 @@
-.admin-dashboard {
+.admin-dashboard, .branch-details-page {
     padding: 24px 32px;
     height: calc(100vh - 60px);
     overflow-y: auto;
     background: #F8FAFC;
-    color: var(--color-text);
+    color: #1E293B;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     animation: slideUpFade 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-dashboard *, .branch-details-page * {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    box-sizing: border-box;
+}
+
+.admin-dashboard h1 {
+    font-size: 2.1rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: #1E293B;
+    margin: 0;
+}
+
+.admin-dashboard h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #1E293B;
+}
+
+/* Branch Details Page — smaller, consistent with staff/inventory pages */
+.branch-details-page h1 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: #1E293B;
+    margin: 0;
+}
+
+.branch-details-page h2 {
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #1E293B;
+    margin: 0;
+}
+
+.branch-details-page h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #1E293B;
+    margin: 0;
+}
+
+.branch-details-page p {
+    font-size: 0.78rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.sa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.sa-welcome h1 {
+    font-size: 1.7rem;
+    font-weight: 950;
+    letter-spacing: -0.03em;
+    margin: 0;
+    color: #1E293B;
+}
+
+.sa-welcome p {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* Live Stat Cards — matches Inventory/Dashboard pages */
+.live-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.live-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-red, #EF0000);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+}
+
+.icon-box {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-box svg {
+    width: 20px;
+    height: 20px;
+}
+
+.card-data .label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.card-data .value {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #1E293B;
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
 }
 
 @keyframes slideUpFade {

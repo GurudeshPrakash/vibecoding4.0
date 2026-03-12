@@ -7,11 +7,8 @@ export const ADMIN_BRANCHES = [
     { _id: 'b5', name: 'Kurunegala Gym', location: 'Kurunegala', openingHours: '6:00 AM - 10:00 PM', photo: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&q=80', type: 'Non-AC' },
 
     { _id: 'b6', name: 'Matara Fitness Hub', location: 'Matara', openingHours: '6:00 AM - 10:00 PM', photo: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80', type: 'Non-AC' },
-
-    { _id: 'b6', name: 'Matara Power Center', location: 'Matara', openingHours: '6:00 AM - 10:00 PM', photo: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80', type: 'Non-AC' },
-
-
-    { _id: 'b6', name: 'Jaffna Fitness', location: 'Jaffna', openingHours: '6:00 AM - 10:00 PM', photo: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80', type: 'Non-AC' },
+    { _id: 'b7', name: 'Matara Power Center', location: 'Matara', openingHours: '6:00 AM - 10:00 PM', photo: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80', type: 'Non-AC' },
+    { _id: 'b8', name: 'Jaffna Fitness', location: 'Jaffna', openingHours: '6:00 AM - 10:00 PM', photo: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80', type: 'Non-AC' },
 ];
 
 // ─── DEFAULT STAFF ──────────────────────────

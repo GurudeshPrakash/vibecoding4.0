@@ -56,11 +56,11 @@ const TopNav = ({
         }
 
         // Persist to DB for auth notifs (if any)
-        const apiBase = loginRole === 'admin' ? '/api/admin' : '/api/staff';
-        const token = localStorage.getItem('admin_token');
+        const token = sessionStorage.getItem('admin_token');
         if (token) {
             const unreadNotifs = notifications.filter(n => n.unread && n.isAuthNotif);
-            const apiBase = user?.role === 'staff' ? '/api/staff' : '/api/admin';
+            const currentRole = user?.role || role.toLowerCase();
+            const apiBase = currentRole === 'staff' ? '/api/staff' : '/api/admin';
             for (const n of unreadNotifs) {
                 try {
                     await fetch(`http://localhost:5000${apiBase}/notifications/${n.id}`, {

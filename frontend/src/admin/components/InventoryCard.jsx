@@ -3,81 +3,84 @@ import { Eye, QrCode, Wrench, Trash2, CheckCircle2, AlertTriangle } from 'lucide
 
 const InventoryCard = ({
     item,
-    statusConfig,
     onView,
     onQr,
     onUpdate,
     onRemove
 }) => {
-    const cfg = statusConfig[item.status] || { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' };
-
-    // Determine icon based on status
-    const getStatusIcon = (status) => {
-        if (status === 'Maintenance') return <Wrench size={12} />;
-        if (status === 'Damaged') return <AlertTriangle size={12} />;
-        return <CheckCircle2 size={12} />;
+    // Determine style based on status
+    const getStatusConfig = (status) => {
+        switch (status) {
+            case 'Maintenance':
+                return { icon: <Wrench size={14} />, color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' };
+            case 'Damaged':
+                return { icon: <AlertTriangle size={14} />, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' };
+            case 'Good':
+            case 'Available':
+            default:
+                return { icon: <CheckCircle2 size={14} />, color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' };
+        }
     };
 
+    const statusCfg = getStatusConfig(item.status);
+
     return (
-        <div className="sa-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-            <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
+        <div className="inventory-card-premium">
+            {/* Header Image Section */}
+            <div className="card-media-wrapper">
                 <img
-                    src={item.photo}
+                    src={item.photo || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'}
                     alt={item.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={e => { e.target.style.display = 'none'; }}
+                    className="card-media-img"
+                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'; }}
                 />
-                <div style={{
-                    position: 'absolute', top: '12px', right: '12px',
-                    display: 'flex', alignItems: 'center', gap: '4px',
-                    padding: '4px 10px', borderRadius: '20px',
-                    background: cfg.bg, color: cfg.color,
-                    fontSize: '0.58rem', fontWeight: '700',
-                    backdropFilter: 'blur(4px)',
-                    zIndex: 2
-                }}>
-                    {getStatusIcon(item.status)} {item.status}
+                <div 
+                    className="floating-status-badge" 
+                    style={{ background: statusCfg.bg, color: statusCfg.color, borderColor: statusCfg.color }}
+                >
+                    {statusCfg.icon}
+                    <span>{item.status}</span>
                 </div>
             </div>
 
-            <div style={{ padding: '16px' }}>
-                <div style={{ marginBottom: '4px', fontSize: '0.58rem', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    {item.category} • {item.area || 'Main Area'}
+            {/* Content Section */}
+            <div className="card-content-premium">
+                <div className="category-breadcrumbs">
+                    {item.category?.toUpperCase()} • {item.area?.toUpperCase() || 'MAIN ZONE'}
                 </div>
-                <h4 style={{ margin: '0 0 4px', fontSize: '0.75rem', fontWeight: '700', color: '#1E293B' }}>{item.name}</h4>
-                <div style={{ fontSize: '0.65rem', color: '#64748B', marginBottom: '12px' }}>
-                    ID: <strong>{item.id}</strong> &nbsp;|&nbsp; Brand: <strong>{item.brand}</strong>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.62rem', marginBottom: '16px' }}>
-                    <div style={{ background: '#F8FAFC', padding: '8px', borderRadius: '6px' }}>
-                        <div style={{ color: '#94A3B8', marginBottom: '2px' }}>Last Service</div>
-                        <div style={{ fontWeight: '600', color: '#334155' }}>{item.lastMaintenance || '—'}</div>
-                    </div>
-                    <div style={{ background: '#F8FAFC', padding: '8px', borderRadius: '6px' }}>
-                        <div style={{ color: '#94A3B8', marginBottom: '2px' }}>Next Service</div>
-                        <div style={{ fontWeight: '600', color: '#334155' }}>{item.nextMaintenance || '—'}</div>
-                    </div>
+                <h3 className="equipment-name-title">{item.name}</h3>
+                <div className="equipment-meta-line">
+                    ID: <span className="meta-val">{item.id}</span> | Brand: <span className="meta-val">{item.brand}</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    <button
-                        onClick={() => onView(item)}
-                        style={{ flex: 1.2, padding: '8px', background: '#F1F5F9', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                    >
-                        <Eye size={12} /> Details
+                {/* Service Grid */}
+                <div className="service-info-grid">
+                    <div className="service-data-box">
+                        <span className="service-label">Last Service</span>
+                        <span className="service-value">{item.lastMaintenance || '—'}</span>
+                    </div>
+                    <div className="service-data-box">
+                        <span className="service-label">Next Service</span>
+                        <span className="service-value">{item.nextMaintenance || '—'}</span>
+                    </div>
+                </div>
+
+                {/* Primary Action Buttons */}
+                <div className="card-actions-row">
+                    <button onClick={() => onView(item)} className="btn-action-prem btn-view">
+                        <Eye size={16} />
+                        <span>View</span>
                     </button>
-                    <button
-                        onClick={() => onQr(item)}
-                        style={{ flex: 0.8, padding: '8px', background: 'rgba(59, 130, 246, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                    >
-                        <QrCode size={12} /> QR
+                    <button onClick={() => onQr(item)} className="btn-action-prem btn-qr">
+                        <QrCode size={16} />
+                        <span>QR</span>
                     </button>
-                    <button
-                        onClick={() => onRemove(item.id)}
-                        style={{ flex: 1, padding: '8px', background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                    >
-                        <Trash2 size={12} /> Delete
+                    <button onClick={() => onUpdate(item)} className="btn-action-prem btn-update">
+                        <Wrench size={16} />
+                        <span>Update</span>
+                    </button>
+                    <button onClick={() => onRemove(item.id)} className="btn-action-delete-hint" title="Delete Equipment">
+                        <Trash2 size={16} />
                     </button>
                 </div>
             </div>

@@ -199,7 +199,7 @@ const InventoryManagement = () => {
                 </button>
             </header>
 
-            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            <section className="sa-summary-grid">
                 <div className="live-card" style={{ padding: '12px 16px' }}>
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
                     <div className="card-data">
@@ -232,61 +232,50 @@ const InventoryManagement = () => {
 
             <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {/* Branch Navigation */}
-                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', borderBottom: '1px solid #E2E8F0' }}>
+                <div className="branch-tabs-container">
                     {ADMIN_BRANCHES.map(branch => (
                         <button
                             key={branch._id}
                             onClick={() => setActiveBranchId(branch._id)}
-                            style={{
-                                padding: '10px 20px',
-                                borderRadius: '12px',
-                                border: 'none',
-                                background: activeBranchId === branch._id ? 'var(--color-red)' : 'transparent',
-                                color: activeBranchId === branch._id ? '#fff' : '#64748B',
-                                fontWeight: '700',
-                                fontSize: '0.8rem',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                whiteSpace: 'nowrap'
-                            }}
+                            className={`branch-tab-btn ${activeBranchId === branch._id ? 'active' : ''}`}
                         >
                             {branch.name}
                         </button>
                     ))}
                 </div>
 
-                <div style={{ position: 'relative', width: '100%', maxWidth: '500px' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <div className="search-input-wrapper">
+                    <Search size={18} className="search-icon-inside" />
                     <input
                         type="text"
                         placeholder="Search by name, ID, or zone..."
+                        className="search-input-premium"
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        style={{ width: '100%', padding: '12px 16px 12px 48px', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.85rem', background: '#F8FAFC', transition: 'all 0.2s' }}
                     />
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="filter-btn-group">
+                    <div className="filter-btn-group">
                         {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
-                            <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                                padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
-                                background: categoryFilter === cat ? '#1E3A5F' : 'rgba(255,255,255,0.8)',
-                                color: categoryFilter === cat ? '#fff' : '#64748B',
-                                transition: 'all 0.2s',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                            }}>{cat}</button>
+                            <button 
+                                key={cat} 
+                                onClick={() => setCategoryFilter(cat)} 
+                                className={`filter-pill ${categoryFilter === cat ? 'active' : ''}`}
+                            >
+                                {cat}
+                            </button>
                         ))}
                     </div>
-                    <div style={{ width: '1px', height: '20px', background: '#E2E8F0', margin: '0 4px' }}></div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ width: '1px', height: '24px', background: '#E2E8F0', margin: '0 8px' }}></div>
+                    <div className="filter-btn-group">
                         {STATUSES.filter(s => s !== 'All').map(s => (
-                            <button key={s} onClick={() => setStatusFilter(s)} style={{
-                                padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700',
-                                background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : 'rgba(255,255,255,0.8)',
-                                color: statusFilter === s ? (STATUS_CONFIG[s]?.color || '#334155') : '#64748B',
-                                transition: 'all 0.2s',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                            }}>{s}</button>
+                            <button 
+                                key={s} 
+                                onClick={() => setStatusFilter(s)} 
+                                className={`filter-pill ${statusFilter === s ? 'active' : ''}`}
+                            >
+                                {s}
+                            </button>
                         ))}
                     </div>
                     <button
@@ -295,22 +284,18 @@ const InventoryManagement = () => {
                             setCategoryFilter('All');
                             setStatusFilter('All');
                         }}
-                        style={{
-                            padding: '9px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B',
-                            cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', transition: 'all 0.2s', marginLeft: '4px'
-                        }}
+                        className="reset-filters-btn"
                     >
                         Reset
                     </button>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+            <div className="inventory-grid-premium">
                 {filtered.map(item => (
                     <InventoryCard
                         key={item.id}
                         item={item}
-                        statusConfig={STATUS_CONFIG}
                         onView={setSelectedItem}
                         onQr={setQrItem}
                         onUpdate={handleOpenEdit}

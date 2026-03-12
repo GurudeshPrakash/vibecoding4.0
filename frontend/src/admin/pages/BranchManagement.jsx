@@ -100,7 +100,7 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
     };
 
     return (
-        <div className="super-admin-dashboard animate-fade-in">
+        <div className="admin-dashboard animate-fade-in">
             {selectedGym ? (
                 <BranchDetailsView
                     branch={selectedGym}
@@ -122,10 +122,8 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
                 <>
                     <header className="sa-header">
                         <div className="sa-welcome">
-                            <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                Branch Management
-                            </h1>
-                            <p style={{ marginTop: '4px' }}>Manage and monitor all gym branches.</p>
+                            <h1>Branch Management</h1>
+                            <p>Manage and monitor all gym branches.</p>
                         </div>
 
                         <div className="sa-actions">

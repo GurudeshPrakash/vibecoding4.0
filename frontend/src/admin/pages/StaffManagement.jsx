@@ -200,23 +200,6 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 </button>
             </div>
 
-            <div className="sm-stats-grid">
-                {[
-                    { label: 'Total Staff', value: stats.total, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)', icon: <Users size={20} color="#3B82F6" /> },
-                    { label: 'Online Now', value: stats.online, color: '#10B981', bg: 'rgba(16,185,129,0.08)', icon: <CheckCircle2 size={20} color="#10B981" /> },
-                    { label: 'Total Branches', value: stats.branches, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', icon: <MapPin size={20} color="#F59E0B" /> },
-                    { label: 'System Status', value: 'Live', color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)', icon: <Clock size={20} color="#8B5CF6" /> },
-                ].map((card, i) => (
-                    <div key={i} className="sm-stat-card">
-                        <div className="sm-stat-icon" style={{ background: card.bg }}>{card.icon}</div>
-                        <div className="sm-stat-body">
-                            <span className="sm-stat-label">{card.label}</span>
-                            <span className="sm-stat-value" style={{ color: card.color }}>{card.value}</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
             <div className="sm-card sm-table-card">
                 <div className="sm-table-scroll">
                     <table className="sm-table">

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-    LineChart,
+    ComposedChart,
     Line,
+    Area,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -64,10 +65,18 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart
+                <ComposedChart
                     data={displayData}
                     margin={{ top: 20, right: 10, left: 5, bottom: 35 }}
                 >
+                    <defs>
+                        {branches.map(branch => (
+                            <linearGradient key={`gradient-${branch.key}`} id={`fade-${branch.key}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={branch.color} stopOpacity={0.3} />
+                                <stop offset="95%" stopColor={branch.color} stopOpacity={0} />
+                            </linearGradient>
+                        ))}
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis 
                         dataKey="time" 
@@ -78,8 +87,7 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                         padding={{ left: 15, right: 15 }}
                     />
                     <YAxis 
-                        domain={[0, 100]}
-                        ticks={[0, 25, 50, 75, 100]}
+                        domain={[0, 'auto']}
                         axisLine={false}
                         tickLine={false}
                         tick={{ fontSize: 10, fontWeight: 'normal', fill: '#64748B' }}
@@ -95,7 +103,7 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                         }}
                         labelStyle={{ fontWeight: 600, color: '#1E293B', marginBottom: '8px', fontSize: '0.9rem' }}
                         itemStyle={{ fontSize: '0.8rem', fontWeight: 'normal', padding: '4px 0' }}
-                        formatter={(value, name) => [`${value} Members`, name]}
+                        formatter={(value, name) => [`${value} Total Check-ins`, name]}
                     />
                     <Legend 
                         layout="horizontal" 
@@ -114,6 +122,19 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                         }}
                     />
                     
+                    {/* Render Area fade only when a single branch is selected */}
+                    {selectedBranch !== 'All' && filteredBranches.map(branch => (
+                        <Area
+                            key={`area-${branch.key}`}
+                            type="monotone"
+                            dataKey={branch.key}
+                            stroke="none"
+                            fill={`url(#fade-${branch.key})`}
+                            isAnimationActive={true}
+                            animationDuration={600}
+                        />
+                    ))}
+
                     {filteredBranches.map(branch => (
                         <Line 
                             key={branch.key}
@@ -159,7 +180,7 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                             </React.Fragment>
                         );
                     })}
-                </LineChart>
+                </ComposedChart>
             </ResponsiveContainer>
         </div>
     );

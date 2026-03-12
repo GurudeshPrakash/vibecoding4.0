@@ -20,6 +20,10 @@ const MiniCalendar = () => {
     useEffect(() => {
         localStorage.setItem('gym_admin_reminders', JSON.stringify(reminders));
         checkAndCreateNotifications();
+
+        // Check every 30 seconds for scheduled triggers
+        const interval = setInterval(checkAndCreateNotifications, 30000);
+        return () => clearInterval(interval);
     }, [reminders]);
 
     useEffect(() => {
@@ -33,28 +37,58 @@ const MiniCalendar = () => {
     }, []);
 
     const checkAndCreateNotifications = () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
+        const now = new Date();
         const existingNotifications = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
         let updated = false;
 
-        Object.keys(reminders).forEach(dateStr => {
-            const reminderDate = new Date(dateStr);
-            reminderDate.setHours(0, 0, 0, 0);
+        Object.entries(reminders).forEach(([dateStr, reminder]) => {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const [hour, min] = (reminder.time || "00:00").split(':').map(Number);
             
-            // Check if reminder is for tomorrow
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
+            // Full target date object
+            const exactTime = new Date(year, month - 1, day, hour, min, 0, 0);
             
-            if (reminderDate.getTime() === tomorrow.getTime()) {
-                const notifId = `reminder-${dateStr}`;
+            // Notification trigger points
+            const oneDayBefore = new Date(exactTime);
+            oneDayBefore.setDate(exactTime.getDate() - 1);
+
+            // Formatting for notification display
+            const formattedDate = exactTime.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayH = hour % 12 || 12;
+            const formattedTime = `${displayH}:${min.toString().padStart(2, '0')} ${ampm}`;
+
+            // Check if reminder is for the future OR just passed (within 1 hour for catching up)
+            const isFresh = (now.getTime() - exactTime.getTime()) < 3600000;
+
+            // 1. One Day Before Trigger (Within 24-23 hours window or if missed)
+            if (now >= oneDayBefore && now < exactTime) {
+                const notifId = `rem-1day-${dateStr}-${reminder.time}`;
                 if (!existingNotifications.find(n => n.id === notifId)) {
                     existingNotifications.unshift({
                         id: notifId,
-                        type: 'Inventory', // Generic icon
-                        action: `Reminder: You have an event tomorrow (${reminders[dateStr].title})`,
-                        time: '1 day before',
+                        type: 'Inventory',
+                        title: 'Upcoming Reminder',
+                        action: `Upcoming: ${reminder.title} | ${formattedDate} at ${formattedTime}`,
+                        time: 'Due Tomorrow',
+                        timestamp: new Date().toISOString(),
+                        unread: true,
+                        isAuthNotif: true
+                    });
+                    updated = true;
+                }
+            }
+
+            // 2. Exact Time Trigger
+            if (now >= exactTime && isFresh) {
+                const notifId = `rem-exact-${dateStr}-${reminder.time}`;
+                if (!existingNotifications.find(n => n.id === notifId)) {
+                    existingNotifications.unshift({
+                        id: notifId,
+                        type: 'Inventory',
+                        title: 'Reminder Now',
+                        action: `Happening Now: ${reminder.title} | ${formattedDate} at ${formattedTime}`,
+                        time: 'Just now',
                         timestamp: new Date().toISOString(),
                         unread: true,
                         isAuthNotif: true
@@ -66,6 +100,8 @@ const MiniCalendar = () => {
 
         if (updated) {
             localStorage.setItem('dev_notifications', JSON.stringify(existingNotifications));
+            // Force refresh of notifications in TopNav and other components
+            window.dispatchEvent(new Event('storage'));
         }
     };
 

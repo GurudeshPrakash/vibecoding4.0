@@ -85,11 +85,21 @@ const AdminDashboard = ({
 
     // Initialize usage data with low baselines to represent "Today's" data
     const [hourlyUsage, setHourlyUsage] = useState(() => {
-        return TIME_SLOTS.map((time) => {
+        const currentHour = new Date().getHours();
+        let cumulativeData = {};
+        DASHBOARD_BRANCHES.forEach(b => cumulativeData[b] = 0);
+
+        return TIME_SLOTS.map((time, index) => {
             const entry = { time };
+            const slotHour = 6 + index;
+            
             DASHBOARD_BRANCHES.forEach(branch => {
-                let baseline = 2 + Math.floor(Math.random() * 5); 
-                entry[branch] = baseline;
+                if (slotHour <= currentHour) {
+                    // Pre-fill today's data with realistic cumulative growth
+                    const randomGain = Math.floor(Math.random() * 5) + 3; 
+                    cumulativeData[branch] += randomGain;
+                }
+                entry[branch] = cumulativeData[branch];
             });
             return entry;
         });
@@ -107,10 +117,13 @@ const AdminDashboard = ({
 
                 setHourlyUsage(prev => {
                     const newUsage = [...prev];
-                    newUsage[slotIndex] = {
-                        ...newUsage[slotIndex],
-                        [randomBranch]: (newUsage[slotIndex][randomBranch] || 0) + 1
-                    };
+                    // Update current hour and all future hours to maintain cumulative logic
+                    for (let i = slotIndex; i < newUsage.length; i++) {
+                        newUsage[i] = {
+                            ...newUsage[i],
+                            [randomBranch]: (newUsage[i][randomBranch] || 0) + 1
+                        };
+                    }
                     return newUsage;
                 });
 

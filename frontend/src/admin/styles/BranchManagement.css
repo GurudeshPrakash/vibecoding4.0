@@ -373,11 +373,12 @@
     background: rgba(139, 92, 246, 0.05);
 }
 
-.sa-summary-grid {
+.bm-summary-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 24px;
     margin-bottom: 32px;
+    width: 100%;
 }
 
 /* Branch Layout */

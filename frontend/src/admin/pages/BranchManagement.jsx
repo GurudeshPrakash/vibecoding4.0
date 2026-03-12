@@ -135,7 +135,7 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
                         </div>
                     </header>
 
-                    <section className="sa-summary-grid" style={{ marginBottom: '24px' }}>
+                    <section className="bm-summary-grid">
                         <div className="sa-stat-card">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                 <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>

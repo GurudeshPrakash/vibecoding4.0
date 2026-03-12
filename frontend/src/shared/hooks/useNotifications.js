@@ -74,7 +74,14 @@ export const useNotifications = (isAuthenticated, loginRole) => {
             const interval = setInterval(() => {
                 fetchNotifications().catch(err => console.log('Background sync skipped:', err.message));
             }, 5000);
-            return () => clearInterval(interval);
+
+            // Immediate sync when local storage changes (reminders, etc)
+            window.addEventListener('storage', fetchNotifications);
+            
+            return () => {
+                clearInterval(interval);
+                window.removeEventListener('storage', fetchNotifications);
+            };
         }
     }, [isAuthenticated, loginRole, fetchNotifications]);
 

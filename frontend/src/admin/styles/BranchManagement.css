@@ -1,11 +1,139 @@
-.admin-dashboard {
+.admin-dashboard, .branch-details-page {
     padding: 24px 32px;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 60px);
     overflow-y: auto;
     background: #F8FAFC;
-    color: var(--color-text);
+    color: #1E293B;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     animation: slideUpFade 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-dashboard *, .branch-details-page * {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    box-sizing: border-box;
+}
+
+.admin-dashboard h1 {
+    font-size: 2.1rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: #1E293B;
+    margin: 0;
+}
+
+.admin-dashboard h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #1E293B;
+}
+
+/* Branch Details Page — smaller, consistent with staff/inventory pages */
+.branch-details-page h1 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: #1E293B;
+    margin: 0;
+}
+
+.branch-details-page h2 {
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #1E293B;
+    margin: 0;
+}
+
+.branch-details-page h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #1E293B;
+    margin: 0;
+}
+
+.branch-details-page p {
+    font-size: 0.78rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.sa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.sa-welcome h1 {
+    font-size: 1.7rem;
+    font-weight: 950;
+    letter-spacing: -0.03em;
+    margin: 0;
+    color: #1E293B;
+}
+
+.sa-welcome p {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* Live Stat Cards — matches Inventory/Dashboard pages */
+.live-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.live-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-red, #EF0000);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+}
+
+.icon-box {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-box svg {
+    width: 20px;
+    height: 20px;
+}
+
+.card-data .label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.card-data .value {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #1E293B;
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
 }
 
 @keyframes slideUpFade {
@@ -811,7 +939,7 @@
 
 .branch-card-media {
     position: relative;
-    height: 220px;
+    height: 180px;
     overflow: hidden;
 }
 
@@ -859,15 +987,15 @@
 }
 
 .branch-card-body {
-    padding: 24px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .branch-main-info h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.35rem;
+    margin: 0 0 4px 0;
+    font-size: 1.2rem;
     font-weight: 900;
     color: #1E293B;
     letter-spacing: -0.02em;
@@ -876,22 +1004,22 @@
 .branch-meta-row {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     color: #64748B;
 }
 
 .branch-meta-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
+    gap: 5px;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 .branch-actions-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
 }
 
 .branch-action-pill {
@@ -899,12 +1027,12 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 12px;
-    border-radius: 16px;
+    padding: 10px;
+    border-radius: 12px;
     border: 1.5px solid #F1F5F9;
     background: #F8FAFC;
     color: #475569;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
     transition: all 0.2s ease;
     cursor: pointer;
@@ -1201,3 +1329,123 @@
     font-weight: 800;
     color: var(--color-text);
 }
+
+/* Branch Details Page Premium Styles */
+.branch-details-page {
+    animation: slideUpFade 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.branch-details-page .sa-card {
+    border-radius: 32px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.3s ease;
+}
+
+.branch-details-page .sa-card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card-mini {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #E2E8F0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card-mini:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-red);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.06);
+}
+
+.section-content {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-red);
+    transition: all 0.3s ease;
+}
+
+.sa-card:hover .detail-item-icon {
+    background: var(--color-red);
+    color: #fff;
+    transform: rotate(5deg) scale(1.1);
+}
+
+/* Custom Scrollbar for Details */
+.sm-table-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.sm-table-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.sm-table-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.sm-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.branch-action-wide {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 800;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.branch-action-wide:hover {
+    background: #fff;
+    color: var(--color-red);
+    transform: translateX(8px);
+}
+
+.gallery-img:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.gallery-add:hover {
+    border-color: var(--color-red);
+    color: var(--color-red);
+    background: #fff;
+    transform: translateY(-4px);
+}
+
+.section-content.loading {
+    filter: blur(4px);
+    opacity: 0.6;
+    pointer-events: none;
+    user-select: none;
+}

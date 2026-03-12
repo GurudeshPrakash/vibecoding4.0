@@ -28,11 +28,16 @@ const InventoryCard = ({
         <div className="inventory-card-premium">
             {/* Header Image Section */}
             <div className="card-media-wrapper">
+        <div className="sa-card sa-inventory-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+            <div className="sa-card-img-wrapper" style={{ overflow: 'hidden', position: 'relative' }}>
                 <img
                     src={item.photo || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'}
                     alt={item.name}
                     className="card-media-img"
                     onError={e => { e.target.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'; }}
+                    className="sa-card-img"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={e => { e.target.style.display = 'none'; }}
                 />
                 <div 
                     className="floating-status-badge" 

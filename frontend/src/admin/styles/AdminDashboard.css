@@ -1,6 +1,6 @@
 .admin-dashboard {
     padding: 24px 32px;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 60px);
     overflow-y: auto;
     background: #F8FAFC;
     color: var(--color-text);
@@ -228,6 +228,26 @@
     margin: 0;
     letter-spacing: -0.02em;
     line-height: 1.1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.live-badge {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    background: #FF0000;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 900;
+    text-transform: uppercase;
+    animation: livePulse 2s infinite;
+}
+
+@keyframes livePulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* Card Variants */
@@ -254,8 +274,8 @@
 /* Branch Layout */
 .branch-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 32px;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
     align-items: start;
 }
 

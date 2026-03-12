@@ -115,7 +115,7 @@ body {
     background-color: var(--primary-color);
 }
 
-button {
+button, input, select, textarea {
     font-family: inherit;
 }
 

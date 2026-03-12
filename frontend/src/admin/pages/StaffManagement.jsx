@@ -68,6 +68,7 @@ const StaffManagement = ({ showCreateModal = false }) => {
     const [modalMode, setModalMode] = useState(showCreateModal ? 'add' : null); // 'edit' | 'view' | 'add'
     const [formData, setFormData] = useState(showCreateModal ? EMPTY_FORM : {});
     const [formErrors, setFormErrors] = useState({});
+    const [selectedStaff, setSelectedStaff] = useState(null);
     const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
 
     // ── Persist ──────────────────────────────────────────────────────────────

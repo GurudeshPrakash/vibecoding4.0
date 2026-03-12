@@ -25,22 +25,15 @@ const InventoryCard = ({
     const statusCfg = getStatusConfig(item.status);
 
     return (
-        <div className="inventory-card-premium">
-            {/* Header Image Section */}
-            <div className="card-media-wrapper">
-        <div className="sa-card sa-inventory-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-            <div className="sa-card-img-wrapper" style={{ overflow: 'hidden', position: 'relative' }}>
+        <div className="equipment-card-premium">
+            <div className="card-image-container">
                 <img
-                    src={item.photo || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'}
+                    src={item.photo || 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'}
                     alt={item.name}
-                    className="card-media-img"
-                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'; }}
-                    className="sa-card-img"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={e => { e.target.style.display = 'none'; }}
+                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800'; }}
                 />
-                <div 
-                    className="floating-status-badge" 
+                <div
+                    className="status-badge-overlay"
                     style={{ background: statusCfg.bg, color: statusCfg.color, borderColor: statusCfg.color }}
                 >
                     {statusCfg.icon}
@@ -48,46 +41,39 @@ const InventoryCard = ({
                 </div>
             </div>
 
-            {/* Content Section */}
-            <div className="card-content-premium">
-                <div className="category-breadcrumbs">
+            <div className="card-body-premium">
+                <div className="meta-info-caps">
                     {item.category?.toUpperCase()} • {item.area?.toUpperCase() || 'MAIN ZONE'}
                 </div>
-                <h3 className="equipment-name-title">{item.name}</h3>
-                <div className="equipment-meta-line">
-                    ID: <span className="meta-val">{item.id}</span> | Brand: <span className="meta-val">{item.brand}</span>
+                <h3 className="equipment-title-large">{item.name}</h3>
+                <div className="sub-meta-line">
+                    ID: <strong>{item.id}</strong> | Brand: <strong>{item.brand || 'Hammer Strength'}</strong>
                 </div>
 
-                {/* Service Grid */}
                 <div className="service-info-grid">
-                    <div className="service-data-box">
+                    <div className="service-box">
                         <span className="service-label">Last Service</span>
-                        <span className="service-value">{item.lastMaintenance || '—'}</span>
+                        <div className="service-date">{item.lastMaintenance || '—'}</div>
                     </div>
-                    <div className="service-data-box">
+                    <div className="service-box">
                         <span className="service-label">Next Service</span>
-                        <span className="service-value">{item.nextMaintenance || '—'}</span>
+                        <div className="service-date">{item.nextMaintenance || '—'}</div>
                     </div>
                 </div>
+            </div>
 
-                {/* Primary Action Buttons */}
-                <div className="card-actions-row">
-                    <button onClick={() => onView(item)} className="btn-action-prem btn-view">
-                        <Eye size={16} />
-                        <span>View</span>
-                    </button>
-                    <button onClick={() => onQr(item)} className="btn-action-prem btn-qr">
-                        <QrCode size={16} />
-                        <span>QR</span>
-                    </button>
-                    <button onClick={() => onUpdate(item)} className="btn-action-prem btn-update">
-                        <Wrench size={16} />
-                        <span>Update</span>
-                    </button>
-                    <button onClick={() => onRemove(item.id)} className="btn-action-delete-hint" title="Delete Equipment">
-                        <Trash2 size={16} />
-                    </button>
-                </div>
+            <div className="card-actions-row">
+                <button onClick={() => onView(item)} className="action-btn-premium btn-view">
+                    <Eye size={16} />
+                    <span>View</span>
+                </button>
+                <button onClick={() => onUpdate(item)} className="action-btn-premium btn-update">
+                    <Wrench size={16} />
+                    <span>Update</span>
+                </button>
+                <button onClick={() => onRemove(item.id)} className="action-btn-premium btn-remove-p" title="Delete Equipment">
+                    <Trash2 size={16} />
+                </button>
             </div>
         </div>
     );

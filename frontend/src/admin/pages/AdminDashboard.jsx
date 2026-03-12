@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     CheckCircle2, Package, Users,
-    DollarSign
+    DollarSign, AlertTriangle
 } from 'lucide-react';
 
 import taskService from '../../shared/services/taskService';
@@ -14,6 +14,29 @@ import DismantleRequestModal from '../components/DismantleRequestModal';
 
 // Styles
 import '../styles/AdminDashboard.css';
+
+// ─── Static Constants (Outside component to prevent re-render loops) ──────────
+const BRANCH_STATS_MAP = {
+    'All': { members: 5352, checkins: 872, payments: 70 },
+    'Colombo': { members: 1842, checkins: 412, payments: 28 },
+    'Galle': { members: 1240, checkins: 185, payments: 15 },
+    'Kandy': { members: 890, checkins: 110, payments: 10 },
+    'Kurunegala': { members: 650, checkins: 75, payments: 5 },
+    'Matara': { members: 420, checkins: 50, payments: 8 },
+    'Negombo': { members: 310, checkins: 40, payments: 4 }
+};
+
+const BRANCH_ID_MAP = {
+    'Colombo': 'b1', 'Kandy': 'b2', 'Galle': 'b3', 'Negombo': 'b4', 'Kurunegala': 'b5', 'Matara': 'b6'
+};
+
+const TIME_SLOTS = [
+    '6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', 
+    '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', 
+    '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'
+];
+
+const DASHBOARD_BRANCHES = ['Colombo', 'Galle', 'Kandy', 'Kurunegala', 'Matara', 'Negombo'];
 
 const AdminDashboard = ({
     stats,
@@ -29,31 +52,43 @@ const AdminDashboard = ({
     const [adminComment, setAdminComment] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Live Analytics System
-    const [totalMembers, setTotalMembers] = useState(1842);
-    const [todayCheckins, setTodayCheckins] = useState(412);
-    const [pendingPayments, setPendingPayments] = useState(28);
+    // ─── Dashboard State ──────────────────────────────────────────────────
     const [selectedBranch, setSelectedBranch] = useState('All');
+    const [totalMembers, setTotalMembers] = useState(0);
+    const [todayCheckins, setTodayCheckins] = useState(0);
+    const [pendingPayments, setPendingPayments] = useState(0);
+    const [inventoryStats, setInventoryStats] = useState({ total: 0, maintenance: 0, damaged: 0 });
 
-    // Hourly Data Map: 6 AM to 10 PM slots
-    const timeSlots = [
-        '6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', 
-        '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', 
-        '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'
-    ];
+    useEffect(() => {
+        const fetchStats = () => {
+            const rawInventory = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+            const filteredInv = selectedBranch === 'All' 
+                ? rawInventory 
+                : rawInventory.filter(i => i.branch === selectedBranch || i.branchId === BRANCH_ID_MAP[selectedBranch]);
 
-    const branches = ['Colombo', 'Galle', 'Kandy', 'Kurunegala', 'Matara', 'Negombo'];
+            setInventoryStats({
+                total: filteredInv.length,
+                maintenance: filteredInv.filter(i => i.status === 'Maintenance').length,
+                damaged: filteredInv.filter(i => i.status === 'Damaged').length
+            });
 
-    // Initialize usage data with realistic baselines
+            // Update stats from the map based on the selected branch
+            const currentStats = BRANCH_STATS_MAP[selectedBranch] || BRANCH_STATS_MAP['All'];
+            setTotalMembers(currentStats.members);
+            setTodayCheckins(currentStats.checkins);
+            setPendingPayments(currentStats.payments);
+        };
+        fetchStats();
+        const interval = setInterval(fetchStats, 1000);
+        return () => clearInterval(interval);
+    }, [selectedBranch]);
+
+    // Initialize usage data with low baselines to represent "Today's" data
     const [hourlyUsage, setHourlyUsage] = useState(() => {
-        return timeSlots.map((time, index) => {
+        return TIME_SLOTS.map((time) => {
             const entry = { time };
-            branches.forEach(branch => {
-                // Determine a realistic baseline for the hour
-                let baseline = 15 + Math.floor(Math.random() * 10);
-                // Peaks
-                if ((index >= 12 && index <= 14)) baseline += 40; // Evening peak
-                if ((index >= 2 && index <= 4)) baseline += 25;  // Morning peak
+            DASHBOARD_BRANCHES.forEach(branch => {
+                let baseline = 2 + Math.floor(Math.random() * 5); 
                 entry[branch] = baseline;
             });
             return entry;
@@ -63,37 +98,31 @@ const AdminDashboard = ({
     useEffect(() => {
         const liveEngine = setInterval(() => {
             const eventType = Math.random();
-            
             if (eventType > 0.4) {
-                // 60% chance: Member Check-in
-                const randomBranch = branches[Math.floor(Math.random() * branches.length)];
+                const randomBranch = DASHBOARD_BRANCHES[Math.floor(Math.random() * DASHBOARD_BRANCHES.length)];
                 const currentHour = new Date().getHours();
-                
-                // Map current hour to our timeSlots (offset 6)
                 let slotIndex = currentHour - 6;
                 if (slotIndex < 0) slotIndex = 0;
                 if (slotIndex > 16) slotIndex = 16;
 
-                setTodayCheckins(prev => prev + 1);
                 setHourlyUsage(prev => {
                     const newUsage = [...prev];
                     newUsage[slotIndex] = {
                         ...newUsage[slotIndex],
-                        [randomBranch]: newUsage[slotIndex][randomBranch] + 1
+                        [randomBranch]: (newUsage[slotIndex][randomBranch] || 0) + 1
                     };
                     return newUsage;
                 });
-            } else if (eventType > 0.3) {
-                // 10% chance: New Member Registration
-                setTotalMembers(prev => prev + 1);
-            } else if (eventType > 0.2) {
-                // 10% chance: Pending Payment Resolved
-                setPendingPayments(prev => Math.max(0, prev - 1));
-            }
-        }, 3000); // Pulse every 3 seconds for a responsive feel
 
+                if (selectedBranch === 'All' || selectedBranch === randomBranch) {
+                    setTodayCheckins(prev => prev + 1);
+                }
+            } else if (eventType > 0.3) {
+                if (selectedBranch === 'All') setTotalMembers(prev => prev + 1);
+            }
+        }, 3000);
         return () => clearInterval(liveEngine);
-    }, []);
+    }, [selectedBranch]);
 
     const handleAction = async (requestId, action) => {
         if (isRestricted) {
@@ -110,18 +139,17 @@ const AdminDashboard = ({
             });
 
             if (response.ok) {
-                // NEW WORKFLOW: Create Physical Removal Task on Approval
                 if (action === 'approve') {
                     const request = dismantleRequests.find(r => r._id === requestId);
                     if (request) {
                         taskService.createTask({
                             request_id: requestId,
+                            machineId: request.machineId || request.machine_id,
                             equipment_name: request.equipmentName || request.machineName,
                             location: request.location || request.branch,
                             remarks: adminComment || 'Dismantle request approved.'
                         });
 
-                        // Notify Staff (Simulation)
                         const staffNotif = {
                             id: `NOTIF-STF-DIS-${Date.now()}`,
                             type: 'Inventory',
@@ -155,38 +183,30 @@ const AdminDashboard = ({
         }
     };
 
-
-    // Mock Data for Performance Table
-    const performanceData = [
-        { branch: 'Colombo City Gym', members: 450, checkins: 120, revenue: '1.2M', issues: 3 },
-        { branch: 'Kandy Fitness Center', members: 320, checkins: 85, revenue: '850K', issues: 1 },
-        { branch: 'Galle Power Hub', members: 210, checkins: 45, revenue: '450K', issues: 0 },
-        { branch: 'Negombo Fitness', members: 180, checkins: 30, revenue: '380K', issues: 2 },
-        { branch: 'Kurunegala Gym', members: 165, checkins: 25, revenue: '310K', issues: 1 },
-        { branch: 'Matara Fitness Hub', members: 142, checkins: 20, revenue: '280K', issues: 0 },
-    ];
-
     return (
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
                     <h1 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Hello, <span style={{ color: 'var(--color-red)' }}>{adminName || 'Admin'}</span></h1>
-                    <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>View and manage gym equipment, facilities, and branch performance.</p>
+                    <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Viewing <span style={{ fontWeight: 800, color: 'var(--color-red)' }}>{selectedBranch === 'All' ? 'All Branches' : `${selectedBranch} Branch`}</span> overview.</p>
                 </div>
             </header>
 
             <section className="live-stats-row" style={{ marginBottom: '32px' }}>
                 <StatCard label="Total Members" value={totalMembers.toLocaleString()} icon={<Users />} iconBg="rgba(59, 130, 246, 0.1)" iconColor="#3B82F6" />
                 <StatCard label="Today Check-ins" value={todayCheckins.toLocaleString()} icon={<CheckCircle2 />} iconBg="rgba(16, 185, 129, 0.1)" iconColor="#10B981" />
-                <StatCard label="Pending Payments" value={pendingPayments.toString()} icon={<DollarSign />} iconBg="rgba(239, 68, 68, 0.1)" iconColor="#EF4444" />
-                <StatCard label="Total Equipment" value={stats?.total || 186} icon={<Package />} iconBg="rgba(245, 158, 11, 0.1)" iconColor="#F59E0B" />
+                <StatCard label="Damaged Equipment" value={inventoryStats.damaged.toString()} icon={<AlertTriangle />} iconBg="rgba(239, 68, 68, 0.1)" iconColor="#EF4444" />
+                <StatCard label="Total Equipment" value={inventoryStats.total.toString()} icon={<Package />} iconBg="rgba(245, 158, 11, 0.1)" iconColor="#F59E0B" />
             </section>
 
             <div className="branch-grid">
                 <main className="sa-analytics-col">
                     <div className="sa-card">
                         <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', gap: '20px' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>Branch Hourly Peak Usage</h3>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>Branch Hourly Peak Usage</h3>
+                                <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Graph based on Today's Check-in counts per time slot.</p>
+                            </div>
                             <div style={{ position: 'relative' }}>
                                 <select 
                                     value={selectedBranch}
@@ -207,7 +227,7 @@ const AdminDashboard = ({
                                     }}
                                 >
                                     <option value="All">All Branches</option>
-                                    {branches.map(b => (
+                                    {DASHBOARD_BRANCHES.map(b => (
                                         <option key={b} value={b}>{b}</option>
                                     ))}
                                 </select>
@@ -216,7 +236,7 @@ const AdminDashboard = ({
                                 </div>
                             </div>
                         </div>
-                        <div style={{ padding: '0 20px 0 20px', marginLeft: 0, height: '300px' }}>
+                        <div style={{ width: '100%', height: '320px' }}>
                             <BranchUsageChart selectedBranch={selectedBranch} liveData={hourlyUsage} />
                         </div>
                     </div>

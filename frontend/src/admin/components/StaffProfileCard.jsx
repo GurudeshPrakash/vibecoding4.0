@@ -12,12 +12,10 @@ const StaffProfileCard = ({
             <div className="sm-profile-card-inner">
                 <div className="sm-profile-photo-wrap">
                     <img
-                        src={member.photo || `https://i.pravatar.cc/150?u=${member.staffId}`}
+                        src={member.photo || `https://ui-avatars.com/api/?name=${member.firstName}+${member.lastName}&background=${avatarColor.replace('#', '')}&color=fff&size=150&rounded=true`}
                         alt={member.firstName}
                         className="sm-profile-img"
-                        onError={(e) => {
-                            e.target.src = `https://ui-avatars.com/api/?name=${member.firstName}+${member.lastName}&background=${avatarColor.replace('#', '')}&color=fff`;
-                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                     />
                 </div>
                 <div className="sm-profile-details">

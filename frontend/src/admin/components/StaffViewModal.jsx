@@ -21,7 +21,8 @@ const StaffViewModal = ({
                 firstName: staff.firstName,
                 lastName: staff.lastName,
                 phone: staff.phone,
-                branchId: staff.branchId
+                branchId: staff.branchId,
+                photo: staff.photo || ''
             });
             setIsEditing(false);
         }
@@ -53,49 +54,55 @@ const StaffViewModal = ({
                 <div
                     className="sm-view-banner"
                     style={{
-                        background: 'var(--color-red)',
-                        padding: '8px 20px 8px',
+                        background: 'linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 100%)',
+                        padding: '36px 20px 24px',
                         textAlign: 'center',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         position: 'relative',
                         flexShrink: 0,
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                     }}
                 >
-                    <button className="sm-modal-close" onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', cursor: 'pointer', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-                        <X size={12} />
+                    <button className="sm-modal-close" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: '#fff', border: '1px solid #F1F5F9', color: '#64748B', cursor: 'pointer', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}>
+                        <X size={16} />
                     </button>
 
                     <div className="sm-view-avatar" style={{
-                        width: '55px',
-                        height: '55px',
+                        width: '90px',
+                        height: '90px',
                         borderRadius: '50%',
-                        border: '2.5px solid #fff',
-                        boxShadow: '0 6px 15px rgba(0,0,0,0.15)',
-                        marginBottom: '4px',
+                        border: '4px solid #fff',
+                        boxShadow: '0 12px 24px rgba(239, 68, 68, 0.15)',
+                        marginBottom: '16px',
                         overflow: 'hidden',
                         background: '#fff',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        position: 'relative'
                     }}>
                         {staff.photo ? (
                             <img src={staff.photo} alt={staff.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                            <div style={{ color: 'var(--color-red)', fontSize: '1.4rem', fontWeight: 900 }}>
+                            <div style={{ color: '#EF4444', fontSize: '2rem', fontWeight: 900 }}>
                                 {staff.firstName.charAt(0)}{staff.lastName.charAt(0)}
                             </div>
                         )}
                     </div>
                     
                     {!isEditing && (
-                        <h2 className="sm-view-name" style={{ margin: '0', fontSize: '1.1rem', color: '#fff', fontWeight: 900 }}>{staff.firstName} {staff.lastName}</h2>
+                        <>
+                            <h2 className="sm-view-name" style={{ margin: '0', fontSize: '1.5rem', color: '#1E293B', fontWeight: 900, letterSpacing: '-0.02em' }}>{staff.firstName} {staff.lastName}</h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></div>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{branchName}</span>
+                            </div>
+                        </>
                     )}
                     
                     {isEditing && (
-                        <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '1.4rem', margin: '10px 0 0' }}>Edit Staff Profile</h2>
+                        <h2 style={{ color: '#1E293B', fontWeight: 900, fontSize: '1.5rem', margin: '0' }}>Edit Profile</h2>
                     )}
                 </div>
 
@@ -108,57 +115,104 @@ const StaffViewModal = ({
                 }}>
                     {!isEditing ? (
                         <>
-                            <div style={{ marginBottom: '20px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                                    <div style={{ width: '4px', height: '20px', background: 'var(--color-red)', borderRadius: '10px' }}></div>
-                                    <h3 className="sm-view-section-title" style={{ 
-                                        color: '#1e293b', 
-                                        fontWeight: 900, 
-                                        fontSize: '0.85rem', 
-                                        textTransform: 'uppercase', 
-                                        letterSpacing: '0.05em',
-                                        margin: 0
-                                    }}>Staff Details</h3>
-                                </div>
-                                
-                                <div className="sm-view-fields" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <FieldRow label="Staff ID" value={staff.staffId} icon={<Shield size={14} color="var(--color-red)" />} />
-                                    <FieldRow label="Full Name" value={`${staff.firstName} ${staff.lastName}`} icon={<Users size={14} color="var(--color-red)" />} />
-                                    <FieldRow label="Branch" value={branchName} icon={<MapPin size={14} color="var(--color-red)" />} />
-                                    <FieldRow label="Login Status" value="Offline" icon={<Clock size={14} color="var(--color-red)" />} />
-                                    <FieldRow label="Phone Number" value={staff.phone} icon={<Phone size={14} color="var(--color-red)" />} />
-                                    <FieldRow label="NIC Number" value={staff.nic} icon={<Shield size={14} color="var(--color-red)" />} />
-                                    <FieldRow label="Join Date" value={formatDate(staff.joinDate)} icon={<Calendar size={14} color="var(--color-red)" />} />
+                            <div style={{ 
+                                background: '#fff', 
+                                border: '1px solid #F1F5F9', 
+                                borderRadius: '24px', 
+                                padding: '12px 24px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+                            }}>
+                                <div className="sm-view-fields" style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <FieldRow label="Staff ID" value={staff.staffId} icon={<Shield size={16} />} />
+                                    <FieldRow label="Legal NIC" value={staff.nic} icon={<Shield size={16} />} />
+                                    <FieldRow label="Phone" value={staff.phone} icon={<Phone size={16} />} />
+                                    <FieldRow label="Login Status" value="Inactive" icon={<Clock size={16} />} />
+                                    <FieldRow label="Joined On" value={formatDate(staff.joinDate)} icon={<Calendar size={16} />} />
                                 </div>
                             </div>
 
-                            <div style={{ marginTop: '30px' }}>
+                            <div style={{ marginTop: '24px' }}>
                                 <button
                                     className="sm-btn-primary"
                                     style={{ 
                                         width: '100%', 
                                         padding: '16px', 
                                         borderRadius: '16px', 
-                                        border: 'none', 
-                                        background: 'var(--color-red)', 
-                                        color: 'white', 
+                                        border: '1px solid #FEE2E2', 
+                                        background: '#FEF2F2', 
+                                        color: '#EF4444', 
                                         fontWeight: 800, 
                                         cursor: 'pointer', 
                                         display: 'flex', 
                                         alignItems: 'center', 
                                         justifyContent: 'center', 
                                         gap: '10px', 
-                                        boxShadow: '0 6px 20px rgba(239, 68, 68, 0.25)',
-                                        fontSize: '0.95rem'
+                                        fontSize: '0.9rem',
+                                        transition: 'all 0.2s'
                                     }}
                                     onClick={() => setIsEditing(true)}
                                 >
-                                    <Edit2 size={18} /> Edit Profile
+                                    <Edit2 size={18} /> Modify Staff Access
                                 </button>
                             </div>
                         </>
                     ) : (
                         <div className="sm-edit-view">
+                            {/* Profile Photo Edit */}
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                                <div style={{ position: 'relative' }}>
+                                    <div 
+                                        style={{ 
+                                            width: '100px', 
+                                            height: '100px', 
+                                            borderRadius: '50%', 
+                                            overflow: 'hidden', 
+                                            border: '3px solid #fff', 
+                                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                                            background: '#F8FAFC',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={() => document.getElementById('view-staff-photo-upload').click()}
+                                    >
+                                        {editForm.photo ? (
+                                            <img src={editForm.photo} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                                        ) : (
+                                            <div style={{ color: '#94A3B8', fontSize: '1.2rem', fontWeight: 900 }}>
+                                                {editForm.firstName?.charAt(0)}{editForm.lastName?.charAt(0)}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        id="view-staff-photo-upload" 
+                                        hidden 
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setEditForm(prev => ({ ...prev, photo: reader.result }));
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                    />
+                                    {editForm.photo && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setEditForm(prev => ({ ...prev, photo: '' }))}
+                                            style={{ position: 'absolute', bottom: '0', right: '0', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)' }}
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
                             <div style={{ display: 'grid', gap: '20px', marginBottom: '30px' }}>
                                 <div className="sm-input-group">
                                     <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>First Name</label>
@@ -191,7 +245,7 @@ const StaffViewModal = ({
                                 </button>
                                 <button
                                     onClick={handleSave}
-                                    style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'var(--color-red)', color: 'white', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 6px 20px rgba(239, 68, 68, 0.25)' }}
+                                    style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1.5px solid #FEE2E2', background: '#FEF2F2', color: '#EF4444', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)' }}
                                 >
                                     <Save size={18} /> Save Changes
                                 </button>

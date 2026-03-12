@@ -14,6 +14,7 @@ const EquipmentAddEditModal = ({
         id: '',
         category: 'Cardio',
         brand: '',
+        model: '',
         branchId: '',
         purchaseDate: '',
         lastMaintenance: '',
@@ -30,6 +31,7 @@ const EquipmentAddEditModal = ({
                 id: editingItem.id || '',
                 category: editingItem.category || 'Cardio',
                 brand: editingItem.brand || '',
+                model: editingItem.model || '',
                 branchId: editingItem.branchId || '',
                 purchaseDate: editingItem.purchaseDate || '',
                 lastMaintenance: editingItem.lastMaintenance || '',
@@ -43,6 +45,7 @@ const EquipmentAddEditModal = ({
                 id: '',
                 category: 'Cardio',
                 brand: '',
+                model: '',
                 branchId: defaultBranchId || branches[0]?._id || '',
                 purchaseDate: new Date().toISOString().split('T')[0],
                 lastMaintenance: '',
@@ -156,8 +159,21 @@ const EquipmentAddEditModal = ({
                             <input 
                                 type="text" 
                                 required
+                                placeholder="e.g. Life Fitness"
                                 value={formData.brand}
                                 onChange={e => setFormData({...formData, brand: e.target.value})}
+                                style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '0.85rem' }}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Model</label>
+                            <input 
+                                type="text" 
+                                required
+                                placeholder="e.g. Pro-X9"
+                                value={formData.model}
+                                onChange={e => setFormData({...formData, model: e.target.value})}
                                 style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '0.85rem' }}
                             />
                         </div>

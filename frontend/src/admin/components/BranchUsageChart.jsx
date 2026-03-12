@@ -33,12 +33,12 @@ const baseData = [
 ];
 
 const branches = [
-    { key: 'Colombo', color: '#6FA8FF', label: 'Colombo', peak: 92, peakTime: '6:00 PM' },
-    { key: 'Galle', color: '#FF7A7A', label: 'Galle', peak: 82, peakTime: '7:00 PM' },
-    { key: 'Kandy', color: '#6FD3A3', label: 'Kandy', peak: 68, peakTime: '8:00 AM' },
-    { key: 'Kurunegala', color: '#A78BFA', label: 'Kurunegala', peak: 58, peakTime: '10:00 AM' },
-    { key: 'Matara', color: '#FF8FB1', label: 'Matara', peak: 72, peakTime: '5:00 PM' },
-    { key: 'Negombo', color: '#FFB84D', label: 'Negombo', peak: 62, peakTime: '6:00 PM' },
+    { key: 'Colombo', color: '#DC2626', label: 'Colombo', peak: 92, peakTime: '6:00 PM' }, // Red
+    { key: 'Galle', color: '#2563EB', label: 'Galle', peak: 82, peakTime: '7:00 PM' },   // Blue
+    { key: 'Kandy', color: '#16A34A', label: 'Kandy', peak: 68, peakTime: '8:00 AM' },   // Green
+    { key: 'Kurunegala', color: '#EA580C', label: 'Kurunegala', peak: 58, peakTime: '10:00 AM' }, // Orange
+    { key: 'Matara', color: '#9333EA', label: 'Matara', peak: 72, peakTime: '5:00 PM' },   // Purple
+    { key: 'Negombo', color: '#DB2777', label: 'Negombo', peak: 62, peakTime: '6:00 PM' }, // Dark Pink
 ];
 
 const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
@@ -73,7 +73,7 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                         dataKey="time" 
                         axisLine={false} 
                         tickLine={false} 
-                        tick={{ fontSize: 10, fontWeight: 800, fill: '#64748B', dy: 10 }}
+                        tick={{ fontSize: 10, fontWeight: 'normal', fill: '#64748B', dy: 10 }}
                         interval={1}
                         padding={{ left: 15, right: 15 }}
                     />
@@ -82,7 +82,7 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                         ticks={[0, 25, 50, 75, 100]}
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10, fontWeight: 800, fill: '#64748B' }}
+                        tick={{ fontSize: 10, fontWeight: 'normal', fill: '#64748B' }}
                         width={40}
                     />
                     <Tooltip 
@@ -93,8 +93,8 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                             padding: '16px',
                             background: '#fff'
                         }}
-                        labelStyle={{ fontWeight: 900, color: '#1E293B', marginBottom: '8px', fontSize: '0.9rem' }}
-                        itemStyle={{ fontSize: '0.8rem', fontWeight: 900, padding: '4px 0' }}
+                        labelStyle={{ fontWeight: 600, color: '#1E293B', marginBottom: '8px', fontSize: '0.9rem' }}
+                        itemStyle={{ fontSize: '0.8rem', fontWeight: 'normal', padding: '4px 0' }}
                         formatter={(value, name) => [`${value} Members`, name]}
                     />
                     <Legend 
@@ -106,7 +106,7 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                         wrapperStyle={{ 
                             paddingTop: '18px',
                             fontSize: '0.6rem',
-                            fontWeight: 800,
+                            fontWeight: 'normal',
                             color: '#475569',
                             textTransform: 'uppercase',
                             fontFamily: 'Inter, system-ui, -apple-system, sans-serif',

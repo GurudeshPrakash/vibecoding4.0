@@ -19,6 +19,7 @@ export const taskService = {
         const newTask = {
             task_id: `TASK-${Date.now()}`,
             request_id: data.request_id || data.id,
+            machineId: data.machineId,
             equipment_name: data.equipment_name || data.machineName,
             location: data.location || data.branch || 'Main Branch',
             approved_by: adminName,

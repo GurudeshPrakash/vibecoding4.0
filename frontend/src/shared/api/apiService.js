@@ -23,6 +23,11 @@ export const apiRequest = async (endpoint, method = 'GET', body = null, token = 
         config.body = JSON.stringify(body);
     }
 
+    // Prevent console flood by bypassing backend in dev mode
+    if (token === 'dev-token-xyz-123') {
+        return { ok: false, status: 401, data: { message: 'Dev mode bypass' } };
+    }
+
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
 

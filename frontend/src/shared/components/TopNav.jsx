@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays, AlertTriangle } from 'lucide-react';
+import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays, AlertTriangle, RefreshCcw } from 'lucide-react';
 import '../styles/TopNav.css';
 import { useAuth } from '../../auth/hooks/useAuth.jsx';
 
@@ -71,6 +71,31 @@ const TopNav = ({
                     console.error('Mark read fail', e);
                 }
             }
+        }
+    };
+
+    const clearAllNotifications = () => {
+        if (window.confirm('Clear all notifications permanently?')) {
+            setNotifications([]);
+            localStorage.removeItem('dev_notifications');
+        }
+    };
+
+    const resetSystemData = () => {
+        if (window.confirm('RESET SYSTEM: This will clear all notifications, reports, and set all equipment status to GOOD. Proceed?')) {
+            // 1. Clear Notifications
+            localStorage.removeItem('dev_notifications');
+            localStorage.removeItem('dev_damaged_reports');
+            localStorage.removeItem('dev_status_overrides');
+            setNotifications([]);
+
+            // 2. Reset Inventory DB
+            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+            const resetInv = invDb.map(item => ({ ...item, status: 'Good' }));
+            localStorage.setItem('admin_inventory_db', JSON.stringify(resetInv));
+
+            alert('System reset successful. Reloading to apply changes...');
+            window.location.reload();
         }
     };
 
@@ -158,14 +183,18 @@ const TopNav = ({
                         }}
                     >
                         <Bell size={20} />
-                        {unreadCount > 0 && <span className="notification-dot">{unreadCount}</span>}
+                        {unreadCount > 0 && <span className="notification-dot"></span>}
                     </button>
 
                     {showNotifications && (
-                        <div className="notifications-tray animate-pop-in">
-                            <div className="notif-header">
-                                <h3>Notifications</h3>
-                                {unreadCount > 0 && <button onClick={markAllRead}>Mark all as read</button>}
+                        <div className="notifications-tray animate-pop-in" style={{ width: '380px' }}>
+                            <div className="notif-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
+                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Notifications</h3>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={markAllRead} style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mark Read</button>
+                                    <span style={{ color: '#E2E8F0' }}>|</span>
+                                    <button onClick={clearAllNotifications} style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Clear All</button>
+                                </div>
                             </div>
                             <div className="notif-list">
                                 {notifications.length === 0 ? (
@@ -254,7 +283,16 @@ const TopNav = ({
                                 </div>
                             </div>
 
-                            <div className="dropdown-footer-logout">
+                            <div className="dropdown-footer-logout" style={{ borderTop: '1px solid #F1F5F9', padding: '12px' }}>
+                                <button
+                                    onClick={resetSystemData}
+                                    style={{ width: '100%', padding: '10px', background: '#FEF2F2', border: '1px dashed #FCA5A5', borderRadius: '10px', color: '#991B1B', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px', transition: 'all 0.2s' }}
+                                    onMouseOver={(e) => { e.currentTarget.style.background = '#FEE2E2'; }}
+                                    onMouseOut={(e) => { e.currentTarget.style.background = '#FEF2F2'; }}
+                                >
+                                    <RefreshCcw size={14} />
+                                    <span>Reset System Data</span>
+                                </button>
                                 <button className="logout-btn-dropdown" onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}>
                                     <LogOut size={16} />
                                     <span>Log Out</span>
@@ -349,10 +387,17 @@ const TopNav = ({
                                         overrides[selectedReport.machineId] = 'Damaged';
                                         localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
 
-                                        // NEW WORKFLOW: Create Physical Removal Task
+                                        // Update main inventory db for consistency
+                                        const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+                                        if (invDb.length > 0) {
+                                            const updatedInv = invDb.map(item => item.id === selectedReport.machineId ? { ...item, status: 'Damaged' } : item);
+                                            localStorage.setItem('admin_inventory_db', JSON.stringify(updatedInv));
+                                        }
+
                                         import('../../shared/services/taskService').then(({ default: taskService }) => {
                                             taskService.createTask({
                                                 request_id: selectedReport.id,
+                                                machineId: selectedReport.machineId,
                                                 equipment_name: selectedReport.machineName,
                                                 location: selectedReport.branch,
                                                 remarks: 'Damage report approved. Physical removal required.'

@@ -199,33 +199,33 @@ const InventoryManagement = () => {
                 </button>
             </header>
 
-            <section className="sa-summary-grid">
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
                     <div className="card-data">
                         <span className="label">Total Equipment</span>
-                        <h2 className="value" style={{ color: '#000' }}>{counts.total}</h2>
+                        <h2 className="value">{counts.total}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
                     <div className="card-data">
                         <span className="label">Good</span>
-                        <h2 className="value" style={{ color: '#000' }}>{counts.good}</h2>
+                        <h2 className="value">{counts.good}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
                     <div className="card-data">
                         <span className="label">In Maintenance</span>
-                        <h2 className="value" style={{ color: '#000' }}>{counts.maintenance}</h2>
+                        <h2 className="value">{counts.maintenance}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '12px 16px' }}>
+                <div className="live-card" style={{ padding: '20px' }}>
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
                     <div className="card-data">
                         <span className="label">Damaged</span>
-                        <h2 className="value" style={{ color: '#000' }}>{counts.damaged}</h2>
+                        <h2 className="value">{counts.damaged}</h2>
                     </div>
                 </div>
             </section>
@@ -244,55 +244,103 @@ const InventoryManagement = () => {
                     ))}
                 </div>
 
-                <div className="search-input-wrapper">
-                    <Search size={18} className="search-icon-inside" />
-                    <input
-                        type="text"
-                        placeholder="Search by name, ID, or zone..."
-                        className="search-input-premium"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
-                </div>
-                <div className="filter-btn-group">
-                    <div className="filter-btn-group">
-                        {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
-                            <button 
-                                key={cat} 
-                                onClick={() => setCategoryFilter(cat)} 
-                                className={`filter-pill ${categoryFilter === cat ? 'active' : ''}`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
+            {/* Filters */}
+            <div style={{ marginBottom: '32px' }}>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
+                        <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                        <input
+                            type="text"
+                            placeholder="Search by name, ID, or zone..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            style={{ 
+                                width: '100%', 
+                                padding: '14px 16px 14px 44px', 
+                                border: '1px solid #E2E8F0', 
+                                borderRadius: '12px', 
+                                fontSize: '0.85rem', 
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.02)',
+                                outline: 'none'
+                            }}
+                        />
                     </div>
-                    <div style={{ width: '1px', height: '24px', background: '#E2E8F0', margin: '0 8px' }}></div>
-                    <div className="filter-btn-group">
-                        {STATUSES.filter(s => s !== 'All').map(s => (
-                            <button 
-                                key={s} 
-                                onClick={() => setStatusFilter(s)} 
-                                className={`filter-pill ${statusFilter === s ? 'active' : ''}`}
-                            >
-                                {s}
-                            </button>
-                        ))}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {CATEGORIES.filter(cat => cat !== 'All').map(cat => (
+                                <button 
+                                    key={cat} 
+                                    onClick={() => setCategoryFilter(cat)} 
+                                    style={{
+                                        padding: '10px 20px', 
+                                        borderRadius: '10px', 
+                                        border: '1px solid #E2E8F0', 
+                                        cursor: 'pointer', 
+                                        fontSize: '0.75rem', 
+                                        fontWeight: '700',
+                                        background: categoryFilter === cat ? '#1E3A5F' : '#fff',
+                                        color: categoryFilter === cat ? '#fff' : '#64748B',
+                                        transition: 'all 0.2s',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                    }}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                        <div style={{ width: '1px', height: '20px', background: '#E2E8F0', margin: '0 4px' }}></div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {STATUSES.filter(s => s !== 'All').map(s => (
+                                <button 
+                                    key={s} 
+                                    onClick={() => setStatusFilter(s)} 
+                                    style={{
+                                        padding: '10px 20px', 
+                                        borderRadius: '10px', 
+                                        border: '1px solid #E2E8F0', 
+                                        cursor: 'pointer', 
+                                        fontSize: '0.75rem', 
+                                        fontWeight: '700',
+                                        background: statusFilter === s ? (STATUS_CONFIG[s]?.bg || '#F1F5F9') : '#fff',
+                                        color: statusFilter === s ? (STATUS_CONFIG[s]?.color || '#334155') : '#64748B',
+                                        transition: 'all 0.2s',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                    }}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => {
+                                setSearch('');
+                                setCategoryFilter('All');
+                                setStatusFilter('All');
+                            }}
+                            style={{
+                                padding: '10px 20px', 
+                                borderRadius: '10px', 
+                                border: '1px solid #E2E8F0', 
+                                background: '#fff', 
+                                color: '#64748B',
+                                cursor: 'pointer', 
+                                fontSize: '0.75rem', 
+                                fontWeight: '700', 
+                                transition: 'all 0.2s', 
+                                marginLeft: '4px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                            }}
+                            onMouseOver={(e) => { e.target.style.background = '#F1F5F9'; e.target.style.color = '#EF4444'; }}
+                            onMouseOut={(e) => { e.target.style.background = '#fff'; e.target.style.color = '#64748B'; }}
+                        >
+                            Reset
+                        </button>
                     </div>
-                    <button
-                        onClick={() => {
-                            setSearch('');
-                            setCategoryFilter('All');
-                            setStatusFilter('All');
-                        }}
-                        className="reset-filters-btn"
-                    >
-                        Reset
-                    </button>
                 </div>
             </div>
+            </div>
 
-            <div className="inventory-grid-premium">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
                 {filtered.map(item => (
                     <InventoryCard
                         key={item.id}
@@ -315,7 +363,7 @@ const InventoryManagement = () => {
             <EquipmentDetailModal
                 item={selectedItem}
                 onClose={() => setSelectedItem(null)}
-                onReportIssue={handleOpenEdit}
+                onUpdate={handleOpenEdit}
                 statusConfig={STATUS_CONFIG}
             />
 

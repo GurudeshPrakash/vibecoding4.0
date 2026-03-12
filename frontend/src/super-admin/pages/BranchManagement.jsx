@@ -3,11 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, MapPin, ArrowLeft, ArrowRight, Calendar, User, Package, Clock, Search, Plus, Eye, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2, Mail, Users, ClipboardList, ChevronDown } from 'lucide-react';
 import '../styles/BranchManagement.css';
 
-// --- MOCK DATA FOR 24 BRANCHES ---
-const MOCK_BRANCHES = Array.from({ length: 24 }).map((_, i) => ({
+// --- MOCK DATA FOR 6 BRANCHES ---
+const MOCK_BRANCHES = Array.from({ length: 6 }).map((_, i) => ({
   id: `b-${i + 1}`,
-  name: `${['Colombo', 'Kandy', 'Galle', 'Negombo', 'Jaffna', 'Kurunegala', 'Matara', 'Batticaloa', 'Trincomalee', 'Ratnapura', 'Kalutara', 'Anuradhapura', 'Polonnaruwa', 'Badulla', 'Hambantota', 'Kegalle', 'Nuwara Eliya', 'Puttalam', 'Vavuniya', 'Mannar', 'Mullaitivu', 'Kilinochchi', 'Ampara', 'Moneragala'][i]}`,
-  city: ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Jaffna', 'Kurunegala', 'Matara', 'Batticaloa', 'Trincomalee', 'Ratnapura', 'Kalutara', 'Anuradhapura', 'Polonnaruwa', 'Badulla', 'Hambantota', 'Kegalle', 'Nuwara Eliya', 'Puttalam', 'Vavuniya', 'Mannar', 'Mullaitivu', 'Kilinochchi', 'Ampara', 'Moneragala'][i],
+  name: `${['Colombo', 'Kandy', 'Galle', 'Negombo', 'Kurunegala', 'Matara'][i]}`,
+  city: ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Kurunegala', 'Matara'][i],
   location: `${['Galle Road', 'Peradeniya Road', 'Fort Area', 'Beach Road', 'Main Street', 'Market Square'][i % 6]}`,
   type: i % 2 === 0 ? 'AC' : 'Non-AC',
   status: i % 10 === 0 ? 'Closed' : 'Open',

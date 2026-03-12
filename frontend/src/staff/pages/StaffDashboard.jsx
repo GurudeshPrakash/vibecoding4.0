@@ -1,71 +1,98 @@
 /**
  * @module StaffModule
- * @status STABLE - LOCKED
- * @description This module is development-complete. Avoid modifications unless specifically requested.
+ * @status STABLE - UPDATED
+ * @description This module provides the daily shift overview for staff members, filtered by branch.
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Users, Activity, CheckSquare, DollarSign, Clock,
     UserCheck, CheckCircle2, Wrench, AlertTriangle,
-    Download, FileText, ChevronRight
+    Download, FileText, ChevronRight, Phone
 } from 'lucide-react';
 import '../styles/StaffDashboard.css';
 import taskService from '../../shared/services/taskService';
-import pdfService from '../../shared/services/pdfService';
+import { ADMIN_BRANCHES } from '../../admin/constants/mockData';
 
-const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
+const StaffDashboard = ({ setActiveTab, inventoryData = [] }) => {
     const navigate = useNavigate();
-    const [inventory, setInventory] = useState(inventoryData.length > 0 ? inventoryData : []);
-    const [checkinCount, setCheckinCount] = useState(0);
-    const [pendingPaymentsCount, setPendingPaymentsCount] = useState(18);
+    
+    // ─── Auth/Branch Context ───────────────────────────────────────────────
+    const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
+    const branchId = staffUser.branchId || 'b3'; // Default to b3 (Galle) if not found
+    const branchName = ADMIN_BRANCHES.find(b => b._id === branchId)?.name || 'GALLE BRANCH';
+
+    // ─── State ─────────────────────────────────────────────────────────────
+    const [inventory, setInventory] = useState([]);
+    const [stats, setStats] = useState({
+        totalMembers: 0,
+        todayCheckins: 0,
+        totalEquipment: 0,
+        inMaintenance: 0,
+        damagedEquipment: 0,
+        pendingPayments: 0
+    });
     const [removalTasks, setRemovalTasks] = useState([]);
 
-    // Initial load and dynamic updates
+    // ─── Data Persistence Sync ──────────────────────────────────────────────
     useEffect(() => {
-        // Today Check-ins Logic
-        const todayStr = new Date().toISOString().split('T')[0];
-        const lastCheckinDate = localStorage.getItem('dev_checkin_date');
-        let currentCheckins = parseInt(localStorage.getItem('dev_today_checkins') || '124');
+        const refreshData = () => {
+            // 1. Get Inventory & Calculate Equipment Stats (Branch Specific)
+            const rawInventory = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+            const branchInventory = rawInventory.filter(item => item.branchId === branchId);
+            
+            // 2. Mock Branch-Specific Stats (Sync with Admin Performance Data)
+            // Note: In real app, these would come from an API. For dev, we use branch mapping.
+            const branchStatsMap = {
+                'b1': { members: 450, checkins: 120, payments: 12 },
+                'b2': { members: 320, checkins: 85, payments: 8 },
+                'b3': { members: 210, checkins: 45, payments: 18 },
+                'b4': { members: 180, checkins: 30, payments: 5 },
+                'b5': { members: 165, checkins: 25, payments: 7 },
+                'b6': { members: 142, checkins: 20, payments: 4 },
+            };
 
-        if (lastCheckinDate !== todayStr) {
-            currentCheckins = 0; // Midnight reset
-            localStorage.setItem('dev_checkin_date', todayStr);
-            localStorage.setItem('dev_today_checkins', '0');
-        }
-        setCheckinCount(currentCheckins);
+            const currentBranchStats = branchStatsMap[branchId] || { members: 100, checkins: 10, payments: 5 };
 
-        // Removal Tasks Logic
-        setRemovalTasks(taskService.getPendingTasks());
+            setStats({
+                totalMembers: currentBranchStats.members,
+                todayCheckins: currentBranchStats.checkins,
+                totalEquipment: branchInventory.length,
+                inMaintenance: branchInventory.filter(i => i.status === 'Maintenance').length,
+                damagedEquipment: branchInventory.filter(i => i.status === 'Damaged').length,
+                pendingPayments: currentBranchStats.payments
+            });
 
-        // Pending Payments Logic
-        const payments = parseInt(localStorage.getItem('dev_pending_payments') || '18');
-        setPendingPaymentsCount(payments);
+            setInventory(branchInventory);
+            setRemovalTasks(taskService.getPendingTasks().filter(t => t.location === branchName || t.location === branchId));
+        };
 
-        // Equipment Stats Logic
-        const rawInventory = inventoryData.length > 0 ? inventoryData : [];
-        const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
-
-        const updatedInventory = rawInventory.map(item => {
-            const id = item.id || item._id;
-            const status = overrides[id] || item.status || 'Good';
-            return { ...item, status };
-        });
-
-        setInventory(updatedInventory);
-    }, [inventoryData]);
+        refreshData();
+        const interval = setInterval(refreshData, 300); // Poll every 300ms for real-time feel
+        return () => clearInterval(interval);
+    }, [branchId, branchName]);
 
     const handleCompleteTask = async (taskId) => {
-        const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
         const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Staff User';
-
         if (window.confirm('Confirm Physical Removal: Has this equipment been physically removed and verified?')) {
-            await taskService.completeTask(taskId, staffName);
-            setRemovalTasks(taskService.getPendingTasks());
-            alert('Task completed and removal report generated successfully.');
+            const result = await taskService.completeTask(taskId, staffName);
+            
+            if (result && result.task && result.task.machineId) {
+                // Remove from Inventory DB permanently
+                const rawInventory = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
+                const updatedInv = rawInventory.filter(item => (item.id || item._id) !== result.task.machineId);
+                localStorage.setItem('admin_inventory_db', JSON.stringify(updatedInv));
+
+                // Clear overrides for this item
+                const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
+                delete overrides[result.task.machineId];
+                localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
+            }
+
+            setRemovalTasks(taskService.getPendingTasks().filter(t => t.location === branchName || t.location === branchId));
+            alert('Equipment physically removed and records updated successfully.');
         }
     };
-
 
     const handleNavigation = (tab) => {
         if (setActiveTab) {
@@ -75,39 +102,22 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
         }
     };
 
-    const moreBtnStyle = {
-        background: '#EF4444',
-        color: 'white',
-        border: 'none',
-        padding: '3px 10px',
-        borderRadius: '4px',
-        fontSize: '0.65rem',
-        fontWeight: '700',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        minWidth: '50px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px'
-    };
-
+    // ─── Table Data ───────────────────────────────────────────────────────
     const todayCheckins = [
-        { no: 1, id: 'M-1024', name: 'Arjun Perera', arrival: '08:15 AM', leave: '09:40 AM', status: 'Completed' },
-        { no: 2, id: 'M-1056', name: 'Sarah Mendis', arrival: '08:45 AM', leave: '10:00 AM', status: 'Completed' },
-        { no: 3, id: 'M-1089', name: 'Dilshan Silva', arrival: '09:05 AM', leave: '--', status: 'Active' },
-        { no: 4, id: 'M-1102', name: 'Anjali Gunawardena', arrival: '09:30 AM', leave: '--', status: 'Active' },
-        { no: 5, id: 'M-1115', name: 'Kasun Rajapaksa', arrival: '10:00 AM', leave: '11:15 AM', status: 'Completed' },
+        { id: 'M-1024', name: 'Arjun Perera', arrival: '08:15 AM', leave: '09:40 AM', phone: '077 123 4567', status: 'OUT' },
+        { id: 'M-1056', name: 'Sarah Mendis', arrival: '08:45 AM', leave: '10:00 AM', phone: '071 234 5678', status: 'OUT' },
+        { id: 'M-1089', name: 'Dilshan Silva', arrival: '09:05 AM', leave: '--', phone: '076 345 6789', status: 'IN' },
+        { id: 'M-1102', name: 'Anjali Gunwardena', arrival: '09:30 AM', leave: '--', phone: '072 456 7890', status: 'IN' },
+        { id: 'M-1115', name: 'Kasun Rajapaksa', arrival: '10:00 AM', leave: '11:15 AM', phone: '075 567 8901', status: 'OUT' },
+        { id: 'M-1128', name: 'Nirosha Fernando', arrival: '10:30 AM', leave: '--', phone: '070 678 9012', status: 'IN' },
+        { id: 'M-1142', name: 'Damith Perera', arrival: '11:00 AM', leave: '12:30 PM', phone: '077 789 0123', status: 'OUT' },
     ];
 
-    const expiringMembers = [
-        { id: 'M-1115', name: 'Kasun Rajapaksa', start: '2025-02-10', expire: '2026-02-10', status: 'Expired' },
-        { id: 'M-1120', name: 'Lakmini Silva', start: '2025-02-28', expire: '2026-02-28', status: 'Expired' },
-        { id: 'M-1102', name: 'Anjali Gunawardena', start: '2025-03-05', expire: '2026-03-05', status: 'Expiring Soon' },
-    ];
-
-    const pendingPaymentsList = [
-        { id: 'M-1130', name: 'Damith Perera', amount: 'LKR 12,000', due: '2026-03-01', status: 'Overdue' },
-        { id: 'M-1089', name: 'Dilshan Silva', amount: 'LKR 12,000', due: '2026-03-03', status: 'Overdue' },
+    const alerts = [
+        { type: 'Inventory', title: 'TM-002 Service Due', message: 'Treadmill requires monthly lubrication.', target: 'inventory' },
+        { type: 'Payment', title: 'Overdue: Dilshan Silva', message: 'Monthly membership expired 3 days ago.', target: 'payments' },
+        { type: 'Maintenance', title: 'EB-001 Inspection', message: 'Stationary bike noise reported by member.', target: 'inventory' },
+        { type: 'Member', title: 'M-1115 Expired', message: 'Kasun Rajapaksa membership needs renewal.', target: 'members' },
     ];
 
     return (
@@ -115,28 +125,30 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <h1>Dashboard</h1>
+                        <h1>Dashboard Overview</h1>
                         <span style={{ 
                             background: 'rgba(239, 68, 68, 0.1)', 
                             color: '#EF4444', 
                             fontSize: '0.65rem', 
-                            padding: '4px 12px', 
+                            padding: '4px 14px', 
                             borderRadius: '100px', 
                             fontWeight: '800',
                             letterSpacing: '0.05em',
-                            border: '1px solid rgba(239, 68, 68, 0.2)'
-                        }}>GALLE BRANCH</span>
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            textTransform: 'uppercase'
+                        }}>{branchName}</span>
                     </div>
-                    <p>Welcome to your daily shift overview. Have a great day!</p>
+                    <p>Real-time branch statistics and member activities.</p>
                 </div>
             </header>
 
-            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            {/* 1. Quick Cards Section (6 Cards) */}
+            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users size={20} /></div>
                     <div className="card-data">
                         <span className="label">Total Members</span>
-                        <h2 className="value">842</h2>
+                        <h2 className="value">{stats.totalMembers}</h2>
                     </div>
                 </div>
 
@@ -144,7 +156,7 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><UserCheck size={20} /></div>
                     <div className="card-data">
                         <span className="label">Today Check-ins</span>
-                        <h2 className="value">{checkinCount}</h2>
+                        <h2 className="value">{stats.todayCheckins}</h2>
                     </div>
                 </div>
 
@@ -152,12 +164,36 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                     <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare size={20} /></div>
                     <div className="card-data">
                         <span className="label">Total Equipment</span>
-                        <h2 className="value">{inventory.filter(i => i.status === 'Good' || i.status === 'Available').length}</h2>
+                        <h2 className="value">{stats.totalEquipment}</h2>
+                    </div>
+                </div>
+
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">In Maintenance</span>
+                        <h2 className="value">{stats.inMaintenance}</h2>
+                    </div>
+                </div>
+
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">Damaged Equipment</span>
+                        <h2 className="value">{stats.damagedEquipment}</h2>
+                    </div>
+                </div>
+
+                <div className="live-card">
+                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><DollarSign size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">Pending Payments</span>
+                        <h2 className="value">{stats.pendingPayments}</h2>
                     </div>
                 </div>
             </section>
 
-            {/* Physical Equipment Removal Tasks (Urgent/Active) */}
+            {/* Removal Tasks Section */}
             {removalTasks.length > 0 && (
                 <div className="sa-card animate-pop-in" style={{ marginBottom: '32px', border: '2px solid #10B981', background: '#F0FDF4' }}>
                     <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #DCFCE7' }}>
@@ -167,7 +203,7 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                             </div>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: '1rem', color: '#064E3B', fontWeight: 800 }}>Physical Removal Tasks</h3>
-                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>Your request has been approved. You can now proceed with the physical equipment removal.</p>
+                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>Your request has been approved. Proceed with physical equipment removal.</p>
                             </div>
                         </div>
                     </div>
@@ -178,7 +214,6 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                                     <th style={{ padding: '12px 8px' }}>Task ID</th>
                                     <th style={{ padding: '12px 8px' }}>Equipment</th>
                                     <th style={{ padding: '12px 8px' }}>Location</th>
-                                    <th style={{ padding: '12px 8px' }}>Approved By</th>
                                     <th style={{ padding: '12px 8px' }}>Action</th>
                                 </tr>
                             </thead>
@@ -188,13 +223,12 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                                         <td style={{ padding: '16px 8px', color: '#065F46', fontSize: '0.75rem', fontWeight: '700' }}>{task.task_id}</td>
                                         <td style={{ padding: '16px 8px', fontWeight: '800', color: '#064E3B', fontSize: '0.8rem' }}>{task.equipment_name}</td>
                                         <td style={{ padding: '16px 8px', color: '#059669', fontSize: '0.75rem', fontWeight: '600' }}>{task.location}</td>
-                                        <td style={{ padding: '16px 8px', color: '#059669', fontSize: '0.75rem', fontWeight: '600' }}>{task.approved_by}</td>
                                         <td style={{ padding: '16px 8px' }}>
                                             <button
                                                 onClick={() => handleCompleteTask(task.task_id)}
                                                 style={{ padding: '8px 16px', borderRadius: '8px', background: '#10B981', color: '#fff', border: 'none', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer' }}
                                             >
-                                                Mark as Completed
+                                                Complete
                                             </button>
                                         </td>
                                     </tr>
@@ -205,62 +239,145 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [], stats = {} }) => {
                 </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                <div className="sa-card">
-                    <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Recent Check-ins</h3>
-                        <button onClick={() => handleNavigation('members')} style={moreBtnStyle}>More</button>
-                    </div>
-                    <div className="table-responsive" style={{ padding: '0 20px 20px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#64748B', fontSize: '0.65rem', textTransform: 'uppercase', textAlign: 'left', fontWeight: '800' }}>
-                                    <th style={{ padding: '12px 8px' }}>Name</th>
-                                    <th style={{ padding: '12px 8px' }}>Arrival</th>
-                                    <th style={{ padding: '12px 8px' }}>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {todayCheckins.map((checkin, index) => (
-                                    <tr key={index} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                                        <td style={{ padding: '12px 8px', fontWeight: '700', color: '#1E293B', fontSize: '0.75rem' }}>{checkin.name}</td>
-                                        <td style={{ padding: '12px 8px', color: '#64748B', fontSize: '0.75rem' }}>{checkin.arrival}</td>
-                                        <td style={{ padding: '12px 8px' }}>
-                                            <span style={{
-                                                padding: '4px 10px',
-                                                borderRadius: '20px',
-                                                fontSize: '0.65rem',
-                                                fontWeight: '800',
-                                                background: checkin.status === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                                color: checkin.status === 'Completed' ? '#10B981' : '#EF4444'
-                                            }}>{checkin.status}</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+            {/* 2. Recent Check-ins (Full Width) */}
+            <div className="sa-card animate-pop-in" style={{ display: 'flex', flexDirection: 'column', marginBottom: '24px' }}>
+                <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0 16px' }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Recent Check-ins</h3>
+                    <button 
+                        onClick={() => handleNavigation('members')} 
+                        className="btn-see-all"
+                        style={{
+                            background: 'var(--color-red)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '8px 18px',
+                            borderRadius: '8px',
+                            fontSize: '0.75rem',
+                            fontWeight: '800',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)'
+                        }}
+                    >
+                        See All
+                    </button>
                 </div>
+                <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px', paddingRight: '8px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead style={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+                            <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#64748B', fontSize: '0.65rem', textTransform: 'uppercase', textAlign: 'left', fontWeight: '800' }}>
+                                <th style={{ padding: '12px 8px' }}>Member ID</th>
+                                <th style={{ padding: '12px 8px' }}>Name</th>
+                                <th style={{ padding: '12px 8px' }}>Arrival</th>
+                                <th style={{ padding: '12px 8px' }}>Leave</th>
+                                <th style={{ padding: '12px 8px' }}>Phone</th>
+                                <th style={{ padding: '12px 8px' }}>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {todayCheckins.map((checkin, index) => (
+                                <tr key={index} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                                    <td style={{ padding: '12px 8px', color: '#64748B', fontSize: '0.72rem', fontWeight: '600' }}>{checkin.id}</td>
+                                    <td style={{ padding: '12px 8px', fontWeight: '800', color: '#1E293B', fontSize: '0.75rem' }}>{checkin.name}</td>
+                                    <td style={{ padding: '12px 8px', color: '#64748B', fontSize: '0.75rem', fontWeight: '600' }}>{checkin.arrival}</td>
+                                    <td style={{ padding: '12px 8px', color: '#64748B', fontSize: '0.75rem', fontWeight: '600' }}>{checkin.leave}</td>
+                                    <td style={{ padding: '12px 8px', color: '#1E293B', fontSize: '0.72rem', fontWeight: '700' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Phone size={10} color="#FF0000" />
+                                            {checkin.phone}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '12px 8px' }}>
+                                        <span style={{
+                                            padding: '4px 10px',
+                                            borderRadius: '20px',
+                                            fontSize: '0.65rem',
+                                            fontWeight: '800',
+                                            background: checkin.status === 'IN' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                            color: checkin.status === 'IN' ? '#10B981' : '#EF4444',
+                                            display: 'inline-block',
+                                            width: '45px',
+                                            textAlign: 'center'
+                                        }}>{checkin.status}</span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                <div className="sa-card">
-                    <h3 style={{ padding: '20px 20px 10px', fontSize: '0.85rem', fontWeight: '800' }}>Quick Alerts</h3>
-                    <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {expiringMembers.map((member, idx) => (
-                            <div key={idx} style={{ padding: '12px', background: '#FEF2F2', borderRadius: '10px', border: '1px solid #FEE2E2', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#991B1B' }}>{member.name}</div>
-                                    <div style={{ fontSize: '0.65rem', color: '#B91C1C' }}>Membership Expired</div>
+            {/* 3. Quick Alerts (Below Check-ins) */}
+            <div className="sa-card animate-pop-in" style={{ display: 'flex', flexDirection: 'column', marginBottom: '32px' }}>
+                <div className="sa-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0 16px' }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: '800' }}>Quick Alerts</h3>
+                    <button 
+                        onClick={() => handleNavigation('inventory')} 
+                        className="btn-see-all"
+                        style={{
+                            background: 'var(--color-red)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '8px 18px',
+                            borderRadius: '8px',
+                            fontSize: '0.75rem',
+                            fontWeight: '800',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)'
+                        }}
+                    >
+                        See All
+                    </button>
+                </div>
+                <div style={{ flex: 1, overflowY: 'auto', maxHeight: '350px', paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {alerts.map((alert, idx) => (
+                        <div 
+                            key={idx} 
+                            onClick={() => handleNavigation(alert.target)}
+                            style={{ 
+                                padding: '14px', 
+                                background: '#FEF2F2', 
+                                borderRadius: '16px', 
+                                border: '1px solid #FEE2E2', 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                <div style={{ padding: '8px', background: '#FF0000', borderRadius: '10px', color: '#fff' }}>
+                                    {alert.type === 'Inventory' || alert.type === 'Maintenance' ? <Wrench size={16} /> : <AlertTriangle size={16} />}
                                 </div>
-                                <AlertTriangle size={14} color="#EF4444" />
+                                <div>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#991B1B' }}>{alert.title}</div>
+                                    <div style={{ fontSize: '0.65rem', color: '#B91C1C', fontWeight: '600', marginTop: '2px' }}>{alert.message}</div>
+                                </div>
                             </div>
-                        ))}
-                    </div>
+                            <ChevronRight size={14} color="#EF4444" />
+                        </div>
+                    ))}
+                    {alerts.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+                            <CheckCircle2 size={32} style={{ opacity: 0.3, marginBottom: '10px' }} />
+                            <p style={{ fontSize: '0.75rem', fontWeight: '700' }}>All clear! No urgent alerts.</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
         </div>
     );
 };
-
 
 export default StaffDashboard;

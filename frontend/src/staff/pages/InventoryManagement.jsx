@@ -11,8 +11,6 @@ import {
 import { QRCodeCanvas } from 'qrcode.react';
 import logo from '../../shared/assets/logo1.png';
 import '../styles/InventoryManagement.css';
-import { ADMIN_BRANCHES } from '../../admin/constants/mockData';
-
 const STATUS_CONFIG = {
     'Good': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
     'Available': { color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)', icon: <CheckCircle2 size={16} /> },
@@ -20,85 +18,64 @@ const STATUS_CONFIG = {
     'Damaged': { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)', icon: <AlertTriangle size={16} /> },
 };
 
-const MOCK_INVENTORY = [
-    { id: 'TM-001', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-001', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'TM-002', name: 'Commercial Treadmill Gen-X', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T', serial: 'SN-TM-002', lastMaintenance: '2025-12-01', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EB-001', name: 'Upright Stationary Bike', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Matrix', model: 'U50', serial: 'SN-EB-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LP-001', name: '45-Degree Leg Press', category: 'Weight Machine', status: 'Good', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LP', serial: 'SN-LP-001', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CC-001', name: 'Dual Cable Crossover', category: 'Weight Machine', status: 'Good', area: 'Strength Zone', brand: 'Precor', model: 'FTS-Glide', serial: 'SN-CC-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
-    { id: 'RM-001', name: 'Concept2 RowErg', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RM-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'FB-001', name: 'Adjustable Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-FB-001', lastMaintenance: '2025-11-20', nextMaintenance: '2026-05-20', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'SM-001', name: 'Pro Smith Machine', category: 'Weight Machine', status: 'Dismantled', area: 'Strength Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-001', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
-    { id: 'DB-001', name: 'Dumbbell Set (5kg-50kg)', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Rubber Hex', serial: 'SN-DB-SET-01', lastMaintenance: '2026-01-05', nextMaintenance: '2026-07-05', photo: 'https://images.unsplash.com/photo-1586401100295-7a8096fd231a?auto=format&fit=crop&q=80&w=800' },
-    { id: 'BC-001', name: 'Olympic Barbell', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Rogue', model: 'Ohio Bar', serial: 'SN-BC-001', lastMaintenance: '2026-02-10', nextMaintenance: '2026-08-10', photo: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EL-001', name: 'Elliptical Trainer E7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-001', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CH-001', name: 'Chest Press Machine', category: 'Weight Machine', status: 'Good', area: 'Strength Zone', brand: 'Matrix', model: 'G7-S13', serial: 'SN-CH-001', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LD-001', name: 'Lat Pulldown Station', category: 'Weight Machine', status: 'Maintenance', area: 'Strength Zone', brand: 'Hammer Strength', model: 'MTS-LD', serial: 'SN-LD-001', lastMaintenance: '2026-02-15', nextMaintenance: '2026-03-15', photo: 'https://images.unsplash.com/photo-1591940746222-e8d2f7f00ce2?auto=format&fit=crop&q=80&w=800' },
-    { id: 'KB-001', name: 'Kettlebell Set (4kg-32kg)', category: 'Free Weights', status: 'Good', area: 'Functional Area', brand: 'Eleiko', model: 'Training KB', serial: 'SN-KB-SET-01', lastMaintenance: '2026-02-20', nextMaintenance: '2026-08-20', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'PR-001', name: 'Power Rack System', category: 'Weight Machine', status: 'Good', area: 'Power Zone', brand: 'Rogue', model: 'R-3', serial: 'SN-PR-001', lastMaintenance: '2026-01-10', nextMaintenance: '2026-07-10', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'TM-204-01', name: 'Pro-Series Treadmill G7', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: '95T Elevation', serial: 'SN-TM-2024-001X', mfgYear: '2024', lastMaintenance: '2026-01-15', nextMaintenance: '2026-04-15', photo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EB-102-05', name: 'Matrix Upright Bike U50', category: 'Cardio', status: 'Maintenance', area: 'Cardio Zone', brand: 'Matrix', model: 'U50 V2', serial: 'SN-EB-2023-112B', mfgYear: '2023', lastMaintenance: '2025-12-01', nextMaintenance: '2026-02-28', photo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800' },
-    { id: 'LP-305-12', name: 'Plate-Loaded Leg Press', category: 'Weight Machine', status: 'Good', area: 'Leg Zone', brand: 'Hammer Strength', model: 'MTS Leg Press', serial: 'SN-LP-2022-998C', mfgYear: '2022', lastMaintenance: '2026-02-01', nextMaintenance: '2026-08-01', photo: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'CB-501-03', name: 'Cable Crossover Machine', category: 'Weight Machine', status: 'Good', area: 'Free Weights', brand: 'Precor', model: 'FTS Glide', serial: 'SN-CB-2023-441D', mfgYear: '2023', lastMaintenance: '2026-01-20', nextMaintenance: '2026-07-20', photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800' },
-    { id: 'RW-107-02', name: 'Concept2 Rowing Machine', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Concept2', model: 'Model D', serial: 'SN-RW-2024-220A', mfgYear: '2024', lastMaintenance: '2026-02-10', nextMaintenance: '2026-05-10', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800' },
-    { id: 'BN-210-08', name: 'Olympic Flat Bench', category: 'Free Weights', status: 'Good', area: 'Free Weights', brand: 'Body-Solid', model: 'GFID71', serial: 'SN-BN-2022-105B', mfgYear: '2022', lastMaintenance: '2025-11-15', nextMaintenance: '2026-05-15', photo: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'SM-404-01', name: 'Smith Machine Pro', category: 'Weight Machine', status: 'Maintenance', area: 'Power Zone', brand: 'Body-Solid', model: 'GDCC300', serial: 'SN-SM-2021-889F', mfgYear: '2021', lastMaintenance: '2025-10-01', nextMaintenance: '2026-01-01', photo: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=800' },
-    { id: 'EL-601-04', name: 'Elliptical Cross Trainer', category: 'Cardio', status: 'Good', area: 'Cardio Zone', brand: 'Life Fitness', model: 'E7 GO', serial: 'SN-EL-2023-312G', mfgYear: '2023', lastMaintenance: '2026-01-05', nextMaintenance: '2026-04-05', photo: 'https://images.unsplash.com/photo-1571388208497-71bedc66e932?auto=format&fit=crop&q=80&w=800' },
-];
-
 const CATEGORIES = ['Cardio', 'Weight Machine', 'Free Weights'];
 const STATUSES = ['Good', 'Maintenance', 'Damaged'];
 
-const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
+const InventoryManagement = ({ userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
-    const [inventory, setInventory] = useState(inventoryData.length > 0 ? inventoryData : MOCK_INVENTORY);
+    const [inventory, setInventory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [branches, setBranches] = useState([]);
 
     const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
-    const branchId = staffUser.branchId || 'b3';
-    const branchName = ADMIN_BRANCHES.find(b => b._id === branchId)?.name || 'GALLE POWER HUB';
+    const branchId = staffUser.branchId || '';
+    const activeBranch = branches.find(b => b._id === branchId || b.id === branchId);
+    const branchName = activeBranch?.name || 'Your Branch';
 
-    // 1. Initial Load & Polling from Main DB
-    useEffect(() => {
-        const refreshInventory = () => {
-            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
-            if (invDb.length > 0) {
-                const mappedDb = invDb.map(item => {
-                    let category = item.category;
-                    if (category === 'Strength') category = 'Weight Machine';
-                    if (!CATEGORIES.includes(category)) category = 'Weight Machine';
-                    return { ...item, category };
-                });
-
-                if (userRole === 'staff') {
-                    setInventory(mappedDb.filter(i => i.branchId === branchId));
-                } else {
-                    setInventory(mappedDb);
-                }
+    const fetchBranches = async () => {
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/admin/branches', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setBranches(data);
             }
-        };
-
-        refreshInventory();
-        const interval = setInterval(refreshInventory, 500); // Live sync
-        return () => clearInterval(interval);
-    }, [userRole, branchId]);
-
-    // 2. Apply Persistence & Dev Overrides
-    useEffect(() => {
-        const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
-        if (Object.keys(overrides).length > 0) {
-            setInventory(prev => prev.map(item => {
-                const id = (item.id || item._id);
-                if (overrides[id]) {
-                    return { ...item, status: overrides[id] };
-                }
-                return item;
-            }));
+        } catch (error) {
+            console.error('Failed to fetch branches:', error);
         }
-    }, [inventoryData, branchId]);
+    };
 
+    const fetchInventory = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/equipment', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                // Filter by branch for staff
+                const filteredData = userRole === 'staff' 
+                    ? data.filter(item => item.branchId === branchId)
+                    : data;
+                setInventory(filteredData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch inventory:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBranches();
+        fetchInventory();
+    }, [branchId]);
 
     const [selectedItem, setSelectedItem] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -140,26 +117,52 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to remove this equipment?')) return;
-        // Mocking for now, in production call API
-        setInventory(prev => prev.filter(item => (item.id || item._id) !== id));
+        const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:5000/api/equipment/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                fetchInventory();
+            }
+        } catch (error) {
+            console.error('Error deleting equipment:', error);
+        }
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        if (editingItem) {
-            setInventory(prev => prev.map(item => (item.id || item._id) === (editingItem.id || editingItem._id) ? { ...item, ...formData } : item));
-        } else {
-            const newItem = { ...formData, id: 'EQ-' + Date.now(), lastMaintenance: '—', nextMaintenance: '—' };
-            setInventory(prev => [newItem, ...prev]);
+        const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+        const method = editingItem ? 'PUT' : 'POST';
+        const url = editingItem 
+            ? `http://localhost:5000/api/equipment/${editingItem._id}`
+            : 'http://localhost:5000/api/equipment';
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ ...formData, branchId })
+            });
+
+            if (response.ok) {
+                setShowEditModal(false);
+                fetchInventory();
+            }
+        } catch (error) {
+            console.error('Error saving equipment:', error);
         }
-        setShowEditModal(false);
     };
 
     const counts = {
         total: inventory.length,
         good: inventory.filter(i => i.status === 'Good' || i.status === 'Available').length,
         maintenance: inventory.filter(i => i.status === 'Maintenance').length,
-        damaged: inventory.filter(i => i.status === 'Damaged').length,
+        damaged: inventory.filter(i => i.status === 'Damaged' || i.status === 'Dismantled').length,
     };
 
     const handleOpenReport = (item) => {
@@ -192,154 +195,53 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
         setReportImages(updatedImages);
     };
 
-    const handleSubmitReport = (e) => {
+    const handleSubmitReport = async (e) => {
         e.preventDefault();
 
-        // VALIDATION: Description and Image are required ONLY for 'Damaged'
-        const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Staff Member';
-
-        // Validation for ALL required fields
         if (!newStatus) {
             alert('Please select a status.');
             return;
         }
 
-        const reportData = {
-            id: `REP-${Date.now()}`,
-            machineId: reportItem.id || reportItem._id,
-            machineName: reportItem.name,
-            machinePhoto: reportItem.photo,
-            machineSerial: reportItem.serial,
-            branchId: branchId,
-            branch: branchName,
-            staffName: staffName,
-            status: newStatus,
-            description: reportReason,
-            images: reportImages.map(img => img.preview),
-            timestamp: new Date().toISOString(),
-            isApproved: false,
-            isRejected: false
-        };
-
-        // 1. GOOD STATUS: No description, no image, update immediately
-        if (newStatus === 'Good') {
-            const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
-            overrides[reportItem.id || reportItem._id] = 'Good';
-            localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
-            
-            // Sync with inventory db
-            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
-            const updatedInv = invDb.map(item => (item.id === reportItem.id) ? { ...item, status: 'Good' } : item);
-            localStorage.setItem('admin_inventory_db', JSON.stringify(updatedInv));
-
-            // Notify Admin
-            const adminEmail = `admin_${branchId}@gym.com`;
-            const notification = {
-                id: `NOTIF-${Date.now()}`,
-                type: 'Inventory',
-                priority: 'Low',
-                recipientEmail: adminEmail,
-                title: 'Status Updated',
-                message: `Staff ${staffName} from ${branchName} updated ${reportItem.name} status to Good.`,
-                timestamp: new Date().toISOString(),
-                unread: true,
-                isAuthNotif: true,
-                staffName: staffName,
-                action: 'marked equipment as Good',
-                branchId: branchId
-            };
-            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
-            localStorage.setItem('dev_notifications', JSON.stringify([notification, ...devNotifs]));
-
-            alert('Status updated to Good. Admin notified.');
-            setShowReportModal(false);
-            window.location.reload();
-            return;
-        }
-
-        // 2. MAINTENANCE STATUS: Directly change, Notify ONLY branch Admin
-        if (newStatus === 'Maintenance') {
-            const overrides = JSON.parse(localStorage.getItem('dev_status_overrides') || '{}');
-            overrides[reportItem.id || reportItem._id] = 'Maintenance';
-            localStorage.setItem('dev_status_overrides', JSON.stringify(overrides));
-
-            const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
-            const updatedInv = invDb.map(item => (item.id === reportItem.id) ? { ...item, status: 'Maintenance' } : item);
-            localStorage.setItem('admin_inventory_db', JSON.stringify(updatedInv));
-
-            const adminEmail = `admin_${branchId}@gym.com`; // Branch-specific admin
-            const notification = {
-                id: `NOTIF-${Date.now()}`,
-                type: 'Maintenance',
-                priority: 'Medium',
-                recipientEmail: adminEmail,
-                title: 'Maintenance Logged',
-                message: `Staff ${staffName} from ${branchName} marked ${reportItem.name} as under maintenance.`,
-                timestamp: new Date().toISOString(),
-                unread: true,
-                isAuthNotif: true,
-                staffName: staffName,
-                action: 'marked equipment as maintenance',
-                branchId: branchId
-            };
-
-            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
-            localStorage.setItem('dev_notifications', JSON.stringify([notification, ...devNotifs]));
-            
-            alert('Equipment status updated to Maintenance. Admin notified.');
-            setShowReportModal(false);
-            window.location.reload();
-            return;
-        }
-
-        // 3. DAMAGED STATUS: Do NOT change immediately, Notify branch Admin for approval
         if (newStatus === 'Damaged') {
-            // Mandatory check for report fields
             if (!reportReason.trim() || reportImages.length === 0) {
                 alert('Description and at least 1 photo are mandatory for Damaged reports.');
                 return;
             }
-
-            const devReports = JSON.parse(localStorage.getItem('dev_damaged_reports') || '[]');
-            localStorage.setItem('dev_damaged_reports', JSON.stringify([reportData, ...devReports]));
-
-            const adminEmail = `admin_${branchId}@gym.com`;
-            const adminNotif = {
-                id: `NOTIF-DAM-${Date.now()}`,
-                type: 'Damaged',
-                priority: 'High',
-                recipientEmail: adminEmail, // Branch Admin Approval Required
-                title: 'Approval Required: Damaged Equipment',
-                message: `${staffName} reported ${reportItem.name} as DAMAGED. Approval required to update status.`,
-                timestamp: reportData.timestamp,
-                unread: true,
-                isAuthNotif: true,
-                staffName: staffName,
-                action: 'requested damage approval',
-                reportId: reportData.id,
-                branchId: branchId
-            };
-
-            const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
-            localStorage.setItem('dev_notifications', JSON.stringify([adminNotif, ...devNotifs]));
-
-            alert(`Damage report sent to ${branchName} Admin for approval. Status will update once approved.`);
-            setShowReportModal(false);
         }
-        // Update inventory state
-        setInventory(prev => prev.map(item => {
-            if ((item.id || item._id) === (reportItem.id || reportItem._id)) {
-                return {
-                    ...item,
-                    status: newStatus,
-                    lastObservation: reportReason, // Storing description
-                    statusUpdateDate: new Date().toISOString().split('T')[0]
-                };
-            }
-            return item;
-        }));
 
-        setShowReportModal(false);
+        const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+        const reportData = {
+            machineId: reportItem.id || reportItem._id,
+            machineName: reportItem.name,
+            branchName: branchName,
+            status: newStatus,
+            description: reportReason,
+            images: reportImages.map(img => img.preview) // In real app, upload files first
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/api/staff/inventory/report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(reportData)
+            });
+
+            if (response.ok) {
+                alert(`Report for ${newStatus} status submitted successfully.`);
+                setShowReportModal(false);
+                fetchInventory();
+            } else {
+                const error = await response.json();
+                alert(`Failed to submit report: ${error.message}`);
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('Connection error. Please try again.');
+        }
     };
 
     const handlePrintQR = () => {
@@ -403,7 +305,7 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
                             fontWeight: '800',
                             letterSpacing: '0.05em',
                             border: '1px solid rgba(239, 68, 68, 0.2)'
-                        }}>GALLE BRANCH</span>
+                        }}>{branchName?.toUpperCase() || 'YOUR BRANCH'}</span>
                     </div>
                     <p>View and manage all gym equipment, facilities, and maintenance status.</p>
                 </div>

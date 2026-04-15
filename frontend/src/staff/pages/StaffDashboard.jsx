@@ -14,16 +14,18 @@ import '../styles/StaffDashboard.css';
 import taskService from '../../shared/services/taskService';
 import { ADMIN_BRANCHES } from '../../admin/constants/mockData';
 
-const StaffDashboard = ({ setActiveTab, inventoryData = [] }) => {
+const StaffDashboard = ({ setActiveTab }) => {
     const navigate = useNavigate();
     
     // ─── Auth/Branch Context ───────────────────────────────────────────────
     const staffUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
-    const branchId = staffUser.branchId || 'b3'; // Default to b3 (Galle) if not found
-    const branchName = ADMIN_BRANCHES.find(b => b._id === branchId)?.name || 'GALLE BRANCH';
+    const branchId = staffUser.branchId || '';
 
     // ─── State ─────────────────────────────────────────────────────────────
+    const [branches, setBranches] = useState([]);
     const [inventory, setInventory] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({
         totalMembers: 0,
         todayCheckins: 0,
@@ -34,43 +36,55 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [] }) => {
     });
     const [removalTasks, setRemovalTasks] = useState([]);
 
-    // ─── Data Persistence Sync ──────────────────────────────────────────────
+    const activeBranch = branches.find(b => b._id === branchId || b.id === branchId);
+    const branchName = activeBranch?.name || 'Your Branch';
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            const [bRes, eRes, mRes] = await Promise.all([
+                fetch('http://localhost:5000/api/admin/branches', { headers }),
+                fetch('http://localhost:5000/api/equipment', { headers }),
+                fetch('http://localhost:5000/api/members', { headers })
+            ]);
+
+            if (bRes.ok && eRes.ok && mRes.ok) {
+                const bData = await bRes.json();
+                const eData = await eRes.json();
+                const mData = await mRes.json();
+
+                setBranches(bData);
+                
+                const branchInventory = eData.filter(item => item.branchId === branchId);
+                const branchMembers = mData.filter(m => m.branchId === branchId);
+
+                setInventory(branchInventory);
+                setMembers(branchMembers);
+
+                setStats({
+                    totalMembers: branchMembers.length,
+                    todayCheckins: 0, // Placeholder until Checkin API implemented
+                    totalEquipment: branchInventory.length,
+                    inMaintenance: branchInventory.filter(i => i.status === 'Maintenance').length,
+                    damagedEquipment: branchInventory.filter(i => i.status === 'Damaged' || i.status === 'Dismantled').length,
+                    pendingPayments: 0 // Placeholder until Payments API implemented
+                });
+
+                setRemovalTasks(taskService.getPendingTasks().filter(t => t.location === branchName || t.location === branchId));
+            }
+        } catch (error) {
+            console.error('Dashboard data fetch failed:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const refreshData = () => {
-            // 1. Get Inventory & Calculate Equipment Stats (Branch Specific)
-            const rawInventory = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
-            const branchInventory = rawInventory.filter(item => item.branchId === branchId);
-            
-            // 2. Mock Branch-Specific Stats (Sync with Admin Performance Data)
-            // Note: In real app, these would come from an API. For dev, we use branch mapping.
-            const branchStatsMap = {
-                'b1': { members: 450, checkins: 120, payments: 12 },
-                'b2': { members: 320, checkins: 85, payments: 8 },
-                'b3': { members: 210, checkins: 45, payments: 18 },
-                'b4': { members: 180, checkins: 30, payments: 5 },
-                'b5': { members: 165, checkins: 25, payments: 7 },
-                'b6': { members: 142, checkins: 20, payments: 4 },
-            };
-
-            const currentBranchStats = branchStatsMap[branchId] || { members: 100, checkins: 10, payments: 5 };
-
-            setStats({
-                totalMembers: currentBranchStats.members,
-                todayCheckins: currentBranchStats.checkins,
-                totalEquipment: branchInventory.length,
-                inMaintenance: branchInventory.filter(i => i.status === 'Maintenance').length,
-                damagedEquipment: branchInventory.filter(i => i.status === 'Damaged').length,
-                pendingPayments: currentBranchStats.payments
-            });
-
-            setInventory(branchInventory);
-            setRemovalTasks(taskService.getPendingTasks().filter(t => t.location === branchName || t.location === branchId));
-        };
-
-        refreshData();
-        const interval = setInterval(refreshData, 300); // Poll every 300ms for real-time feel
-        return () => clearInterval(interval);
-    }, [branchId, branchName]);
+        fetchData();
+    }, [branchId]);
 
     const handleCompleteTask = async (taskId) => {
         const staffName = `${staffUser.firstName || ''} ${staffUser.lastName || ''}`.trim() || 'Staff User';

@@ -3,42 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, MapPin, ArrowLeft, ArrowRight, Calendar, User, Package, Clock, Search, Plus, Eye, Edit2, Trash2, X, Activity, ArrowUpRight, Shield, Loader2, Camera, CheckCircle2, AlertCircle, Building2, Mail, Users, ClipboardList, ChevronDown } from 'lucide-react';
 import '../styles/BranchManagement.css';
 
-// --- MOCK DATA FOR 6 BRANCHES ---
-const MOCK_BRANCHES = Array.from({ length: 6 }).map((_, i) => ({
-  id: `b-${i + 1}`,
-  name: `${['Colombo', 'Kandy', 'Galle', 'Negombo', 'Kurunegala', 'Matara'][i]}`,
-  city: ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Kurunegala', 'Matara'][i],
-  location: `${['Galle Road', 'Peradeniya Road', 'Fort Area', 'Beach Road', 'Main Street', 'Market Square'][i % 6]}`,
-  type: i % 2 === 0 ? 'AC' : 'Non-AC',
-  status: i % 10 === 0 ? 'Closed' : 'Open',
-  adminName: ['Shahana K.', 'Prakash S.', 'Kamal P.', 'Niluka G.', 'Mithula R.'][i % 5],
-  adminEmail: `admin${i + 1}@powerworld.lk`,
-  adminPhone: `+94 77 ${1000000 + i}`,
-  adminPhoto: `https://i.pravatar.cc/150?u=admin${i}`,
-  openTime: '5:00 AM',
-  closeTime: '10:00 PM',
-  contactNumber: `+94 11 ${2000000 + i}`,
-  photo: [
-    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80',
-    'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800&q=80',
-    'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80',
-    'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80',
-    'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&q=80'
-  ][i % 5],
-  inventory: [
-    { name: 'Treadmills', quantity: 12, condition: 'Available' },
-    { name: 'Dumbbells Set', quantity: 24, condition: 'Available' },
-    { name: 'Bench Press', quantity: 8, condition: 'Maintenance' },
-    { name: 'Exercise Bikes', quantity: 10, condition: 'Available' },
-    { name: 'Rowing Machines', quantity: 4, condition: 'Available' }
-  ],
-  staff: [
-    { name: 'John Doe', role: 'Senior Trainer', email: 'john@pw.lk', phone: '+94 77 123 4567', photo: 'https://i.pravatar.cc/150?u=johndoe' },
-    { name: 'Jane Smith', role: 'Support Staff', email: 'jane@pw.lk', phone: '+94 77 234 5678', photo: 'https://i.pravatar.cc/150?u=janesmith' },
-    { name: 'Mike Ross', role: 'Nutritionist', email: 'mike@pw.lk', phone: '+94 77 345 6789', photo: 'https://i.pravatar.cc/150?u=mikeross' }
-  ]
-}));
-
 const checkStatus = (open, close, now) => {
   if (!open || !close) return 'Closed';
   try {
@@ -75,14 +39,10 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
   const [typeFilter, setTypeFilter] = useState('All');
   const [activeTab, setActiveTab] = useState('details');
   const [currentTime] = useState(new Date());
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingBranch, setEditingBranch] = useState(null);
-  const [branches, setBranches] = useState(() => {
-    const saved = localStorage.getItem('mock_branches_db_v2');
-    if (saved) return JSON.parse(saved);
-    return MOCK_BRANCHES;
-  });
+  const [branches, setBranches] = useState([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -97,10 +57,32 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
     photoPreview: null
   });
 
+  const fetchBranches = async () => {
+    setIsLoading(true);
+    try {
+      const token = sessionStorage.getItem('admin_token');
+      const response = await fetch('http://localhost:5000/api/admin/branches', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setBranches(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch branches:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
   const filteredGyms = branches.filter(gym => {
-    const matchesSearch = gym.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      gym.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      gym.city.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (gym.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (gym.location || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (gym.city || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'All' || gym.type === typeFilter;
     return matchesSearch && matchesType;
   });
@@ -129,26 +111,35 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
     }
   };
 
-  const handleSaveModal = (e) => {
+  const handleSaveModal = async (e) => {
     e.preventDefault();
-    // In a real app, this would hit an API. Here we update local state.
-    if (editingBranch) {
-      const updated = branches.map(b => b.id === editingBranch.id ? { ...b, ...formData } : b);
-      setBranches(updated);
-      localStorage.setItem('mock_branches_db_v2', JSON.stringify(updated));
-    } else {
-      const newBranch = {
-        ...formData,
-        id: `b-${branches.length + 1}`,
-        photo: formData.photo || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80',
-        inventory: [],
-        staff: []
-      };
-      const updated = [...branches, newBranch];
-      setBranches(updated);
-      localStorage.setItem('mock_branches_db_v2', JSON.stringify(updated));
+    const token = sessionStorage.getItem('admin_token');
+    const url = editingBranch 
+        ? `http://localhost:5000/api/admin/branches/${editingBranch._id}`
+        : 'http://localhost:5000/api/admin/branches';
+    const method = editingBranch ? 'PUT' : 'POST';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setShowModal(false);
+        fetchBranches();
+      } else {
+        const err = await response.json();
+        alert(err.message || 'Failed to save branch');
+      }
+    } catch (error) {
+        console.error('Error saving branch:', error);
+        alert('Network error');
     }
-    setShowModal(false);
   };
 
   const renderQuickCards = () => (
@@ -221,10 +212,22 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
-    const updated = branches.filter(b => b.id !== branchToDelete);
-    setBranches(updated);
-    localStorage.setItem('mock_branches_db_v2', JSON.stringify(updated));
+  const confirmDelete = async () => {
+    const token = sessionStorage.getItem('admin_token');
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/branches/${branchToDelete}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        fetchBranches();
+      } else {
+        alert('Failed to delete branch');
+      }
+    } catch (error) {
+      console.error('Error deleting branch:', error);
+      alert('Network error');
+    }
     setShowDeleteConfirm(false);
     setBranchToDelete(null);
   };
@@ -243,7 +246,7 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
       {filteredGyms.map(gym => {
         const computedStatus = checkStatus(gym.openTime, gym.closeTime, currentTime);
         return (
-          <div key={gym.id} className="sa-branch-card-new clickable-card" onClick={() => { setSelectedGym(gym); setActiveTab('details'); }}>
+          <div key={gym._id} className="sa-branch-card-new clickable-card" onClick={() => { setSelectedGym(gym); setActiveTab('details'); }}>
             <div className="card-media">
               <img src={gym.photo} alt={gym.name} />
               <div className={`status-pill ${computedStatus.toLowerCase()}`}>
@@ -253,11 +256,11 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
             </div>
 
             <div className="card-body">
-              <p className="card-category">{gym.type.toUpperCase()}</p>
+              <p className="card-category">{gym.type?.toUpperCase() || 'AC'}</p>
               <h3 className="card-title">{gym.name}</h3>
 
               <div className="card-details-stack">
-                <p className="card-detail-item">ID: <strong>{gym.id.toUpperCase()}</strong></p>
+                <p className="card-detail-item">ID: <strong>{(gym._id || '...').toUpperCase()}</strong></p>
                 <p className="card-detail-item">Address: <strong>{gym.location}</strong></p>
                 <p className="card-detail-item">Location: <strong>{gym.city}</strong></p>
                 <p className="card-detail-item">Time: <strong>{gym.openTime} – {gym.closeTime}</strong></p>
@@ -283,7 +286,7 @@ const BranchManagement = ({ userRole = 'super_admin' }) => {
                   style={{ padding: '8px 12px', fontSize: '0.7rem', fontWeight: 800, background: 'rgba(239, 68, 68, 0.05)', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.1)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(gym.id);
+                    handleDelete(gym._id);
                   }}
                 >
                   <Trash2 size={14} /> Delete

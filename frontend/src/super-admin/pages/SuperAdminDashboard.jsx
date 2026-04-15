@@ -272,152 +272,99 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
     const isLocked = !isSuperAdmin;
     const navigate = useNavigate();
     const location = useLocation();
+    
     const [searchQuery, setSearchQuery] = useState(location.state?.initialSearch || '');
-    const [statsState, setStatsState] = useState(() => {
-        const raw = localStorage.getItem('sa_live_mock_database');
-        if (raw) {
-            try {
-                return JSON.parse(raw);
-            } catch (e) { }
-        }
-        return {
-            totalBranches: 6,
-            totalAdmins: 4,
-            totalStaff: 156,
-            totalMembers: 4850,
-            activeMembers: 4200,
-            todayRevenue: 125000,
-            newMembersToday: 12,
-            acGyms: 3,
-            nonAcGyms: 3,
-            revenueTrend: [
-                { month: 'Jan', revenue: 8.5 },
-                { month: 'Feb', revenue: 9.2 },
-                { month: 'Mar', revenue: 1.2 }, // Current month, will be updated to 'up to today'
-                { month: 'Apr', revenue: 0 },
-                { month: 'May', revenue: 0 },
-                { month: 'Jun', revenue: 0 },
-                { month: 'Jul', revenue: 0 },
-                { month: 'Aug', revenue: 0 },
-                { month: 'Sep', revenue: 0 },
-                { month: 'Oct', revenue: 0 },
-                { month: 'Nov', revenue: 0 },
-                { month: 'Dec', revenue: 0 },
-            ],
-            memberGrowth: [
-                { name: 'Jan', members: 420 },
-                { name: 'Feb', members: 380 },
-                { name: 'Mar', members: 110 }, // New members in March so far
-                { name: 'Apr', members: 0 },
-                { name: 'May', members: 0 },
-                { name: 'Jun', members: 0 },
-                { name: 'Jul', members: 0 },
-                { name: 'Aug', members: 0 },
-                { name: 'Sep', members: 0 },
-                { name: 'Oct', members: 0 },
-                { name: 'Nov', members: 0 },
-                { name: 'Dec', members: 0 },
-            ],
-            branchPerformance: [
-                { name: 'Colombo City', performance: 95 },
-                { name: 'Kandy Fitness', performance: 88 },
-                { name: 'Galle Power', performance: 82 },
-                { name: 'Negombo Beach', performance: 75 },
-                { name: 'Kurunegala Gym', performance: 70 },
-                { name: 'Matara Hub', performance: 65 },
-            ],
-            recentActivities: [
-                { id: 1, user: 'John Doe', action: 'registered as a new member', time: '2 mins ago', type: 'member' },
-                { id: 2, user: 'Branch Admin', action: 'completed a payment', time: '15 mins ago', type: 'payment' },
-                { id: 3, user: 'Super Admin', action: 'added a new staff member', time: '1 hour ago', type: 'staff' },
-                { id: 4, user: 'System', action: 'created a new branch: Kalutara', time: '3 hours ago', type: 'branch' },
-            ]
-        };
+    const [statsState, setStatsState] = useState({
+        totalBranches: 0,
+        totalAdmins: 0,
+        totalStaff: 0,
+        totalMembers: 0,
+        activeMembers: 0,
+        todayRevenue: 0,
+        newMembersToday: 0,
+        totalEquipment: 0,
+        damagedEquipment: 0,
+        acGyms: 0,
+        nonAcGyms: 0,
+        revenueTrend: [
+            { month: 'Jan', revenue: 8.5 },
+            { month: 'Feb', revenue: 9.2 },
+            { month: 'Mar', revenue: 1.2 },
+            { month: 'Apr', revenue: 0 },
+            { month: 'May', revenue: 0 },
+            { month: 'Jun', revenue: 0 },
+            { month: 'Jul', revenue: 0 },
+            { month: 'Aug', revenue: 0 },
+            { month: 'Sep', revenue: 0 },
+            { month: 'Oct', revenue: 0 },
+            { month: 'Nov', revenue: 0 },
+            { month: 'Dec', revenue: 0 },
+        ],
+        memberGrowth: [
+            { month: 'Jan', members: 420 },
+            { month: 'Feb', members: 380 },
+            { month: 'Mar', members: 110 },
+            { month: 'Apr', members: 0 },
+            { month: 'May', members: 0 },
+            { month: 'Jun', members: 0 },
+            { month: 'Jul', members: 0 },
+            { month: 'Aug', members: 0 },
+            { month: 'Sep', members: 0 },
+            { month: 'Oct', members: 0 },
+            { month: 'Nov', members: 0 },
+            { month: 'Dec', members: 0 },
+        ],
+        recentActivities: []
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            const [bRes, aRes, sRes, mRes, eRes] = await Promise.all([
+                fetch('http://localhost:5000/api/admin/branches', { headers }),
+                fetch('http://localhost:5000/api/admin', { headers }), // Fetch admins
+                fetch('http://localhost:5000/api/admin/staff', { headers }),
+                fetch('http://localhost:5000/api/members', { headers }),
+                fetch('http://localhost:5000/api/equipment', { headers })
+            ]);
+
+            if (bRes.ok && aRes.ok && sRes.ok && mRes.ok && eRes.ok) {
+                const branches = await bRes.json();
+                const admins = await aRes.json();
+                const staff = await sRes.json();
+                const members = await mRes.json();
+                const equipment = await eRes.json();
+
+                const today = new Date().toISOString().split('T')[0];
+                const newMembersTodayCount = members.filter(m => m.enrollDate?.startsWith(today)).length;
+                
+                setStatsState(prev => ({
+                    ...prev,
+                    totalBranches: branches.length,
+                    totalAdmins: admins.length,
+                    totalStaff: staff.length,
+                    totalMembers: members.length,
+                    activeMembers: members.filter(m => m.status === 'Active').length,
+                    totalEquipment: equipment.length,
+                    damagedEquipment: equipment.filter(e => e.status === 'Damaged' || e.status === 'Dismantled').length,
+                    acGyms: branches.filter(b => b.type === 'AC').length,
+                    nonAcGyms: branches.filter(b => b.type === 'Non-AC').length,
+                    newMembersToday: newMembersTodayCount
+                }));
+            }
+        } catch (error) {
+            console.error('Failed to fetch dashboard stats:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLiveStats = () => {
-            const staffDb = JSON.parse(localStorage.getItem('admin_staff_db') || '[]');
-            const adminsDb = JSON.parse(localStorage.getItem('mock_admins_db') || '[]');
-            const branchesDb = JSON.parse(localStorage.getItem('mock_branches_db') || '[]');
-            const membersDb = JSON.parse(localStorage.getItem('mock_members_db') || '[]');
-            const paymentsDb = JSON.parse(localStorage.getItem('mock_payments_db') || '[]');
-
-            setStatsState(prev => {
-                const now = new Date();
-                const currentMonthIdx = now.getMonth();
-                const todayStr = now.toISOString().split('T')[0];
-
-                // Calculate today's revenue from payments
-                const todayRevenueCount = paymentsDb
-                    .filter(p => p.date === todayStr || (p.timestamp && p.timestamp.startsWith(todayStr)))
-                    .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
-
-                // Calculate new members today
-                const newMembersTodayCount = membersDb
-                    .filter(m => m.joinedDate === todayStr || (m.createdAt && m.createdAt.startsWith(todayStr)))
-                    .length;
-
-                // Inventory Stats
-                const invDb = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
-                const totalEquipmentCount = invDb.length;
-                const damagedEquipmentCount = invDb.filter(i => i.status === 'Damaged').length;
-
-                // Update current month growth in trends
-                const updatedRevenueTrend = [...prev.revenueTrend];
-                // For demonstration, we simulate current month revenue as partial
-                // In a real app, this would be an aggregation of payments for the month
-                const marchBaseRevenue = 1.2; // Mock base
-                updatedRevenueTrend[currentMonthIdx] = {
-                    ...updatedRevenueTrend[currentMonthIdx],
-                    revenue: marchBaseRevenue + (todayRevenueCount / 1000000)
-                };
-
-                const updatedMemberGrowth = [...prev.memberGrowth];
-                const marchBaseMembers = 110; // Mock base
-                updatedMemberGrowth[currentMonthIdx] = {
-                    ...updatedMemberGrowth[currentMonthIdx],
-                    members: marchBaseMembers + newMembersTodayCount
-                };
-
-                return {
-                    ...prev,
-                    totalBranches: branchesDb.length || 6,
-                    totalAdmins: adminsDb.length || 4,
-                    totalStaff: staffDb.length || 156,
-                    totalMembers: membersDb.length || 4850,
-                    activeMembers: membersDb.filter(m => m.status === 'Active').length || 4200,
-                    todayRevenue: todayRevenueCount || 125000,
-                    newMembersToday: newMembersTodayCount || 12,
-                    totalEquipment: totalEquipmentCount,
-                    damagedEquipment: damagedEquipmentCount,
-                    acGyms: branchesDb.filter(b => b.type === 'AC').length || 3,
-                    nonAcGyms: branchesDb.filter(b => b.type === 'Non-AC').length || 3,
-                    revenueTrend: updatedRevenueTrend,
-                    memberGrowth: updatedMemberGrowth
-                };
-            });
-        };
-        fetchLiveStats();
-
-        const LIVE_INTERVAL = setInterval(fetchLiveStats, 300);
-        const FLUCTUATION_INTERVAL = setInterval(() => {
-            setStatsState(prev => {
-                if (!prev.memberGrowth) return prev;
-                const newGrowth = [...prev.memberGrowth];
-                const lastIdx = newGrowth.length - 1;
-                const currentVal = newGrowth[lastIdx].members;
-                const fluctuation = currentVal * (0.005 * (Math.random() - 0.5));
-                newGrowth[lastIdx] = { ...newGrowth[lastIdx], members: Math.max(0, currentVal + fluctuation) };
-                return { ...prev, memberGrowth: newGrowth };
-            });
-        }, 2500);
-
-        return () => {
-            clearInterval(LIVE_INTERVAL);
-            clearInterval(FLUCTUATION_INTERVAL);
-        };
+        fetchData();
     }, []);
 
 

@@ -7,49 +7,44 @@ const API_BASE_URL = 'http://localhost:5000/api';
 
 const authService = {
     login: async (email, password) => {
-        // In a real production system, this would be a real API call
-        // For now, we simulate the authentication with role-based logic
+        try {
+            // Try Admin Login First
+            let response = await fetch(`${API_BASE_URL}/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                let role = 'staff';
-                let firstName = 'Staff';
+            if (response.ok) {
+                return await response.json();
+            }
 
-                // Simulation based on email patterns
-                if (email.includes('alex')) {
-                    role = 'super_admin';
-                    firstName = 'Alex (SA)';
-                } else if (email.includes('daniel')) {
-                    role = 'admin';
-                    firstName = 'Daniel (Admin)';
-                } else if (email.includes('nimal')) {
-                    role = 'staff';
-                    firstName = 'Nimal (Staff)';
-                } else if (email !== '' && password !== '') {
-                    // Default fallback for any input
-                    role = 'staff';
-                    firstName = 'Test User';
-                } else {
-                    return reject(new Error('Invalid credentials'));
-                }
+            // If not admin, try Staff Login
+            response = await fetch(`${API_BASE_URL}/staff/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-                const mockUser = {
-                    token: 'mock-jwt-token-' + Date.now(),
-                    firstName: firstName,
-                    lastName: 'User',
-                    email: email,
-                    role: role,
-                    phone: '+94 77 123 4567'
-                };
+            if (response.ok) {
+                const data = await response.json();
+                // Map staff role explicitly if not returned
+                return { ...data, role: 'staff' };
+            }
 
-                resolve(mockUser);
-            }, 1000);
-        });
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Invalid email or password');
+
+        } catch (error) {
+            throw error;
+        }
     },
 
     logout: () => {
         sessionStorage.removeItem('admin_token');
         sessionStorage.removeItem('admin_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('branchId');
     }
 };
 

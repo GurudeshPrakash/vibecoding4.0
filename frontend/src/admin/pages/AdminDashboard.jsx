@@ -16,30 +16,14 @@ import DismantleRequestModal from '../components/DismantleRequestModal';
 import '../styles/AdminDashboard.css';
 
 // ─── Static Constants (Outside component to prevent re-render loops) ──────────
-const BRANCH_STATS_MAP = {
-    'All': { members: 5352, checkins: 872, payments: 70 },
-    'Colombo': { members: 1842, checkins: 412, payments: 28 },
-    'Galle': { members: 1240, checkins: 185, payments: 15 },
-    'Kandy': { members: 890, checkins: 110, payments: 10 },
-    'Kurunegala': { members: 650, checkins: 75, payments: 5 },
-    'Matara': { members: 420, checkins: 50, payments: 8 },
-    'Negombo': { members: 310, checkins: 40, payments: 4 }
-};
-
-const BRANCH_ID_MAP = {
-    'Colombo': 'b1', 'Kandy': 'b2', 'Galle': 'b3', 'Negombo': 'b4', 'Kurunegala': 'b5', 'Matara': 'b6'
-};
-
+// ─── Static Constants ────────────────────────────────────────────────────────
 const TIME_SLOTS = [
     '6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', 
     '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', 
     '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'
 ];
 
-const DASHBOARD_BRANCHES = ['Colombo', 'Galle', 'Kandy', 'Kurunegala', 'Matara', 'Negombo'];
-
 const AdminDashboard = ({
-    stats,
     adminName,
     recentInventory = [],
     dismantleRequests = [],
@@ -54,70 +38,119 @@ const AdminDashboard = ({
 
     // ─── Dashboard State ──────────────────────────────────────────────────
     const [selectedBranch, setSelectedBranch] = useState('All');
+    const [branches, setBranches] = useState([]);
+    const [allMembers, setAllMembers] = useState([]);
+    const [allEquipment, setAllEquipment] = useState([]);
+    
     const [totalMembers, setTotalMembers] = useState(0);
     const [todayCheckins, setTodayCheckins] = useState(0);
     const [pendingPayments, setPendingPayments] = useState(0);
     const [inventoryStats, setInventoryStats] = useState({ total: 0, maintenance: 0, damaged: 0 });
 
+    const fetchData = async () => {
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            const [bRes, eRes, mRes] = await Promise.all([
+                fetch('http://localhost:5000/api/admin/branches', { headers }),
+                fetch('http://localhost:5000/api/equipment', { headers }),
+                fetch('http://localhost:5000/api/members', { headers })
+            ]);
+
+            if (bRes.ok && eRes.ok && mRes.ok) {
+                const bData = await bRes.json();
+                const eData = await eRes.json();
+                const mData = await mRes.json();
+
+                setBranches(bData);
+                setAllEquipment(eData);
+                setAllMembers(mData);
+                
+                updateFilteredStats('All', bData, eData, mData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch dashboard data:', error);
+        }
+    };
+
+    const updateFilteredStats = (branchName, currentBranches, currentEquipment, currentMembers) => {
+        let filteredEq = currentEquipment;
+        let filteredMem = currentMembers;
+
+        if (branchName !== 'All') {
+            const branch = currentBranches.find(b => b.name === branchName);
+            if (branch) {
+                const bId = branch._id || branch.id;
+                filteredEq = currentEquipment.filter(e => e.branchId === bId);
+                filteredMem = currentMembers.filter(m => m.branchId === bId);
+            }
+        }
+
+        setInventoryStats({
+            total: filteredEq.length,
+            maintenance: filteredEq.filter(i => i.status === 'Maintenance').length,
+            damaged: filteredEq.filter(i => i.status === 'Damaged' || i.status === 'Dismantled').length
+        });
+
+        setTotalMembers(filteredMem.length);
+        setTodayCheckins(0); // Placeholder
+        setPendingPayments(0); // Placeholder
+    };
+
     useEffect(() => {
-        const fetchStats = () => {
-            const rawInventory = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
-            const filteredInv = selectedBranch === 'All' 
-                ? rawInventory 
-                : rawInventory.filter(i => i.branch === selectedBranch || i.branchId === BRANCH_ID_MAP[selectedBranch]);
+        fetchData();
+    }, []);
 
-            setInventoryStats({
-                total: filteredInv.length,
-                maintenance: filteredInv.filter(i => i.status === 'Maintenance').length,
-                damaged: filteredInv.filter(i => i.status === 'Damaged').length
-            });
-
-            // Update stats from the map based on the selected branch
-            const currentStats = BRANCH_STATS_MAP[selectedBranch] || BRANCH_STATS_MAP['All'];
-            setTotalMembers(currentStats.members);
-            setTodayCheckins(currentStats.checkins);
-            setPendingPayments(currentStats.payments);
-        };
-        fetchStats();
-        const interval = setInterval(fetchStats, 1000);
-        return () => clearInterval(interval);
+    useEffect(() => {
+        if (branches.length > 0) {
+            updateFilteredStats(selectedBranch, branches, allEquipment, allMembers);
+        }
     }, [selectedBranch]);
 
     // Initialize usage data with low baselines to represent "Today's" data
-    const [hourlyUsage, setHourlyUsage] = useState(() => {
-        const currentHour = new Date().getHours();
-        let cumulativeData = {};
-        DASHBOARD_BRANCHES.forEach(b => cumulativeData[b] = 0);
-
-        return TIME_SLOTS.map((time, index) => {
-            const entry = { time };
-            const slotHour = 6 + index;
-            
-            DASHBOARD_BRANCHES.forEach(branch => {
-                if (slotHour <= currentHour) {
-                    // Pre-fill today's data with realistic cumulative growth
-                    const randomGain = Math.floor(Math.random() * 5) + 3; 
-                    cumulativeData[branch] += randomGain;
-                }
-                entry[branch] = cumulativeData[branch];
-            });
-            return entry;
-        });
-    });
+    const [hourlyUsage, setHourlyUsage] = useState([]);
 
     useEffect(() => {
+        if (branches.length > 0) {
+            const currentHour = new Date().getHours();
+            let cumulativeData = {};
+            const branchNames = branches.map(b => b.name);
+            branchNames.forEach(b => cumulativeData[b] = 0);
+
+            const initialUsage = TIME_SLOTS.map((time, index) => {
+                const entry = { time };
+                const slotHour = 6 + index;
+                
+                branchNames.forEach(branch => {
+                    if (slotHour <= currentHour) {
+                        const randomGain = Math.floor(Math.random() * 5) + 3; 
+                        cumulativeData[branch] += randomGain;
+                    }
+                    entry[branch] = cumulativeData[branch];
+                });
+                return entry;
+            });
+            setHourlyUsage(initialUsage);
+        }
+    }, [branches]);
+
+    useEffect(() => {
+        if (branches.length === 0 || hourlyUsage.length === 0) return;
+
         const liveEngine = setInterval(() => {
             const eventType = Math.random();
             if (eventType > 0.4) {
-                const randomBranch = DASHBOARD_BRANCHES[Math.floor(Math.random() * DASHBOARD_BRANCHES.length)];
+                const branchNames = branches.map(b => b.name);
+                const randomBranch = branchNames[Math.floor(Math.random() * branchNames.length)];
                 const currentHour = new Date().getHours();
                 let slotIndex = currentHour - 6;
                 if (slotIndex < 0) slotIndex = 0;
                 if (slotIndex > 16) slotIndex = 16;
 
                 setHourlyUsage(prev => {
+                    if (prev.length === 0) return prev;
                     const newUsage = [...prev];
-                    // Update current hour and all future hours to maintain cumulative logic
                     for (let i = slotIndex; i < newUsage.length; i++) {
                         newUsage[i] = {
                             ...newUsage[i],
@@ -135,7 +168,7 @@ const AdminDashboard = ({
             }
         }, 3000);
         return () => clearInterval(liveEngine);
-    }, [selectedBranch]);
+    }, [selectedBranch, branches, hourlyUsage.length]);
 
     const handleAction = async (requestId, action) => {
         if (isRestricted) {
@@ -240,8 +273,8 @@ const AdminDashboard = ({
                                     }}
                                 >
                                     <option value="All">All Branches</option>
-                                    {DASHBOARD_BRANCHES.map(b => (
-                                        <option key={b} value={b}>{b}</option>
+                                    {branches.map(b => (
+                                        <option key={b._id || b.id} value={b.name}>{b.name}</option>
                                     ))}
                                 </select>
                                 <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94A3B8' }}>

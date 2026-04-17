@@ -505,26 +505,6 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                     </div>
                 </div>
 
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('admins'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div className="icon-circle" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}>
-                        <ShieldCheck size={24} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span className="label">Total Admins</span>
-                        <h2 className="value">{statsState?.totalAdmins}</h2>
-                    </div>
-                </div>
-
-                <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('staff'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
-                    <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
-                        <Users size={24} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span className="label">Total Staff</span>
-                        <h2 className="value">{statsState?.totalStaff}</h2>
-                    </div>
-                </div>
-
                 {/* Row 2: Live Performance Metrics */}
                 <div className="sa-stat-card" onClick={() => { if (!isLocked) { setActiveTab('members'); navigate('/dashboard'); } }} style={{ cursor: isLocked ? 'default' : 'pointer' }}>
                     <div className="icon-circle" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}>

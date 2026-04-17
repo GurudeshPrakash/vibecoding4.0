@@ -3,6 +3,7 @@ import {
     Phone, MapPin, ArrowLeft, User, Package, Clock, Plus, Edit2, Trash2,
     Shield, Loader2, Building2, Eye, Users, DollarSign, Calendar, CheckCircle2, AlertCircle
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Shared UI Components
 import StatusBadge from '../../shared/components/ui/StatusBadge';
@@ -24,6 +25,7 @@ import BranchDetailsView from '../components/BranchDetailsView';
 import '../styles/BranchManagement.css';
 
 const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
+    const navigate = useNavigate();
     // ─── State ──────────────────────────────────────────────────────────────
     const [selectedGym, setSelectedGym] = useState(null);
     const [currentTime] = useState(new Date());
@@ -71,6 +73,11 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
             } else {
                 alert('No staff member assigned to this branch yet.');
             }
+            return;
+        }
+
+        if (tab === 'inventory') {
+            navigate('/admin/inventory');
             return;
         }
 

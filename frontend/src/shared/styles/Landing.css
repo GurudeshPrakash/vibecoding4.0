@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 
 .landing-page {
     width: 100vw;
@@ -9,7 +9,7 @@
     position: relative;
     overflow: hidden;
     background-color: var(--color-bg);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: inherit;
 }
 
 /* Darkened & Blurred Background Image with Premium Gradient */
@@ -88,7 +88,7 @@
 }
 
 .main-description {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: inherit;
     font-size: 1.15rem;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.85);

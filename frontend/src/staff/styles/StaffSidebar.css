@@ -19,10 +19,12 @@
 }
 
 .logo-container {
-    padding: 32px 24px;
+    height: var(--header-height);
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .logo-icon {
@@ -71,7 +73,7 @@
     transition: var(--transition);
     width: 100%;
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 11px;
     font-weight: 600;
 }
 
@@ -113,7 +115,7 @@
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
-    font-size: 0.75rem;
+    font-size: 11px;
     font-weight: 600;
 }
 

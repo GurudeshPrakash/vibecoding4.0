@@ -43,7 +43,18 @@ const branches = [
 ];
 
 const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
-    const displayData = liveData || baseData;
+    const rawData = liveData || baseData;
+    
+    // Process data to keep labels but hide future line points
+    const currentHour = new Date().getHours();
+    const displayData = rawData.map((d, index) => {
+        const slotHour = 6 + index; // Data starts at 6:00 AM
+        if (slotHour > currentHour) {
+            // Return only the time label, effectively "nullifying" the branch data
+            return { time: d.time };
+        }
+        return d;
+    });
 
     const filteredBranches = selectedBranch === 'All' 
         ? branches 
@@ -77,14 +88,15 @@ const BranchUsageChart = ({ selectedBranch = 'All', liveData }) => {
                             </linearGradient>
                         ))}
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} horizontal={false} stroke="#f1f5f9" />
                     <XAxis 
                         dataKey="time" 
                         axisLine={false} 
                         tickLine={false} 
-                        tick={{ fontSize: 10, fontWeight: 'normal', fill: '#64748B', dy: 10 }}
-                        interval={1}
-                        padding={{ left: 15, right: 15 }}
+                        tick={{ fontSize: 9, fontWeight: '500', fill: '#64748B', dy: 10 }}
+                        interval={0}
+                        padding={{ left: 10, right: 10 }}
+                        tickFormatter={(value) => value.replace(':00', '')}
                     />
                     <YAxis 
                         domain={[0, 'auto']}

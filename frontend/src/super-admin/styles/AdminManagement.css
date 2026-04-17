@@ -31,7 +31,7 @@
 }
 
 .sa-welcome h1 {
-    font-size: 1.85rem;
+    font-size: 1.65rem;
     font-weight: 800;
     margin: 0;
     color: var(--color-text);
@@ -42,7 +42,7 @@
     color: var(--color-text-dim);
     margin: 4px 0 0 0;
     font-weight: 500;
-    font-size: 0.825rem;
+    font-size: 0.8rem;
 }
 
 .sa-actions {
@@ -58,13 +58,13 @@
 
 .sa-search-bar input {
     width: 100%;
-    padding: 11px 16px 11px 48px;
+    padding: 9px 16px 9px 44px;
     background: var(--color-surface);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 10px;
     color: var(--color-text);
     font-weight: 500;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     transition: all 0.3s ease;
 }
 
@@ -203,9 +203,9 @@
     background: #FF0000;
     color: white;
     border: none;
-    padding: 10px 24px;
-    border-radius: 12px;
-    min-width: 190px;
+    padding: 8px 20px;
+    border-radius: 10px;
+    min-width: 170px;
     display: flex;
     align-items: center;
     justify-content: flex-start;

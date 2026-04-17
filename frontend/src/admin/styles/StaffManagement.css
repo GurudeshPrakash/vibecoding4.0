@@ -8,7 +8,7 @@
     min-height: calc(100vh - 80px);
     background: #F8FAFC;
     color: var(--color-text, #1E293B);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: inherit;
     animation: smFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -87,7 +87,7 @@
 }
 
 .sm-page-title {
-    font-size: 1.7rem;
+    font-size: 1.55rem;
     font-weight: 900;
     margin: 0;
     color: #1E293B;
@@ -107,12 +107,12 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 11px 22px;
+    padding: 9px 20px;
     background: var(--color-red, #EF4444);
     color: #fff;
     border: none;
-    border-radius: 12px;
-    font-size: 0.85rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
@@ -157,9 +157,9 @@
 }
 
 .sm-stat-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -183,7 +183,7 @@
 }
 
 .sm-stat-value {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 900;
     color: #000000 !important;
     margin: 0;
@@ -251,8 +251,8 @@ select.sm-input {
 }
 
 .sm-table th {
-    padding: 14px 18px;
-    font-size: 0.63rem;
+    padding: 12px 18px;
+    font-size: 12.5px;
     font-weight: 800;
     color: #fff;
     text-transform: uppercase;
@@ -282,13 +282,14 @@ select.sm-input {
 }
 
 .sm-table td {
-    padding: 14px 18px;
+    padding: 12px 18px;
+    font-size: 12.5px;
     vertical-align: middle;
 }
 
 /* ── Table Cells ─────────────────────────────────────────────── */
 .sm-id-pill {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: inherit;
     font-size: 0.7rem;
     font-weight: 700;
     color: #64748B;
@@ -682,7 +683,7 @@ select.sm-input {
 .sm-input-readonly {
     background: #F1F5F9 !important;
     color: #64748B !important;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: inherit;
     cursor: default;
 }
 
@@ -824,7 +825,7 @@ select.sm-input {
 }
 
 .sm-view-id {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: inherit;
     font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.75);
     font-weight: 700;
@@ -1108,7 +1109,7 @@ select.sm-input {
 }
 
 .sm-profile-id {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: inherit;
     font-size: 0.65rem;
     font-weight: 700;
     color: #64748B;

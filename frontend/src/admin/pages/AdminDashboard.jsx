@@ -208,8 +208,8 @@ const AdminDashboard = ({
             <section className="live-stats-row" style={{ marginBottom: '32px' }}>
                 <StatCard label="Total Members" value={totalMembers.toLocaleString()} icon={<Users />} iconBg="rgba(59, 130, 246, 0.1)" iconColor="#3B82F6" />
                 <StatCard label="Today Check-ins" value={todayCheckins.toLocaleString()} icon={<CheckCircle2 />} iconBg="rgba(16, 185, 129, 0.1)" iconColor="#10B981" />
-                <StatCard label="Damaged Equipment" value={inventoryStats.damaged.toString()} icon={<AlertTriangle />} iconBg="rgba(239, 68, 68, 0.1)" iconColor="#EF4444" />
                 <StatCard label="Total Equipment" value={inventoryStats.total.toString()} icon={<Package />} iconBg="rgba(245, 158, 11, 0.1)" iconColor="#F59E0B" />
+                <StatCard label="Damaged Equipment" value={inventoryStats.damaged.toString()} icon={<AlertTriangle />} iconBg="rgba(239, 68, 68, 0.1)" iconColor="#EF4444" />
             </section>
 
             <div className="branch-grid">

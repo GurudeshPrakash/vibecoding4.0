@@ -10,30 +10,30 @@ const Sidebar = ({ onLogoutTrigger }) => {
     const role = user?.role?.toLowerCase() || 'staff';
 
     const superAdminMenu = [
-        { id: 'sa-dashboard', label: 'Super admin dashboard', icon: <LayoutDashboard size={18} />, path: '/super-admin/dashboard' },
-        { id: 'sa-admins', label: 'Admin management', icon: <ShieldCheck size={18} />, path: '/super-admin/admins' },
-        { id: 'sa-staff', label: 'Staff management', icon: <Users size={18} />, path: '/super-admin/staff' },
-        { id: 'sa-branches', label: 'Branch management', icon: <MapPin size={18} />, path: '/super-admin/locations' },
-        { id: 'sa-members', label: 'Members management', icon: <Users size={18} />, path: '/super-admin/members' },
-        { id: 'sa-reports', label: 'Reports', icon: <ClipboardList size={18} />, path: '/super-admin/reports' },
-        { id: 'sa-settings', label: 'Settings', icon: <Settings size={18} />, path: '/super-admin/settings' },
+        { id: 'sa-dashboard', label: 'Super admin dashboard', icon: <LayoutDashboard size={14} />, path: '/super-admin/dashboard' },
+        { id: 'sa-admins', label: 'Admin management', icon: <ShieldCheck size={14} />, path: '/super-admin/admins' },
+        { id: 'sa-staff', label: 'Staff management', icon: <Users size={14} />, path: '/super-admin/staff' },
+        { id: 'sa-branches', label: 'Branch management', icon: <MapPin size={14} />, path: '/super-admin/locations' },
+        { id: 'sa-members', label: 'Members management', icon: <Users size={14} />, path: '/super-admin/members' },
+        { id: 'sa-reports', label: 'Reports', icon: <ClipboardList size={14} />, path: '/super-admin/reports' },
+        { id: 'sa-settings', label: 'Settings', icon: <Settings size={14} />, path: '/super-admin/settings' },
     ];
 
     const adminMenu = [
-        { id: 'adm-dashboard', label: 'Admin dashboard', icon: <LayoutDashboard size={18} />, path: '/admin/dashboard' },
-        { id: 'adm-staff', label: 'Staff management', icon: <Users size={18} />, path: '/admin/staff' },
-        { id: 'adm-branches', label: 'Branch management', icon: <MapPin size={18} />, path: '/admin/locations' },
-        { id: 'adm-inventory', label: 'Inventory management', icon: <Package size={18} />, path: '/admin/inventory' },
-        { id: 'adm-members', label: 'Members management', icon: <Users size={18} />, path: '/admin/members', disabled: true },
-        { id: 'adm-payments', label: 'Payments', icon: <DollarSign size={18} />, path: '/admin/payments', disabled: true },
-        { id: 'adm-reports', label: 'Reports', icon: <ClipboardList size={18} />, path: '/admin/reports', disabled: true },
+        { id: 'adm-dashboard', label: 'Admin dashboard', icon: <LayoutDashboard size={14} />, path: '/admin/dashboard' },
+        { id: 'adm-staff', label: 'Staff management', icon: <Users size={14} />, path: '/admin/staff' },
+        { id: 'adm-branches', label: 'Branch management', icon: <MapPin size={14} />, path: '/admin/locations' },
+        { id: 'adm-inventory', label: 'Inventory management', icon: <Package size={14} />, path: '/admin/inventory' },
+        { id: 'adm-members', label: 'Members management', icon: <Users size={14} />, path: '/admin/members', disabled: true },
+        { id: 'adm-payments', label: 'Payments', icon: <DollarSign size={14} />, path: '/admin/payments', disabled: true },
+        { id: 'adm-reports', label: 'Reports', icon: <ClipboardList size={14} />, path: '/admin/reports', disabled: true },
     ];
 
     const staffMenu = [
-        { id: 'stf-dashboard', label: 'Staff dashboard', icon: <LayoutDashboard size={18} />, path: '/staff/dashboard' },
-        { id: 'stf-inventory', label: 'Inventory management', icon: <Package size={18} />, path: '/staff/inventory' },
-        { id: 'stf-members', label: 'Members management', icon: <Users size={18} />, path: '/staff/members', disabled: true },
-        { id: 'stf-payments', label: 'Payments', icon: <DollarSign size={18} />, path: '/staff/payments', disabled: true },
+        { id: 'stf-dashboard', label: 'Staff dashboard', icon: <LayoutDashboard size={14} />, path: '/staff/dashboard' },
+        { id: 'stf-inventory', label: 'Inventory management', icon: <Package size={14} />, path: '/staff/inventory' },
+        { id: 'stf-members', label: 'Members management', icon: <Users size={14} />, path: '/staff/members', disabled: true },
+        { id: 'stf-payments', label: 'Payments', icon: <DollarSign size={14} />, path: '/staff/payments', disabled: true },
     ];
 
 
@@ -75,7 +75,7 @@ const Sidebar = ({ onLogoutTrigger }) => {
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                         <span style={{ color: '#CBD5E1' }}>{item.icon}</span>
-                                        <span style={{ fontSize: '0.815rem', fontWeight: '500' }}>{item.label}</span>
+                                        <span style={{ fontSize: '0.72rem', fontWeight: '500' }}>{item.label}</span>
                                     </div>
                                     {item.disabled && !isRestricted && (
                                         <span style={{
@@ -94,7 +94,7 @@ const Sidebar = ({ onLogoutTrigger }) => {
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
                                         {item.icon}
-                                        <span style={{ fontSize: '0.815rem', fontWeight: '500' }}>{item.label}</span>
+                                        <span style={{ fontSize: '0.72rem', fontWeight: '500' }}>{item.label}</span>
                                     </div>
                                 </NavLink>
                             )}
@@ -106,9 +106,9 @@ const Sidebar = ({ onLogoutTrigger }) => {
     };
 
     return (
-        <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#fff', borderRight: '1px solid #F1F5F9' }}>
-            <div className="logo-container" style={{ padding: '32px 20px', textAlign: 'center' }}>
-                <img src={logo} alt="Power World" style={{ width: '140px', height: 'auto' }} />
+        <div className="sidebar">
+            <div className="logo-container">
+                <img src={logo} alt="Power World" style={{ width: '110px', height: 'auto' }} />
             </div>
 
             <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', padding: '10px 0' }}>
@@ -137,8 +137,8 @@ const Sidebar = ({ onLogoutTrigger }) => {
             </nav>
 
             <div className="sidebar-footer" style={{ padding: '20px', borderTop: '1px solid #F1F5F9' }}>
-                <button className="logout-btn" onClick={onLogoutTrigger} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '8px', border: 'none', background: '#FEF2F2', color: '#EF4444', fontWeight: '600', cursor: 'pointer' }}>
-                    <LogOut size={18} />
+                <button className="logout-btn" onClick={onLogoutTrigger} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', borderRadius: '8px', border: 'none', background: '#FEF2F2', color: '#EF4444', fontWeight: '500', cursor: 'pointer' }}>
+                    <LogOut size={14} />
                     <span>Sign Out</span>
                 </button>
             </div>

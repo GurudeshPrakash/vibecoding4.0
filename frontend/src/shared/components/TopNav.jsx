@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays, AlertTriangle, RefreshCcw } from 'lucide-react';
+import { Bell, User, Camera, Mail, Phone, Settings, LogOut, X, LogIn, Monitor, ArrowLeft, Clock, CalendarDays, AlertTriangle, RefreshCcw, Shield } from 'lucide-react';
 import '../styles/TopNav.css';
 import { useAuth } from '../../auth/hooks/useAuth.jsx';
 
@@ -255,45 +255,101 @@ const TopNav = ({
                     </div>
 
                     {showProfileDropdown && (
-                        <div className="profile-dropdown-comprehensive animate-pop-in">
-                            <button
-                                className="dropdown-close-x"
-                                onClick={() => setShowProfileDropdown(false)}
-                            >
-                                <X size={16} />
-                            </button>
-
-                            <div className="dropdown-header-main">
-                                <div className="large-avatar-wrapper">
-                                    <div className="avatar-circle-large">
+                        <div className="profile-dropdown-comprehensive animate-pop-in" style={{ 
+                            padding: '24px', 
+                            width: '320px', 
+                            borderRadius: '20px',
+                            boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
+                            border: '1px solid #F1F5F9'
+                        }}>
+                            {/* NEW TOP SECTION */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div style={{
+                                        width: '56px',
+                                        height: '56px',
+                                        borderRadius: '50%',
+                                        background: role.toLowerCase().includes('admin') ? '#EF4444' : '#F1F5F9',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: role.toLowerCase().includes('admin') ? '#fff' : '#EF4444',
+                                        boxShadow: role.toLowerCase().includes('admin') ? '0 4px 12px rgba(239, 68, 68, 0.2)' : 'none',
+                                        border: role.toLowerCase().includes('admin') ? 'none' : '1px solid #E2E8F0',
+                                        overflow: 'hidden'
+                                    }}>
                                         {user?.profilePic ? (
-                                            <img src={user.profilePic} alt="Large" />
+                                            <img src={user.profilePic} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
-                                            <User size={40} />
+                                            role.toLowerCase().includes('admin') ? <Shield size={28} /> : <User size={28} />
                                         )}
                                     </div>
-                                </div>
-                                <div className="user-details-stack">
-                                    <h3 className="user-full-name" style={{ marginBottom: '2px' }}>{adminName}</h3>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>
-                                        {role}
+                                    <div style={{ textAlign: 'left' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#1E293B' }}>{adminName}</h3>
+                                        <div style={{ 
+                                            display: 'inline-block',
+                                            marginTop: '4px',
+                                            padding: '2px 8px',
+                                            background: role.toLowerCase().includes('admin') ? 'rgba(239, 68, 68, 0.1)' : '#F1F5F9',
+                                            color: role.toLowerCase().includes('admin') ? '#EF4444' : '#64748B',
+                                            borderRadius: '6px',
+                                            fontSize: '0.6rem', 
+                                            fontWeight: 900, 
+                                            textTransform: 'uppercase', 
+                                            letterSpacing: '0.05em'
+                                        }}>
+                                            {role}
+                                        </div>
                                     </div>
-                                    <span className="user-info-text">{adminEmail}</span>
-                                    {user?.phone && <span className="user-info-text">{user.phone}</span>}
+                                </div>
+                                <button
+                                    onClick={() => setShowProfileDropdown(false)}
+                                    style={{ background: '#F1F5F9', border: 'none', color: '#64748B', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+
+                            {/* NEW MIDDLE SECTION */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px', textAlign: 'left' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ background: '#F8FAFC', padding: '8px', borderRadius: '10px', color: '#EF4444' }}><Mail size={16} /></div>
+                                    <div>
+                                        <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '1px' }}>Email Address</div>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1E293B' }}>{adminEmail}</div>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ background: '#F8FAFC', padding: '8px', borderRadius: '10px', color: '#EF4444' }}><Phone size={16} /></div>
+                                    <div>
+                                        <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '1px' }}>Phone Number</div>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1E293B' }}>{user?.phone || '+94 77 123 4567'}</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="dropdown-footer-logout" style={{ borderTop: '1px solid #F1F5F9', padding: '12px' }}>
-                                <button
-                                    onClick={resetSystemData}
-                                    style={{ width: '100%', padding: '10px', background: '#FEF2F2', border: '1px dashed #FCA5A5', borderRadius: '10px', color: '#991B1B', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px', transition: 'all 0.2s' }}
-                                    onMouseOver={(e) => { e.currentTarget.style.background = '#FEE2E2'; }}
-                                    onMouseOut={(e) => { e.currentTarget.style.background = '#FEF2F2'; }}
+                            {/* NEW ACTION SECTION */}
+                            <div style={{ paddingTop: '20px', borderTop: '1px solid #F1F5F9' }}>
+                                <button 
+                                    onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}
+                                    style={{ 
+                                        width: '100%', 
+                                        padding: '12px', 
+                                        background: '#EF4444', 
+                                        border: 'none', 
+                                        borderRadius: '12px', 
+                                        color: '#FFFFFF', 
+                                        fontSize: '0.8rem', 
+                                        fontWeight: 800, 
+                                        cursor: 'pointer', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center', 
+                                        gap: '10px', 
+                                        boxShadow: '0 8px 16px rgba(239, 68, 68, 0.2)',
+                                        transition: 'all 0.2s' 
+                                    }}
                                 >
-                                    <RefreshCcw size={14} />
-                                    <span>Reset System Data</span>
-                                </button>
-                                <button className="logout-btn-dropdown" onClick={() => { onLogoutTrigger(); setShowProfileDropdown(false); }}>
                                     <LogOut size={16} />
                                     <span>Log Out</span>
                                 </button>

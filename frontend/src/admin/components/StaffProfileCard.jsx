@@ -1,11 +1,12 @@
 import React from 'react';
-import { MapPin, Phone, Shield, Mail, Clock, Calendar, Building2, Briefcase, ChevronRight } from 'lucide-react';
+import { MapPin, Phone, Shield, Mail, Clock, Calendar, Building2, Briefcase, ChevronRight, Edit2, Trash2, Eye } from 'lucide-react';
 
 const StaffProfileCard = ({
     member,
     branchName,
     avatarColor,
-    onView
+    onView,
+    onDelete
 }) => {
     const isOnline = member.status === 'Active';
     const branchCount = member.branchIds?.length || (member.branchId ? 1 : 0);
@@ -22,7 +23,7 @@ const StaffProfileCard = ({
     return (
         <div className="sm-profile-card">
             <div className="sm-profile-card-inner">
-                <div className="sm-profile-photo-wrap" style={{ position: 'relative' }}>
+                <div className="sm-profile-photo-wrap" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => onView(member)}>
                     <img
                         src={member.photo || `https://ui-avatars.com/api/?name=${member.firstName}+${member.lastName}&background=${avatarColor.replace('#', '')}&color=fff&size=150&rounded=true`}
                         alt={member.firstName}
@@ -70,7 +71,7 @@ const StaffProfileCard = ({
                         </div>
                     </div>
 
-                    <h3 className="sm-profile-name" style={{ marginBottom: '2px' }}>{member.firstName} {member.lastName}</h3>
+                    <h3 className="sm-profile-name" style={{ marginBottom: '2px', cursor: 'pointer' }} onClick={() => onView(member)}>{member.firstName} {member.lastName}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                         <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-red)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{role}</span>
                         <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }} />
@@ -111,30 +112,49 @@ const StaffProfileCard = ({
                         </div>
 
                         <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
+                            <div onClick={() => onView(member)} style={{ cursor: 'pointer' }}>
                                 <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '2px' }}>Last Login</div>
                                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569' }}>{member.lastLogin ? member.lastLogin : (member.status === 'Active' ? lastLogin : 'Never Logged In')}</div>
                             </div>
-                            <button 
-                                onClick={() => onView(member)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    padding: '6px 12px',
-                                    background: 'var(--color-red)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    fontSize: '0.68rem',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                Info <ChevronRight size={14} />
-                            </button>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                    onClick={() => onView(member)}
+                                    title="View Staff Details"
+                                    style={{
+                                        padding: '8px',
+                                        background: 'var(--color-red)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <Eye size={16} />
+                                </button>
+                                <button 
+                                    onClick={() => onDelete(member._id)}
+                                    title="Delete Staff"
+                                    style={{
+                                        padding: '8px',
+                                        background: '#FEE2E2',
+                                        color: '#EF4444',
+                                        border: 'none',
+                                        borderRadius: '100px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

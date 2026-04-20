@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Loader2, Users, Plus, CheckCircle2,
-    UserCheck, UserMinus, Search, X, ChevronDown, Shield
+    UserCheck, UserMinus, Search, X, ChevronDown, Shield, Edit2, Trash2
 } from 'lucide-react';
 
 // Shared UI Components
@@ -148,6 +148,13 @@ const StaffManagement = ({ showCreateModal = false }) => {
     const openView = (member) => {
         setSelectedStaff(member);
         setModalMode('view');
+    };
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this staff member?')) {
+            persist(staff.filter(s => s._id !== id));
+            showToast('Staff deleted successfully!');
+        }
     };
 
 
@@ -388,6 +395,8 @@ const StaffManagement = ({ showCreateModal = false }) => {
                         branchName={getBranchNames(member.branchIds || (member.branchId ? [member.branchId] : []))}
                         avatarColor={getAvatarColor(member.firstName)}
                         onView={openView}
+                        onEdit={openEdit}
+                        onDelete={handleDelete}
                     />
                 ))}
                 {filteredStaff.length === 0 && (

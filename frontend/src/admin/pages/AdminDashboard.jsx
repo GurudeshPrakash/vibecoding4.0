@@ -200,8 +200,8 @@ const AdminDashboard = ({
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Hello, <span style={{ color: 'var(--color-red)' }}>{adminName || 'Admin'}</span></h1>
-                    <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Viewing <span style={{ fontWeight: 800, color: 'var(--color-red)' }}>{selectedBranch === 'All' ? 'All Branches' : `${selectedBranch} Branch`}</span> overview.</p>
+                    <h1 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Hello Admin</h1>
+                    <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Viewing All Branches overview.</p>
                 </div>
             </header>
 

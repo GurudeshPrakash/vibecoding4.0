@@ -13,6 +13,34 @@
     box-sizing: border-box;
 }
 
+/* Add Branch Button */
+.sm-btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    background: var(--color-red, #EF4444);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.sm-btn-add:hover {
+    background: #CC0000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.sm-btn-add:active {
+    transform: translateY(0);
+}
+
 .admin-dashboard h1 {
     font-size: 1.85rem;
     font-weight: 950;
@@ -119,16 +147,16 @@
 
 .card-data .label {
     display: block;
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    color: #94A3B8;
+    color: #64748B;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 2px;
 }
 
 .card-data .value {
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     font-weight: 900;
     color: #1E293B;
     margin: 0;

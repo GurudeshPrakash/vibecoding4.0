@@ -21,7 +21,7 @@ const StaffViewModal = ({
                 firstName: staff.firstName,
                 lastName: staff.lastName,
                 phone: staff.phone,
-                branchId: staff.branchId,
+                branchIds: staff.branchIds || (staff.branchId ? [staff.branchId] : []),
                 photo: staff.photo || ''
             });
             setIsEditing(false);
@@ -232,12 +232,49 @@ const StaffViewModal = ({
                                     <input type="text" name="phone" value={editForm.phone} onChange={handleChange} style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontWeight: 700, fontSize: '0.9rem' }} />
                                 </div>
                                 <div className="sm-input-group">
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>Assigned Branch</label>
-                                    <select name="branchId" value={editForm.branchId} onChange={handleChange} style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontWeight: 700, background: '#fff', fontSize: '0.9rem' }}>
-                                        {branches.map(b => (
-                                            <option key={b._id} value={b._id}>{b.name}</option>
-                                        ))}
-                                    </select>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>Assigned Branches</label>
+                                    <div style={{ 
+                                        display: 'grid', 
+                                        gridTemplateColumns: '1fr 1fr', 
+                                        gap: '8px',
+                                        background: '#f8fafc',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        maxHeight: '150px',
+                                        overflowY: 'auto'
+                                    }} className="custom-scrollbar">
+                                        {branches.map(branch => {
+                                            const isSelected = editForm.branchIds?.includes(branch._id);
+                                            return (
+                                                <div 
+                                                    key={branch._id}
+                                                    onClick={() => {
+                                                        const newIds = isSelected 
+                                                            ? editForm.branchIds.filter(id => id !== branch._id)
+                                                            : [...(editForm.branchIds || []), branch._id];
+                                                        setEditForm(prev => ({ ...prev, branchIds: newIds }));
+                                                    }}
+                                                    style={{
+                                                        padding: '8px',
+                                                        borderRadius: '8px',
+                                                        background: isSelected ? 'rgba(239, 68, 68, 0.05)' : '#fff',
+                                                        border: isSelected ? '1.5px solid #EF4444' : '1px solid #e2e8f0',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: 700,
+                                                        color: isSelected ? '#EF4444' : '#475569',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                >
+                                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isSelected ? '#EF4444' : '#cbd5e1' }} />
+                                                    {branch.name}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
 

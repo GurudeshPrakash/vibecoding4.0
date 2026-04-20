@@ -410,30 +410,30 @@ const InventoryManagement = ({ inventoryData = [], userRole = 'staff' }) => {
             </header>
 
             {/* Stats */}
-            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                <div className="live-card" style={{ padding: '20px' }}>
-                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package /></div>
+            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Package size={20} /></div>
                     <div className="card-data">
                         <span className="label">Total Equipment</span>
                         <h2 className="value">{counts.total}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '20px' }}>
-                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 /></div>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 size={20} /></div>
                     <div className="card-data">
                         <span className="label">Good</span>
                         <h2 className="value">{counts.good}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '20px' }}>
-                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench /></div>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench size={20} /></div>
                     <div className="card-data">
                         <span className="label">In Maintenance</span>
                         <h2 className="value">{counts.maintenance}</h2>
                     </div>
                 </div>
-                <div className="live-card" style={{ padding: '20px' }}>
-                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle /></div>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle size={20} /></div>
                     <div className="card-data">
                         <span className="label">Damaged</span>
                         <h2 className="value">{counts.damaged}</h2>

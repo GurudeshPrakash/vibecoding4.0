@@ -66,7 +66,10 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
         localStorage.setItem('selected_branch_context', JSON.stringify(gym));
 
         if (tab === 'staff') {
-            const assignedStaff = staffList.find(s => s.branchId === gym._id);
+            const assignedStaff = staffList.find(s => 
+                s.branchId === gym._id || 
+                (s.branchIds && s.branchIds.includes(gym._id))
+            );
             if (assignedStaff) {
                 setSelectedStaff(assignedStaff);
                 setShowStaffModal(true);

@@ -36,7 +36,9 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
     const [formData, setFormData] = useState({
         name: '', city: '', type: 'AC', status: 'Active', photo: null,
         phone: '', location: '', adminName: '', adminPhone: '',
-        operatingHours: '6:00 AM - 10:00 PM'
+        openingTime: '', closingTime: '', address: '', 
+        contactNumber: '', email: '', maxCapacity: '', 
+        staffAssigned: '', parkingAvailable: 'No', facilities: []
     });
 
     const [staffList, setStaffList] = useState([]);
@@ -88,10 +90,16 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
     };
 
     const handleChange = (e) => {
-        if (e.target.name === 'photoFile') {
+        const { name, value, type, checked } = e.target;
+        if (name === 'photoFile') {
             setFormData({ ...formData, photo: e.target.files[0] });
+        } else if (name === 'facilities') {
+            const updatedFacilities = formData.facilities.includes(value)
+                ? formData.facilities.filter(f => f !== value)
+                : [...formData.facilities, value];
+            setFormData({ ...formData, facilities: updatedFacilities });
         } else {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
+            setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
         }
     };
 
@@ -137,48 +145,48 @@ const BranchManagement = ({ userRole = 'admin', setActiveTab }) => {
                         </div>
 
                         <div className="sa-actions">
-                            {userRole === 'super_admin' && (
-                                <button className="icon-btn" style={{ background: 'var(--color-red)', color: 'white' }} onClick={() => { setEditingBranch(null); setFormData({ name: '', city: '', type: 'AC', status: 'Active', photo: null, phone: '', location: '', adminName: '', adminPhone: '', operatingHours: '6:00 AM - 10:00 PM' }); setShowModal(true); }} title="Add New Branch">
-                                    <Plus size={22} />
-                                </button>
-                            )}
+                            <button 
+                                className="sm-btn-add" 
+                                onClick={() => { 
+                                    setEditingBranch(null); 
+                                    setFormData({ 
+                                        name: '', city: '', type: 'AC', status: 'Active', 
+                                        photo: null, phone: '', location: '', 
+                                        adminName: '', adminPhone: '', 
+                                        openingTime: '', closingTime: '', address: '', 
+                                        contactNumber: '', email: '', maxCapacity: '', 
+                                        staffAssigned: '', parkingAvailable: 'No', facilities: []
+                                    }); 
+                                    setShowModal(true); 
+                                }}
+                            >
+                                <Plus size={18} /> Add Branch
+                            </button>
                         </div>
                     </header>
 
-                    <section className="bm-summary-grid">
-                        <div className="sa-stat-card">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000', margin: 0 }}>
-                                    <Building2 size={22} />
-                                </div>
-                                <div className="sm-stat-body">
-                                    <span className="sm-stat-label">Total Branches</span>
-                                    <h2 className="sm-stat-value">{assignedBranches.length}</h2>
-                                </div>
+                    <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                        <div className="live-card" style={{ padding: '16px 20px' }}>
+                            <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FF0000' }}><Building2 size={20} /></div>
+                            <div className="card-data">
+                                <span className="label">TOTAL BRANCHES</span>
+                                <h2 className="value">{assignedBranches.length}</h2>
                             </div>
                         </div>
 
-                        <div className="sa-stat-card">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                <div className="icon-circle" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', margin: 0 }}>
-                                    <CheckCircle2 size={22} />
-                                </div>
-                                <div className="sm-stat-body">
-                                    <span className="sm-stat-label">AC Branches</span>
-                                    <h2 className="sm-stat-value">{assignedBranches.filter(b => b.type === 'AC').length}</h2>
-                                </div>
+                        <div className="live-card" style={{ padding: '16px 20px' }}>
+                            <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><CheckCircle2 size={20} /></div>
+                            <div className="card-data">
+                                <span className="label">AC BRANCHES</span>
+                                <h2 className="value">{assignedBranches.filter(b => b.type === 'AC').length}</h2>
                             </div>
                         </div>
 
-                        <div className="sa-stat-card">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                <div className="icon-circle" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', margin: 0 }}>
-                                    <AlertCircle size={22} />
-                                </div>
-                                <div className="sm-stat-body">
-                                    <span className="sm-stat-label">Non-AC Branches</span>
-                                    <h2 className="sm-stat-value">{assignedBranches.filter(b => b.type === 'Non-AC').length}</h2>
-                                </div>
+                        <div className="live-card" style={{ padding: '16px 20px' }}>
+                            <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertCircle size={20} /></div>
+                            <div className="card-data">
+                                <span className="label">NON-AC BRANCHES</span>
+                                <h2 className="value">{assignedBranches.filter(b => b.type === 'Non-AC').length}</h2>
                             </div>
                         </div>
                     </section>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Loader2, Users, Plus, CheckCircle2,
-    UserCheck, UserMinus
+    UserCheck, UserMinus, Search, X, ChevronDown, Shield
 } from 'lucide-react';
 
 // Shared UI Components
@@ -32,6 +32,21 @@ const makeEditForm = (member) => ({
     joinDate: member?.joinDate || '',
     status: member?.status || 'Active',
     photo: member?.photo || '',
+    gender: member?.gender || '',
+    designation: member?.designation || '',
+    email: member?.email || '',
+    address: member?.address || '',
+    dob: member?.dob || '',
+    emergencyContactName: member?.emergencyContactName || '',
+    emergencyContactPhone: member?.emergencyContactPhone || '',
+    username: member?.username || '',
+    password: member?.password || '',
+    confirmPassword: member?.confirmPassword || '',
+    employmentType: member?.employmentType || '',
+    salary: member?.salary || '',
+    workingDays: member?.workingDays || [],
+    shiftStartTime: member?.shiftStartTime || '',
+    shiftEndTime: member?.shiftEndTime || '',
 });
 
 const EMPTY_FORM = {
@@ -43,6 +58,21 @@ const EMPTY_FORM = {
     joinDate: new Date().toISOString().split('T')[0],
     status: 'Active',
     photo: '',
+    gender: '',
+    designation: '',
+    email: '',
+    address: '',
+    dob: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    employmentType: '',
+    salary: '',
+    workingDays: [],
+    shiftStartTime: '',
+    shiftEndTime: '',
 };
 
 // ─── Toast Sub-component ───────────────────────────────────────────────────
@@ -68,6 +98,12 @@ const StaffManagement = ({ showCreateModal = false }) => {
     const [formData, setFormData] = useState(showCreateModal ? EMPTY_FORM : {});
     const [formErrors, setFormErrors] = useState({});
     const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+    // ── Search & Filter State ────────────────────────────────────────────────
+    const [searchName, setSearchName] = useState('');
+    const [searchId, setSearchId] = useState('');
+    const [searchNic, setSearchNic] = useState('');
+    const [filterBranch, setFilterBranch] = useState('all');
 
     // ── Persist ──────────────────────────────────────────────────────────────
     const persist = (updated) => {
@@ -123,8 +159,15 @@ const StaffManagement = ({ showCreateModal = false }) => {
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        if (name === 'workingDays') {
+            const updatedDays = (formData.workingDays || []).includes(value)
+                ? formData.workingDays.filter(d => d !== value)
+                : [...(formData.workingDays || []), value];
+            setFormData(prev => ({ ...prev, workingDays: updatedDays }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+        }
         if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }));
     };
 
@@ -163,6 +206,28 @@ const StaffManagement = ({ showCreateModal = false }) => {
         active: staff.filter(s => s.status === 'Active').length,
         inactive: staff.filter(s => s.status === 'Inactive' || s.status === 'Offline').length,
     };
+
+    const filteredStaff = staff.filter(member => {
+        const nameQuery = searchName.toLowerCase().trim();
+        const idQuery = searchId.toLowerCase().trim();
+        const nicQuery = searchNic.toLowerCase().trim();
+
+        const matchesName = !nameQuery || 
+            member.firstName.toLowerCase().includes(nameQuery) ||
+            member.lastName.toLowerCase().includes(nameQuery);
+
+        const matchesId = !idQuery || 
+            member.staffId?.toLowerCase().includes(idQuery);
+
+        const matchesNic = !nicQuery || 
+            member.nic?.toLowerCase().includes(nicQuery);
+
+        const matchesBranch = filterBranch === 'all' || 
+            (member.branchIds && member.branchIds.includes(filterBranch)) ||
+            (member.branchId === filterBranch);
+
+        return matchesName && matchesId && matchesNic && matchesBranch;
+    });
 
     if (isLoading) return (
         <div className="sm-loading-screen">
@@ -215,8 +280,108 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 </div>
             </section>
 
-            <div className="sm-profiles-grid" style={{ marginTop: '32px' }}>
-                {staff.map(member => (
+            {/* Search & Filter Controls */}
+            <div style={{ 
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '16px',
+                alignItems: 'center',
+                marginBottom: '32px'
+            }}>
+                <div style={{ position: 'relative' }}>
+                    <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by staff name..."
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px 12px 48px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            outline: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            transition: 'all 0.2s'
+                        }}
+                    />
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Shield size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by staff ID..."
+                        value={searchId}
+                        onChange={(e) => setSearchId(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px 12px 48px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            outline: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            transition: 'all 0.2s'
+                        }}
+                    />
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Users size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by NIC number..."
+                        value={searchNic}
+                        onChange={(e) => setSearchNic(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px 12px 48px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            outline: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            transition: 'all 0.2s'
+                        }}
+                    />
+                </div>
+
+                <div className="sm-select-wrap">
+                    <select 
+                        className="sm-input" 
+                        style={{ 
+                            padding: '11px 40px 11px 16px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                        }}
+                        value={filterBranch}
+                        onChange={(e) => setFilterBranch(e.target.value)}
+                    >
+                        <option value="all">All Branches</option>
+                        {ADMIN_BRANCHES.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
+                    </select>
+                    <div className="sm-select-caret" style={{ right: '14px' }}><ChevronDown size={14} /></div>
+                </div>
+            </div>
+
+            <div className="sm-profiles-grid">
+                {filteredStaff.map(member => (
                     <StaffProfileCard
                         key={member._id}
                         member={member}
@@ -225,9 +390,11 @@ const StaffManagement = ({ showCreateModal = false }) => {
                         onView={openView}
                     />
                 ))}
-                {staff.length === 0 && (
+                {filteredStaff.length === 0 && (
                     <div className="sm-empty-row" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '24px', color: '#64748B', fontWeight: 600 }}>
-                        No staff members found.
+                        {((searchName || searchId || searchNic) || filterBranch !== 'all') 
+                            ? 'No staff members match your chosen filters.' 
+                            : 'No staff members found.'}
                     </div>
                 )}
             </div>

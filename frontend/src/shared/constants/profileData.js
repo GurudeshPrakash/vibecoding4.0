@@ -50,7 +50,7 @@ export const INITIAL_PROFILES = {
             role: "Admin",
             address: "12 Fort Area, Galle",
             dateJoined: "2024-02-15",
-            branchAssignment: "Galle Power Hub",
+            branchAssignment: "Galle Branch",
             photo: "https://i.pravatar.cc/150?u=kamal"
         },
         {
@@ -77,7 +77,7 @@ export const INITIAL_PROFILES = {
         role: "Staff",
         address: `${i + 10} Temple Rd, ${['Colombo', 'Kandy', 'Galle', 'Negombo', 'Jaffna', 'Kurunegala'][i % 6]}`,
         dateJoined: `2024-0${(i % 5) + 1}-10`,
-        branchAssignment: `${['Colombo City Gym', 'Kandy Fitness Center', 'Galle Power Hub', 'Negombo Fitness', 'Kurunegala Gym', 'Jaffna Fitness'][i % 6]}`,
+        branchAssignment: `${['Colombo City Gym', 'Kandy Fitness Center', 'Galle Branch', 'Negombo Fitness', 'Kurunegala Gym', 'Jaffna Fitness'][i % 6]}`,
         photo: `https://i.pravatar.cc/150?u=staff${i}`
     }))
 };

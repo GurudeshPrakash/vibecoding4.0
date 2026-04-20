@@ -24,7 +24,7 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
         } else {
             // Fallback if none created yet
             const branchNames = [
-                'Colombo City Gym', 'Kandy Fitness Center', 'Galle Power Hub', 
+                'Colombo City Gym', 'Kandy Fitness Center', 'Galle Branch', 
                 'Negombo Fitness', 'Kurunegala Gym', 'Matara Fitness Hub'
             ];
             setBranches(branchNames.map((name, i) => ({
@@ -64,7 +64,7 @@ const AdminManagement = ({ userRole = 'super_admin', showCreateModal = false }) 
                 phone: '0779990000',
                 nic: '199098765432',
                 lastLogin: null,
-                assignedBranches: ['Galle Power Hub', 'Negombo Fitness'],
+                assignedBranches: ['Galle Branch', 'Negombo Fitness'],
                 profilePic: '/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg'
             },
             {

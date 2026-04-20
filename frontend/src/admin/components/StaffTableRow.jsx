@@ -1,12 +1,11 @@
 import React from 'react';
-import { Eye, Trash2, MapPin, Clock } from 'lucide-react';
+import { Eye, MapPin, Clock } from 'lucide-react';
 
 const StaffTableRow = ({
     member,
     branchName,
     avatarColor,
-    onView,
-    onDelete
+    onView
 }) => {
     return (
         <tr className="sm-tr">
@@ -59,14 +58,6 @@ const StaffTableRow = ({
                     >
                         <Eye size={14} />
                         <span>View</span>
-                    </button>
-                    <button
-                        className="sm-action-btn sm-btn-deactivate"
-                        title="Remove Staff"
-                        onClick={() => onDelete(member._id)}
-                    >
-                        <Trash2 size={14} />
-                        <span>Remove</span>
                     </button>
                 </div>
             </td>

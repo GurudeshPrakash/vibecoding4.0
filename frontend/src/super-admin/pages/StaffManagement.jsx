@@ -23,7 +23,7 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
         return saved ? JSON.parse(saved) : [
             { _id: 'b1', name: 'Colombo City Gym' },
             { _id: 'b2', name: 'Kandy Fitness Center' },
-            { _id: 'b3', name: 'Galle Power Hub' },
+            { _id: 'b3', name: 'Galle Branch' },
             { _id: 'b4', name: 'Negombo Fitness' },
             { _id: 'b5', name: 'Kurunegala Gym' },
             { _id: 'b6', name: 'Matara Fitness Hub' }

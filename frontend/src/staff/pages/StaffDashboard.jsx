@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     Users, Activity, CheckSquare, DollarSign, Clock,
     UserCheck, CheckCircle2, Wrench, AlertTriangle,
-    Download, FileText, ChevronRight, Phone
+    Download, FileText, ChevronRight, Phone,
+    ShieldAlert, Mars, Venus
 } from 'lucide-react';
 import '../styles/StaffDashboard.css';
 import taskService from '../../shared/services/taskService';
@@ -27,40 +28,53 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [] }) => {
     const [stats, setStats] = useState({
         totalMembers: 0,
         todayCheckins: 0,
+        blockedMembers: 0,
+        maleMembers: 0,
+        femaleMembers: 0,
         totalEquipment: 0,
         inMaintenance: 0,
-        damagedEquipment: 0,
-        pendingPayments: 0
+        damagedEquipment: 0
     });
     const [removalTasks, setRemovalTasks] = useState([]);
 
     // ─── Data Persistence Sync ──────────────────────────────────────────────
     useEffect(() => {
         const refreshData = () => {
-            // 1. Get Inventory & Calculate Equipment Stats (Branch Specific)
+            // 1. Get Inventory & Calculate Equipment Stats
             const rawInventory = JSON.parse(localStorage.getItem('admin_inventory_db') || '[]');
             const branchInventory = rawInventory.filter(item => item.branchId === branchId);
-            
-            // 2. Mock Branch-Specific Stats (Sync with Admin Performance Data)
-            // Note: In real app, these would come from an API. For dev, we use branch mapping.
-            const branchStatsMap = {
-                'b1': { members: 450, checkins: 120, payments: 12 },
-                'b2': { members: 320, checkins: 85, payments: 8 },
-                'b3': { members: 210, checkins: 45, payments: 18 },
-                'b4': { members: 180, checkins: 30, payments: 5 },
-                'b5': { members: 165, checkins: 25, payments: 7 },
-                'b6': { members: 142, checkins: 20, payments: 4 },
-            };
 
-            const currentBranchStats = branchStatsMap[branchId] || { members: 100, checkins: 10, payments: 5 };
+            // 2. Get Members & Calculate Statistics (Live from localStorage)
+            let rawMembers = JSON.parse(localStorage.getItem('admin_members_db') || '[]');
+            
+            // Initialization: If empty, seed with some data including gender and status for live values
+            if (rawMembers.length === 0) {
+                rawMembers = [
+                    { id: 'M-1024', name: 'Arjun Perera', gender: 'Male', status: 'Active', branchId: 'b3', checkedInToday: true },
+                    { id: 'M-1056', name: 'Sarah Mendis', gender: 'Female', status: 'Active', branchId: 'b3', checkedInToday: true },
+                    { id: 'M-1089', name: 'Dilshan Silva', gender: 'Male', status: 'Blocked', branchId: 'b3', checkedInToday: false },
+                    { id: 'M-1102', name: 'Anjali Gunwardena', gender: 'Female', status: 'Active', branchId: 'b3', checkedInToday: true },
+                    { id: 'M-1115', name: 'Kasun Rajapaksa', gender: 'Male', status: 'Active', branchId: 'b3', checkedInToday: false },
+                    { id: 'M-1128', name: 'Nirosha Fernando', gender: 'Female', status: 'Blocked', branchId: 'b3', checkedInToday: false },
+                    { id: 'M-1142', name: 'Damith Perera', gender: 'Male', status: 'Active', branchId: 'b3', checkedInToday: true },
+                    { id: 'M-1156', name: 'Priyanka Jayasuriya', gender: 'Female', status: 'Active', branchId: 'b3', checkedInToday: true },
+                    { id: 'M-1170', name: 'Ruwan Kumara', gender: 'Male', status: 'Active', branchId: 'b3', checkedInToday: true },
+                    { id: 'M-1185', name: 'Lakmini Silva', gender: 'Female', status: 'Blocked', branchId: 'b3', checkedInToday: false },
+                ];
+                localStorage.setItem('admin_members_db', JSON.stringify(rawMembers));
+            }
+
+            const branchMembers = rawMembers.filter(m => m.branchId === branchId);
 
             setStats({
-                totalMembers: currentBranchStats.members,
-                todayCheckins: currentBranchStats.checkins,
+                totalMembers: branchMembers.length,
+                todayCheckins: branchMembers.filter(m => m.checkedInToday).length,
+                blockedMembers: branchMembers.filter(m => m.status === 'Blocked').length,
+                maleMembers: branchMembers.filter(m => m.gender === 'Male').length,
+                femaleMembers: branchMembers.filter(m => m.gender === 'Female').length,
                 totalEquipment: branchInventory.length,
                 inMaintenance: branchInventory.filter(i => i.status === 'Maintenance').length,
-                damagedEquipment: branchInventory.filter(i => i.status === 'Damaged').length,
-                pendingPayments: currentBranchStats.payments
+                damagedEquipment: branchInventory.filter(i => i.status === 'Damaged').length
             });
 
             setInventory(branchInventory);
@@ -161,34 +175,26 @@ const StaffDashboard = ({ setActiveTab, inventoryData = [] }) => {
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare size={20} /></div>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><ShieldAlert size={20} /></div>
                     <div className="card-data">
-                        <span className="label">Total Equipment</span>
-                        <h2 className="value">{stats.totalEquipment}</h2>
+                        <span className="label">Blocked Members</span>
+                        <h2 className="value">{stats.blockedMembers}</h2>
                     </div>
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench size={20} /></div>
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Mars size={20} /></div>
                     <div className="card-data">
-                        <span className="label">In Maintenance</span>
-                        <h2 className="value">{stats.inMaintenance}</h2>
+                        <span className="label">Male</span>
+                        <h2 className="value">{stats.maleMembers}</h2>
                     </div>
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle size={20} /></div>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Venus size={20} /></div>
                     <div className="card-data">
-                        <span className="label">Damaged Equipment</span>
-                        <h2 className="value">{stats.damagedEquipment}</h2>
-                    </div>
-                </div>
-
-                <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><DollarSign size={20} /></div>
-                    <div className="card-data">
-                        <span className="label">Pending Payments</span>
-                        <h2 className="value">{stats.pendingPayments}</h2>
+                        <span className="label">Female</span>
+                        <h2 className="value">{stats.femaleMembers}</h2>    
                     </div>
                 </div>
             </section>

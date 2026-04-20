@@ -8,7 +8,7 @@ const MemberManagement = () => {
     const membersList = [
         { id: 'M-1024', name: 'Arjun Perera', email: 'arjun.p@example.com', phone: '077 123 4567', type: 'Monthly', status: 'Active', branch: 'Colombo City Gym', enrollDate: '2026-01-10', expire: '2026-03-10' },
         { id: 'M-1056', name: 'Sarah Mendis', email: 'sarah.m@example.com', phone: '071 234 5678', type: 'Annual', status: 'Active', branch: 'Kandy Fitness Center', enrollDate: '2025-11-20', expire: '2026-11-20' },
-        { id: 'M-1089', name: 'Dilshan Silva', email: 'dilshan.s@example.com', phone: '076 345 6789', type: 'Quarterly', status: 'Active', branch: 'Galle Power Hub', enrollDate: '2025-12-15', expire: '2026-03-15' },
+        { id: 'M-1089', name: 'Dilshan Silva', email: 'dilshan.s@example.com', phone: '076 345 6789', type: 'Quarterly', status: 'Active', branch: 'Galle Branch', enrollDate: '2025-12-15', expire: '2026-03-15' },
         { id: 'M-1102', name: 'Anjali Gunawardena', email: 'anjali@example.com', phone: '072 456 7890', type: 'Monthly', status: 'Active', branch: 'Negombo Fitness', enrollDate: '2026-02-05', expire: '2026-03-05' },
         { id: 'M-1115', name: 'Kasun Rajapaksa', email: 'kasun.r@example.com', phone: '075 567 8901', type: 'Annual', status: 'Expired', branch: 'Kurunegala Gym', enrollDate: '2025-02-10', expire: '2026-02-10' },
         { id: 'M-1128', name: 'Nirosha Fernando', email: 'nirosha@example.com', phone: '070 678 9012', type: 'Monthly', status: 'Active', branch: 'Matara Fitness Hub', enrollDate: '2026-02-15', expire: '2026-03-15' },

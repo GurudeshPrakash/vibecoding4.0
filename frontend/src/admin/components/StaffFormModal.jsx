@@ -194,37 +194,67 @@ const StaffFormModal = ({
                             />
                         </div>
 
-                        <div className="sm-form-group sm-half">
-                            <label className="sm-label">
-                                Assigned Branch <span className="sm-req">*</span>
+                        <div className="sm-form-group sm-full" style={{ gridColumn: 'span 2' }}>
+                            <label className="sm-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>Assign Branches <span className="sm-req">*</span></span>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)' }}>{formData.branchIds?.length || 0} SELECTED</span>
                             </label>
-                            <div className="sm-select-wrap">
-                                <select
-                                    name="branchId"
-                                    className={`sm-input ${formErrors.branchId ? 'sm-input-error' : ''}`}
-                                    value={formData.branchId}
-                                    onChange={onChange}
-                                >
-                                    <option value="">Select a Branch</option>
-                                    {branches.map(branch => {
-                                        const isAssigned = staffList.some(s =>
-                                            s.branchId === branch._id && (mode === 'add' || s._id !== selectedStaff?._id)
-                                        );
-                                        return (
-                                            <option
-                                                key={branch._id}
-                                                value={branch._id}
-                                                disabled={isAssigned}
-                                                style={isAssigned ? { color: '#94A3B8' } : {}}
-                                            >
-                                                {branch.name} {isAssigned ? '— Assigned' : ''}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <ChevronDown size={14} className="sm-select-caret" />
+                            <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(2, 1fr)', 
+                                gap: '10px', 
+                                background: '#f8fafc', 
+                                padding: '16px', 
+                                borderRadius: '16px',
+                                border: formErrors.branchIds ? '1px solid #EF4444' : '1px solid #e2e8f0',
+                                maxHeight: '200px',
+                                overflowY: 'auto'
+                            }} className="custom-scrollbar">
+                                {branches.map(branch => {
+                                    const isSelected = formData.branchIds?.includes(branch._id);
+                                    return (
+                                        <div 
+                                            key={branch._id}
+                                            onClick={() => {
+                                                const newIds = isSelected 
+                                                    ? formData.branchIds.filter(id => id !== branch._id)
+                                                    : [...(formData.branchIds || []), branch._id];
+                                                onChange({ target: { name: 'branchIds', value: newIds } });
+                                            }}
+                                            style={{
+                                                padding: '10px',
+                                                borderRadius: '10px',
+                                                background: isSelected ? 'rgba(255,0,0,0.05)' : '#fff',
+                                                border: isSelected ? '1.5px solid var(--color-red)' : '1px solid #e2e8f0',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <div style={{
+                                                width: '16px',
+                                                height: '16px',
+                                                borderRadius: '4px',
+                                                border: '2px solid ' + (isSelected ? 'var(--color-red)' : '#cbd5e1'),
+                                                background: isSelected ? 'var(--color-red)' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                {isSelected && <div style={{ width: '6px', height: '6px', background: '#fff', borderRadius: '1px' }} />}
+                                            </div>
+                                            <span style={{ 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 700,
+                                                color: isSelected ? 'var(--color-red)' : '#475569'
+                                            }}>{branch.name}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            {formErrors.branchId && <span className="sm-error-msg">{formErrors.branchId}</span>}
+                            {formErrors.branchIds && <span className="sm-error-msg" style={{ marginTop: '4px', display: 'block' }}>{formErrors.branchIds}</span>}
                         </div>
                     </div>
 

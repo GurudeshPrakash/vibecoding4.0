@@ -6,30 +6,30 @@ import '../styles/Sidebar.css';
 const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onLogoutTrigger, adminRole, viewRole, setViewRole }) => {
 
     const superAdminMenu = [
-        { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'admins', label: 'Admin Management', icon: <ShieldCheck size={20} /> },
-        { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
-        { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
-        { id: 'members', label: 'Member Management', icon: <Users size={20} /> },
-        { id: 'reports', label: 'Reports', icon: <ClipboardList size={20} /> },
-        { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+        { id: 'dashboard', label: 'Super Admin Dashboard', icon: <LayoutDashboard size={14} /> },
+        { id: 'admins', label: 'Admin Management', icon: <ShieldCheck size={14} /> },
+        { id: 'staff', label: 'Staff Management', icon: <Users size={14} /> },
+        { id: 'locations', label: 'Branch Management', icon: <MapPin size={14} /> },
+        { id: 'members', label: 'Member Management', icon: <Users size={14} /> },
+        { id: 'reports', label: 'Reports', icon: <ClipboardList size={14} /> },
+        { id: 'settings', label: 'Settings', icon: <Settings size={14} /> },
     ];
 
     const adminMenu = [
-        { id: 'dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'staff', label: 'Staff Management', icon: <Users size={20} /> },
-        { id: 'locations', label: 'Branch Management', icon: <MapPin size={20} /> },
-        { id: 'inventory', label: 'Inventory Management', icon: <Package size={20} /> },
-        { id: 'members', label: 'Members Management', icon: <Users size={20} /> },
-        { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
-        { id: 'reports', label: 'Reports', icon: <ClipboardList size={20} /> },
+        { id: 'dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={14} /> },
+        { id: 'staff', label: 'Staff Management', icon: <Users size={14} /> },
+        { id: 'locations', label: 'Branch Management', icon: <MapPin size={14} /> },
+        { id: 'inventory', label: 'Inventory Management', icon: <Package size={14} /> },
+        { id: 'members', label: 'Members Management', icon: <Users size={14} /> },
+        { id: 'payments', label: 'Payments', icon: <DollarSign size={14} /> },
+        { id: 'reports', label: 'Reports', icon: <ClipboardList size={14} /> },
     ];
 
     const staffMenu = [
-        { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'inventory', label: 'Inventory Management', icon: <Package size={20} /> },
-        { id: 'members', label: 'Members Management', icon: <Users size={20} /> },
-        { id: 'payments', label: 'Payments', icon: <DollarSign size={20} /> },
+        { id: 'dashboard', label: 'Staff Dashboard', icon: <LayoutDashboard size={14} /> },
+        { id: 'inventory', label: 'Inventory Management', icon: <Package size={14} /> },
+        { id: 'members', label: 'Members Management', icon: <Users size={14} /> },
+        { id: 'payments', label: 'Payments', icon: <DollarSign size={14} /> },
     ];
 
     // ✅ FIX 1: canAccess returns boolean properly
@@ -103,7 +103,7 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
                                     color: isDisabled ? '#94A3B8' : 'inherit'
                                 }}>
                                     {item.icon}
-                                    <span style={{ fontSize: '0.75rem', fontWeight: isDisabled ? '600' : 'inherit' }}>{item.label}</span>
+                                    <span style={{ fontSize: '0.72rem', fontWeight: isDisabled ? '600' : 'inherit' }}>{item.label}</span>
                                 </div>
                                 {isTemporarilyLocked && (
                                     <span style={{
@@ -126,9 +126,9 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
     };
 
     return (
-        <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#fff', borderRight: '1px solid #e5e7eb' }}>
-            <div className="logo-container" style={{ padding: '24px 20px', textAlign: 'center' }}>
-                <img src={logo} alt="Power World" style={{ width: '130px', height: 'auto' }} />
+        <div className="sidebar">
+            <div className="logo-container">
+                <img src={logo} alt="Power World" style={{ width: '110px', height: 'auto' }} />
             </div>
 
             <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', padding: '10px 0' }}>
@@ -143,7 +143,7 @@ const Sidebar = ({ activeTab, setActiveTab, activeSection, setActiveSection, onL
 
             <div className="sidebar-footer" style={{ padding: '20px', borderTop: '1px solid #f3f4f6' }}>
                 <button className="logout-btn" onClick={onLogoutTrigger}>
-                    <LogOut size={20} />
+                    <LogOut size={14} />
                     <span>Back to Home</span>
                 </button>
             </div>

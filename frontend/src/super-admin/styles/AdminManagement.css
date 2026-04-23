@@ -16,12 +16,77 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 28px;
+    margin-bottom: 40px;
+    gap: 24px;
+}
+
+.sa-welcome h1 {
+    font-size: 1.65rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--color-text);
+    letter-spacing: -0.025em;
+}
+
+.sa-welcome p {
+    color: var(--color-text-dim);
+    margin: 4px 0 0 0;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.sa-actions {
+    display: flex;
     gap: 20px;
     flex-wrap: wrap;
 }
 
-.sm-page-title-block {
+.sa-search-bar {
+    position: relative;
+    width: 320px;
+}
+
+.sa-search-bar input {
+    width: 100%;
+    padding: 9px 16px 9px 44px;
+    background: var(--color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--color-text);
+    font-weight: 500;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.sa-search-bar input:focus {
+    border-color: var(--color-red);
+    background: var(--color-bg);
+    box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.05);
+    outline: none;
+}
+
+.sa-search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-dim);
+    pointer-events: none;
+}
+
+/* Summary Grid */
+.sa-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.sa-stat-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 16px 20px;
     display: flex;
     align-items: center;
     gap: 14px;
@@ -157,11 +222,39 @@
 
 .sm-table thead tr { background: var(--color-red, #EF4444); }
 
-.sm-table th {
-    padding: 14px 18px;
-    font-size: 0.63rem;
-    font-weight: 800;
-    color: #fff;
+.sa-header-btns {
+    display: flex;
+    gap: 16px;
+}
+
+.sa-primary-red-btn {
+    background: #FF0000;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    min-width: 170px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
+}
+
+.sa-btn-text-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.1;
+}
+
+.sa-btn-sub {
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;

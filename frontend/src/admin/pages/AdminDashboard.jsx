@@ -233,16 +233,16 @@ const AdminDashboard = ({
         <div className="admin-dashboard">
             <header className="sa-header" style={{ marginBottom: '32px' }}>
                 <div className="sa-welcome">
-                    <h1 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Hello, <span style={{ color: 'var(--color-red)' }}>{adminName || 'Admin'}</span></h1>
-                    <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Viewing <span style={{ fontWeight: 800, color: 'var(--color-red)' }}>{selectedBranch === 'All' ? 'All Branches' : `${selectedBranch} Branch`}</span> overview.</p>
+                    <h1 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Hello Admin</h1>
+                    <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Viewing All Branches overview.</p>
                 </div>
             </header>
 
             <section className="live-stats-row" style={{ marginBottom: '32px' }}>
                 <StatCard label="Total Members" value={totalMembers.toLocaleString()} icon={<Users />} iconBg="rgba(59, 130, 246, 0.1)" iconColor="#3B82F6" />
                 <StatCard label="Today Check-ins" value={todayCheckins.toLocaleString()} icon={<CheckCircle2 />} iconBg="rgba(16, 185, 129, 0.1)" iconColor="#10B981" />
-                <StatCard label="Damaged Equipment" value={inventoryStats.damaged.toString()} icon={<AlertTriangle />} iconBg="rgba(239, 68, 68, 0.1)" iconColor="#EF4444" />
                 <StatCard label="Total Equipment" value={inventoryStats.total.toString()} icon={<Package />} iconBg="rgba(245, 158, 11, 0.1)" iconColor="#F59E0B" />
+                <StatCard label="Damaged Equipment" value={inventoryStats.damaged.toString()} icon={<AlertTriangle />} iconBg="rgba(239, 68, 68, 0.1)" iconColor="#EF4444" />
             </section>
 
             <div className="branch-grid">

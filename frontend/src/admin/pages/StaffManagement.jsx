@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Loader2, X, Users, Plus, CheckCircle2,
-    MapPin, XCircle, Clock
+    Loader2, Users, Plus, CheckCircle2,
+    UserCheck, UserMinus, Search, X, ChevronDown, Shield, Edit2, Trash2
 } from 'lucide-react';
 
 // Shared UI Components
-import StatusBadge from '../../shared/components/ui/StatusBadge';
-
 // Constants & Mock Data
 import {
     AVATAR_COLORS
 } from '../constants/mockData';
 
 // Feature Components
-import StaffTableRow from '../components/StaffTableRow';
 import StaffProfileCard from '../components/StaffProfileCard';
 import StaffFormModal from '../components/StaffFormModal';
 import StaffViewModal from '../components/StaffViewModal';
@@ -29,10 +26,25 @@ const makeEditForm = (member) => ({
     lastName: member?.lastName || '',
     phone: member?.phone || '',
     nic: member?.nic || '',
-    branchId: member?.branchId || '',
+    branchIds: member?.branchIds || (member?.branchId ? [member.branchId] : []),
     joinDate: member?.joinDate || '',
     status: member?.status || 'Active',
     photo: member?.photo || '',
+    gender: member?.gender || '',
+    designation: member?.designation || '',
+    email: member?.email || '',
+    address: member?.address || '',
+    dob: member?.dob || '',
+    emergencyContactName: member?.emergencyContactName || '',
+    emergencyContactPhone: member?.emergencyContactPhone || '',
+    username: member?.username || '',
+    password: member?.password || '',
+    confirmPassword: member?.confirmPassword || '',
+    employmentType: member?.employmentType || '',
+    salary: member?.salary || '',
+    workingDays: member?.workingDays || [],
+    shiftStartTime: member?.shiftStartTime || '',
+    shiftEndTime: member?.shiftEndTime || '',
 });
 
 const EMPTY_FORM = {
@@ -40,10 +52,25 @@ const EMPTY_FORM = {
     lastName: '',
     phone: '',
     nic: '',
-    branchId: '',
+    branchIds: [],
     joinDate: new Date().toISOString().split('T')[0],
     status: 'Active',
     photo: '',
+    gender: '',
+    designation: '',
+    email: '',
+    address: '',
+    dob: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    employmentType: '',
+    salary: '',
+    workingDays: [],
+    shiftStartTime: '',
+    shiftEndTime: '',
 };
 
 // ─── Toast Sub-component ───────────────────────────────────────────────────
@@ -110,8 +137,13 @@ const StaffManagement = ({ showCreateModal = false }) => {
     };
 
     // ── Handlers ─────────────────────────────────────────────────────────────
-    const getBranchName = (branchId) =>
-        branches.find(b => b._id === branchId || b.id === branchId)?.name || 'Unassigned';
+    const getBranchNames = (branchIds) => {
+        if (!branchIds || branchIds.length === 0) return 'Unassigned';
+        return branchIds
+            .map(id => ADMIN_BRANCHES.find(b => b._id === id)?.name)
+            .filter(Boolean)
+            .join(', ');
+    };
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '—';
@@ -155,6 +187,8 @@ const StaffManagement = ({ showCreateModal = false }) => {
         }
     };
 
+
+
     const closeModal = () => {
         setModalMode(null);
         setSelectedStaff(null);
@@ -162,16 +196,24 @@ const StaffManagement = ({ showCreateModal = false }) => {
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        if (name === 'workingDays') {
+            const updatedDays = (formData.workingDays || []).includes(value)
+                ? formData.workingDays.filter(d => d !== value)
+                : [...(formData.workingDays || []), value];
+            setFormData(prev => ({ ...prev, workingDays: updatedDays }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+        }
         if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }));
     };
 
     const validate = () => {
         const errors = {};
-        if (!formData.firstName?.trim()) errors.firstName = 'First name is required';
-        if (!formData.lastName?.trim()) errors.lastName = 'Last name is required';
-        if (!formData.branchId) errors.branchId = 'Branch assignment is required';
+        if (!formData.firstName.trim()) errors.firstName = 'First name is required';
+        if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
+        if (!formData.branchIds || formData.branchIds.length === 0) errors.branchIds = 'At least one branch is required';
+        if (!formData.joinDate) errors.joinDate = 'Join date is required';
         return errors;
     };
 
@@ -219,9 +261,31 @@ const StaffManagement = ({ showCreateModal = false }) => {
     // ── Stats ────────────────────────────────────────────────────────────────
     const stats = {
         total: staff.length,
-        online: 0,
-        branches: branches.length,
+        active: staff.filter(s => s.status === 'Active').length,
+        inactive: staff.filter(s => s.status === 'Inactive' || s.status === 'Offline').length,
     };
+
+    const filteredStaff = staff.filter(member => {
+        const nameQuery = searchName.toLowerCase().trim();
+        const idQuery = searchId.toLowerCase().trim();
+        const nicQuery = searchNic.toLowerCase().trim();
+
+        const matchesName = !nameQuery || 
+            member.firstName.toLowerCase().includes(nameQuery) ||
+            member.lastName.toLowerCase().includes(nameQuery);
+
+        const matchesId = !idQuery || 
+            member.staffId?.toLowerCase().includes(idQuery);
+
+        const matchesNic = !nicQuery || 
+            member.nic?.toLowerCase().includes(nicQuery);
+
+        const matchesBranch = filterBranch === 'all' || 
+            (member.branchIds && member.branchIds.includes(filterBranch)) ||
+            (member.branchId === filterBranch);
+
+        return matchesName && matchesId && matchesNic && matchesBranch;
+    });
 
     if (isLoading) return (
         <div className="sm-loading-screen">
@@ -238,70 +302,161 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 <div className="sm-page-title-block">
                     <div>
                         <h1 className="sm-page-title">Staff Management</h1>
-                        <p className="sm-page-subtitle">Assign and manage staff for your {branches.length} branches.</p>
+                        <p className="sm-page-subtitle">Assign and manage staff for your branches.</p>
                     </div>
                 </div>
                 <button 
                     className="sm-btn-add" 
-                    onClick={() => {
-                        if (staff.length >= 6) {
-                            alert("Maximum staff limit reached. You cannot add more than 6 staff members.");
-                        } else {
-                            openAdd();
-                        }
-                    }}
+                    onClick={openAdd}
                 >
                     <Plus size={18} /> Add Staff
                 </button>
             </div>
 
-            <div className="sm-card sm-table-card">
-                <div className="sm-table-scroll">
-                    <table className="sm-table">
-                        <thead>
-                            <tr>
-                                {['Staff ID', 'Name', 'Branch', 'Phone Number', 'Status', 'Actions'].map((col, i) => (
-                                    <th key={i} className={i === 5 ? 'sm-th-right' : ''}>{col}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {staff.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="sm-empty-row">No staff found.</td>
-                                </tr>
-                            ) : (
-                                staff.map(member => (
-                                    <StaffTableRow
-                                        key={member._id}
-                                        member={member}
-                                        branchName={getBranchName(member.branchId)}
-                                        avatarColor={getAvatarColor(member.firstName)}
-                                        onView={openView}
-                                        onDelete={deleteStaff}
-                                    />
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+            {/* Quick Cards Section */}
+            <section className="sa-summary-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Users size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">Total Staff</span>
+                        <h2 className="value">{stats.total}</h2>
+                    </div>
+                </div>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><UserCheck size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">Active Staff</span>
+                        <h2 className="value">{stats.active}</h2>
+                    </div>
+                </div>
+                <div className="live-card" style={{ padding: '16px 20px' }}>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><UserMinus size={20} /></div>
+                    <div className="card-data">
+                        <span className="label">Inactive Staff</span>
+                        <h2 className="value">{stats.inactive}</h2>
+                    </div>
+                </div>
+            </section>
+
+            {/* Search & Filter Controls */}
+            <div style={{ 
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '16px',
+                alignItems: 'center',
+                marginBottom: '32px'
+            }}>
+                <div style={{ position: 'relative' }}>
+                    <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by staff name..."
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px 12px 48px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            outline: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            transition: 'all 0.2s'
+                        }}
+                    />
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Shield size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by staff ID..."
+                        value={searchId}
+                        onChange={(e) => setSearchId(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px 12px 48px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            outline: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            transition: 'all 0.2s'
+                        }}
+                    />
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Users size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by NIC number..."
+                        value={searchNic}
+                        onChange={(e) => setSearchNic(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px 12px 48px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            outline: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            transition: 'all 0.2s'
+                        }}
+                    />
+                </div>
+
+                <div className="sm-select-wrap">
+                    <select 
+                        className="sm-input" 
+                        style={{ 
+                            padding: '11px 40px 11px 16px',
+                            background: '#FFFFFF',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            color: '#1E293B',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                        }}
+                        value={filterBranch}
+                        onChange={(e) => setFilterBranch(e.target.value)}
+                    >
+                        <option value="all">All Branches</option>
+                        {ADMIN_BRANCHES.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
+                    </select>
+                    <div className="sm-select-caret" style={{ right: '14px' }}><ChevronDown size={14} /></div>
                 </div>
             </div>
 
-            <div className="sm-profiles-section">
-                <div className="sm-section-header">
-                    <h2 className="sm-section-title">Staff Profiles</h2>
-                </div>
-                <div className="sm-profiles-grid">
-                    {staff.map(member => (
-                        <StaffProfileCard
-                            key={member._id}
-                            member={member}
-                            branchName={getBranchName(member.branchId)}
-                            avatarColor={getAvatarColor(member.firstName)}
-                            onView={openView}
-                        />
-                    ))}
-                </div>
+            <div className="sm-profiles-grid">
+                {filteredStaff.map(member => (
+                    <StaffProfileCard
+                        key={member._id}
+                        member={member}
+                        branchName={getBranchNames(member.branchIds || (member.branchId ? [member.branchId] : []))}
+                        avatarColor={getAvatarColor(member.firstName)}
+                        onView={openView}
+                        onEdit={openEdit}
+                        onDelete={handleDelete}
+                    />
+                ))}
+                {filteredStaff.length === 0 && (
+                    <div className="sm-empty-row" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '24px', color: '#64748B', fontWeight: 600 }}>
+                        {((searchName || searchId || searchNic) || filterBranch !== 'all') 
+                            ? 'No staff members match your chosen filters.' 
+                            : 'No staff members found.'}
+                    </div>
+                )}
             </div>
 
             <StaffFormModal
@@ -321,8 +476,8 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 show={modalMode === 'view'}
                 onClose={closeModal}
                 staff={selectedStaff}
-                branches={branches}
-                branchName={getBranchName(selectedStaff?.branchId)}
+                branches={ADMIN_BRANCHES}
+                branchName={getBranchNames(selectedStaff?.branchIds || (selectedStaff?.branchId ? [selectedStaff.branchId] : []))}
                 avatarColor={selectedStaff ? getAvatarColor(selectedStaff.firstName) : ''}
                 onUpdate={async (id, updatedData) => {
                     try {

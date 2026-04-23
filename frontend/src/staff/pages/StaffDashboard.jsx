@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     Users, Activity, CheckSquare, DollarSign, Clock,
     UserCheck, CheckCircle2, Wrench, AlertTriangle,
-    Download, FileText, ChevronRight, Phone
+    Download, FileText, ChevronRight, Phone,
+    ShieldAlert, Mars, Venus
 } from 'lucide-react';
 import '../styles/StaffDashboard.css';
 import taskService from '../../shared/services/taskService';
@@ -29,10 +30,12 @@ const StaffDashboard = ({ setActiveTab }) => {
     const [stats, setStats] = useState({
         totalMembers: 0,
         todayCheckins: 0,
+        blockedMembers: 0,
+        maleMembers: 0,
+        femaleMembers: 0,
         totalEquipment: 0,
         inMaintenance: 0,
-        damagedEquipment: 0,
-        pendingPayments: 0
+        damagedEquipment: 0
     });
     const [removalTasks, setRemovalTasks] = useState([]);
 
@@ -175,34 +178,26 @@ const StaffDashboard = ({ setActiveTab }) => {
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED' }}><CheckSquare size={20} /></div>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><ShieldAlert size={20} /></div>
                     <div className="card-data">
-                        <span className="label">Total Equipment</span>
-                        <h2 className="value">{stats.totalEquipment}</h2>
+                        <span className="label">Blocked Members</span>
+                        <h2 className="value">{stats.blockedMembers}</h2>
                     </div>
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Wrench size={20} /></div>
+                    <div className="icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' }}><Mars size={20} /></div>
                     <div className="card-data">
-                        <span className="label">In Maintenance</span>
-                        <h2 className="value">{stats.inMaintenance}</h2>
+                        <span className="label">Male</span>
+                        <h2 className="value">{stats.maleMembers}</h2>
                     </div>
                 </div>
 
                 <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><AlertTriangle size={20} /></div>
+                    <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Venus size={20} /></div>
                     <div className="card-data">
-                        <span className="label">Damaged Equipment</span>
-                        <h2 className="value">{stats.damagedEquipment}</h2>
-                    </div>
-                </div>
-
-                <div className="live-card">
-                    <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><DollarSign size={20} /></div>
-                    <div className="card-data">
-                        <span className="label">Pending Payments</span>
-                        <h2 className="value">{stats.pendingPayments}</h2>
+                        <span className="label">Female</span>
+                        <h2 className="value">{stats.femaleMembers}</h2>    
                     </div>
                 </div>
             </section>

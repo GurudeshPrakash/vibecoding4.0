@@ -31,7 +31,7 @@
 }
 
 .sa-welcome h1 {
-    font-size: 1.85rem;
+    font-size: 1.65rem;
     font-weight: 800;
     margin: 0;
     color: var(--color-text);
@@ -105,7 +105,7 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    min-height: 90px;
+    min-height: 80px;
 }
 
 .sa-stat-card:hover {
@@ -115,19 +115,19 @@
 }
 
 .sa-stat-card .icon-circle {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     flex-shrink: 0;
 }
 
 .sa-stat-card .label {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -136,7 +136,7 @@
 }
 
 .sa-stat-card .value {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 900;
     margin: 0;
     color: var(--color-text);
@@ -145,7 +145,7 @@
 }
 
 .sa-stat-card .trend {
-    font-size: 0.775rem;
+    font-size: 0.8rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -192,7 +192,7 @@
 }
 
 .sa-card-header h3 {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
     margin: 0;
     color: var(--color-text);
@@ -208,9 +208,9 @@
     background: #FF0000;
     color: white;
     border: none;
-    padding: 10px 24px;
-    border-radius: 12px;
-    min-width: 190px;
+    padding: 8px 20px;
+    border-radius: 10px;
+    min-width: 170px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -229,7 +229,7 @@
 }
 
 .sa-btn-sub {
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.85);
     font-weight: 700;
     text-transform: uppercase;
@@ -256,9 +256,9 @@
     background: #FFFFFF;
     color: var(--color-text);
     border: 1.5px solid var(--border-color);
-    padding: 10px 24px;
-    border-radius: 12px;
-    min-width: 190px;
+    padding: 8px 20px;
+    border-radius: 10px;
+    min-width: 170px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -293,13 +293,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 20px 14px;
+    padding: 16px 14px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    border-radius: 14px;
     color: white;
     font-weight: 600;
-    font-size: 0.825rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -313,8 +313,8 @@
 }
 
 .sa-action-btn svg {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
 }
 
 /* Activity Feed */
@@ -367,7 +367,7 @@
 .sa-activity-info span {
     display: block;
     margin-top: 2px;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: var(--color-text-dim);
     font-weight: 500;
 }
@@ -426,7 +426,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--color-text);
 }
@@ -498,7 +498,7 @@
 
 .sa-admin-role {
     display: block;
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     color: var(--color-red);
     font-weight: 700;
     text-transform: uppercase;
@@ -535,7 +535,7 @@
     border-radius: 8px;
     color: var(--color-text-dim);
     font-weight: 600;
-    font-size: 0.775rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -580,14 +580,14 @@
 }
 
 .cal-day-label {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: var(--color-text-dim);
     padding-bottom: 12px;
 }
 
 .cal-date {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -630,8 +630,8 @@
 }
 
 .sa-table th {
-    padding: 14px 24px;
-    font-size: 0.7rem;
+    padding: 12px 20px;
+    font-size: 12.5px;
     font-weight: 800;
     color: var(--color-text-dim);
     text-transform: uppercase;
@@ -641,8 +641,8 @@
 }
 
 .sa-table td {
-    padding: 18px 24px;
-    font-size: 0.85rem;
+    padding: 14px 20px;
+    font-size: 12.5px;
     color: var(--color-text);
     border-bottom: 1px solid var(--border-color);
 }
@@ -716,7 +716,7 @@
 }
 
 .card-details-stack .card-detail-item {
-    font-size: 0.72rem;
+    font-size: 0.85rem;
     color: #64748B;
     margin: 0;
     line-height: 1.6;
@@ -781,7 +781,7 @@
     right: 16px;
     padding: 6px 14px;
     border-radius: 100px;
-    font-size: 0.65rem;
+    font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.05em;
     backdrop-filter: blur(8px);
@@ -1045,7 +1045,7 @@
 
 .label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--color-text-dim);
     text-transform: uppercase;

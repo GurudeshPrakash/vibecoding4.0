@@ -50,6 +50,67 @@ const BranchFormModal = ({
                                 <option value="Non-AC">Non-AC</option>
                             </select>
                         </div>
+
+                        {/* New Fields */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Opening Time</label>
+                            <input type="time" name="openingTime" value={formData.openingTime} onChange={onChange} placeholder="Select opening time" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Closing Time</label>
+                            <input type="time" name="closingTime" value={formData.closingTime} onChange={onChange} placeholder="Select closing time" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Branch Address</label>
+                            <input type="text" name="address" value={formData.address} onChange={onChange} placeholder="e.g. No. 25, Galle Road, Colombo" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Contact Number</label>
+                            <input type="text" name="contactNumber" value={formData.contactNumber} onChange={onChange} placeholder="e.g. +94771234567" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Email Address</label>
+                            <input type="email" name="email" value={formData.email} onChange={onChange} placeholder="e.g. colombo@powerworld.com" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Maximum Member Capacity</label>
+                            <input type="number" name="maxCapacity" value={formData.maxCapacity} onChange={onChange} placeholder="e.g. 250" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Number of Staff Assigned</label>
+                            <input type="number" name="staffAssigned" value={formData.staffAssigned} onChange={onChange} placeholder="e.g. 12" style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, fontSize: '0.78rem' }} />
+                        </div>
+
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Parking Available</label>
+                            <select name="parkingAvailable" value={formData.parkingAvailable} onChange={onChange} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-color)', background: '#F9FAFB', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div></div>
+
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={{ display: 'block', marginBottom: '12px', fontSize: '0.7rem', fontWeight: 700, color: '#333' }}>Facilities</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', padding: '16px', background: '#F9FAFB', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                                {['AC', 'Cardio Area', 'Weight Training', 'Personal Training', 'Locker Room', 'Parking', 'Shower', 'Wi-Fi'].map(facility => (
+                                    <label key={facility} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.7rem', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                                        <input 
+                                            type="checkbox" 
+                                            name="facilities" 
+                                            value={facility} 
+                                            checked={formData.facilities.includes(facility)}
+                                            onChange={onChange}
+                                            style={{ width: '16px', height: '16px', accentColor: 'var(--color-red)', cursor: 'pointer' }}
+                                        />
+                                        {facility}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                         <div style={{ gridColumn: 'span 2' }}>
                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>Cover Photo</label>
                             <div style={{ border: '2px dashed #e2e8f0', borderRadius: '12px', padding: '16px', textAlign: 'center', background: '#F9FAFB' }}>

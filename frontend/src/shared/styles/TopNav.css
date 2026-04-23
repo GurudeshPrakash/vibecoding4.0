@@ -24,7 +24,7 @@
 .admin-greeting-left {
     display: flex;
     align-items: center;
-    font-size: 0.95rem;
+    font-size: 0.875rem;
 }
 
 .hello-text-red {
@@ -189,7 +189,7 @@
 }
 
 .staff-id-text {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: var(--color-red);
     text-transform: uppercase;
@@ -198,7 +198,7 @@
 }
 
 .user-name-centered {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: var(--color-text);
     margin: 0;
@@ -206,7 +206,7 @@
 
 .user-email-centered,
 .user-phone-centered {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--color-ash);
     font-weight: 500;
     word-break: break-all;
@@ -222,15 +222,15 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 16px;
+    padding: 12px;
     background: var(--color-red);
     color: white;
     font-weight: 800;
-    border-radius: 16px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .logout-btn-full:hover {
@@ -302,7 +302,7 @@
 }
 
 .admin-name {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text);
 }
@@ -336,7 +336,7 @@
 }
 
 .notif-header h3 {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     color: var(--color-text);
     margin: 0;
 }
@@ -402,7 +402,7 @@
 }
 
 .notif-text {
-    font-size: 0.825rem;
+    font-size: 0.8rem;
     color: var(--color-text);
     margin-bottom: 6px;
     line-height: 1.4;
@@ -419,7 +419,7 @@
 }
 
 .status-pill-small {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     padding: 2px 8px;
     border-radius: 6px;

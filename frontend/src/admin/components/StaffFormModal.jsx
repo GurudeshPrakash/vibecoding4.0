@@ -194,37 +194,252 @@ const StaffFormModal = ({
                             />
                         </div>
 
+                        {/* New Personal & Professional Details */}
                         <div className="sm-form-group sm-half">
-                            <label className="sm-label">
-                                Assigned Branch <span className="sm-req">*</span>
-                            </label>
+                            <label className="sm-label">Gender</label>
                             <div className="sm-select-wrap">
-                                <select
-                                    name="branchId"
-                                    className={`sm-input ${formErrors.branchId ? 'sm-input-error' : ''}`}
-                                    value={formData.branchId}
-                                    onChange={onChange}
-                                >
-                                    <option value="">Select a Branch</option>
-                                    {branches.map(branch => {
-                                        const isAssigned = staffList.some(s =>
-                                            s.branchId === branch._id && (mode === 'add' || s._id !== selectedStaff?._id)
-                                        );
-                                        return (
-                                            <option
-                                                key={branch._id}
-                                                value={branch._id}
-                                                disabled={isAssigned}
-                                                style={isAssigned ? { color: '#94A3B8' } : {}}
-                                            >
-                                                {branch.name} {isAssigned ? '— Assigned' : ''}
-                                            </option>
-                                        );
-                                    })}
+                                <select name="gender" className="sm-input" value={formData.gender} onChange={onChange}>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
                                 </select>
-                                <ChevronDown size={14} className="sm-select-caret" />
+                                <div className="sm-select-caret"><ChevronDown size={16} /></div>
                             </div>
-                            {formErrors.branchId && <span className="sm-error-msg">{formErrors.branchId}</span>}
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Role / Designation</label>
+                            <div className="sm-select-wrap">
+                                <select name="designation" className="sm-input" value={formData.designation} onChange={onChange}>
+                                    <option value="">Select Designation</option>
+                                    <option value="Fitness Trainer">Fitness Trainer</option>
+                                    <option value="Receptionist">Receptionist</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Cleaner">Cleaner</option>
+                                    <option value="Cashier">Cashier</option>
+                                    <option value="Nutritionist">Nutritionist</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div className="sm-select-caret"><ChevronDown size={16} /></div>
+                            </div>
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Email Address</label>
+                            <input
+                                type="email"
+                                name="email"
+                                className="sm-input"
+                                placeholder="e.g. staff@powerworld.com"
+                                value={formData.email}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Date of Birth</label>
+                            <input
+                                type="date"
+                                name="dob"
+                                className="sm-input"
+                                value={formData.dob}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-full">
+                            <label className="sm-label">Home Address</label>
+                            <input
+                                type="text"
+                                name="address"
+                                className="sm-input"
+                                placeholder="e.g. No. 25, Galle Road, Colombo"
+                                value={formData.address}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Emergency Contact Name</label>
+                            <input
+                                type="text"
+                                name="emergencyContactName"
+                                className="sm-input"
+                                placeholder="e.g. Amal Perera"
+                                value={formData.emergencyContactName}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Emergency Contact Number</label>
+                            <input
+                                type="text"
+                                name="emergencyContactPhone"
+                                className="sm-input"
+                                placeholder="e.g. +94 77 123 4567"
+                                value={formData.emergencyContactPhone}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Username</label>
+                            <input
+                                type="text"
+                                name="username"
+                                className="sm-input"
+                                placeholder="e.g. mithula.k"
+                                value={formData.username}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Salary</label>
+                            <input
+                                type="number"
+                                name="salary"
+                                className="sm-input"
+                                placeholder="e.g. 75000"
+                                value={formData.salary}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                className="sm-input"
+                                value={formData.password}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Confirm Password</label>
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                className="sm-input"
+                                value={formData.confirmPassword}
+                                onChange={onChange}
+                            />
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <label className="sm-label">Employment Type</label>
+                            <div className="sm-select-wrap">
+                                <select name="employmentType" className="sm-input" value={formData.employmentType} onChange={onChange}>
+                                    <option value="">Select Type</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                    <option value="Contract">Contract</option>
+                                </select>
+                                <div className="sm-select-caret"><ChevronDown size={16} /></div>
+                            </div>
+                        </div>
+
+                        <div className="sm-form-group sm-half">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label className="sm-label">Shift Start Time</label>
+                                    <input type="time" name="shiftStartTime" className="sm-input" value={formData.shiftStartTime} onChange={onChange} />
+                                </div>
+                                <div>
+                                    <label className="sm-label">Shift End Time</label>
+                                    <input type="time" name="shiftEndTime" className="sm-input" value={formData.shiftEndTime} onChange={onChange} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="sm-form-group sm-full">
+                            <label className="sm-label">Working Days</label>
+                            <div style={{ 
+                                display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px',
+                                padding: '16px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #e2e8f0'
+                            }}>
+                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                                    <label key={day} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.72rem', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                                        <input 
+                                            type="checkbox" 
+                                            name="workingDays" 
+                                            value={day} 
+                                            checked={(formData.workingDays || []).includes(day)}
+                                            onChange={onChange}
+                                            style={{ width: '16px', height: '16px', accentColor: 'var(--color-red)' }}
+                                        />
+                                        {day}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="sm-form-group sm-full" style={{ gridColumn: 'span 2' }}>
+                            <label className="sm-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>Assign Branches <span className="sm-req">*</span></span>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-red)' }}>{formData.branchIds?.length || 0} SELECTED</span>
+                            </label>
+                            <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(2, 1fr)', 
+                                gap: '10px', 
+                                background: '#f8fafc', 
+                                padding: '16px', 
+                                borderRadius: '16px',
+                                border: formErrors.branchIds ? '1px solid #EF4444' : '1px solid #e2e8f0',
+                                maxHeight: '200px',
+                                overflowY: 'auto'
+                            }} className="custom-scrollbar">
+                                {branches.map(branch => {
+                                    const isSelected = formData.branchIds?.includes(branch._id);
+                                    return (
+                                        <div 
+                                            key={branch._id}
+                                            onClick={() => {
+                                                const newIds = isSelected 
+                                                    ? formData.branchIds.filter(id => id !== branch._id)
+                                                    : [...(formData.branchIds || []), branch._id];
+                                                onChange({ target: { name: 'branchIds', value: newIds } });
+                                            }}
+                                            style={{
+                                                padding: '10px',
+                                                borderRadius: '10px',
+                                                background: isSelected ? 'rgba(255,0,0,0.05)' : '#fff',
+                                                border: isSelected ? '1.5px solid var(--color-red)' : '1px solid #e2e8f0',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <div style={{
+                                                width: '16px',
+                                                height: '16px',
+                                                borderRadius: '4px',
+                                                border: '2px solid ' + (isSelected ? 'var(--color-red)' : '#cbd5e1'),
+                                                background: isSelected ? 'var(--color-red)' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                {isSelected && <div style={{ width: '6px', height: '6px', background: '#fff', borderRadius: '1px' }} />}
+                                            </div>
+                                            <span style={{ 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 700,
+                                                color: isSelected ? 'var(--color-red)' : '#475569'
+                                            }}>{branch.name}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {formErrors.branchIds && <span className="sm-error-msg" style={{ marginTop: '4px', display: 'block' }}>{formErrors.branchIds}</span>}
                         </div>
                     </div>
 

@@ -42,7 +42,7 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
         return names[hash % names.length];
     };
 
-    const branchPerformances = admin.assignedBranches.map(branchName => ({
+    const branchPerformances = (admin.assignedBranches || []).map(branchName => ({
         name: branchName.replace('Branch ', 'B'),
         revenue: Math.floor(Math.random() * 500000) + 100000,
         members: Math.floor(Math.random() * 500) + 100
@@ -59,38 +59,26 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
 
     const totalRevenue = branchPerformances.reduce((acc, b) => acc + b.revenue, 0);
     const totalMembers = branchPerformances.reduce((acc, b) => acc + b.members, 0);
-    const totalStaff = admin.assignedBranches.length * 2; // ~2 staff per branch
+    const totalStaff = (admin.assignedBranches || []).length * 2; // ~2 staff per branch
 
     return (
-        <div style={{ animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <button
-                    onClick={onBack}
-                    style={{
-                        background: '#f1f5f9',
-                        border: 'none',
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        color: '#64748b',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#333'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <h1 style={{ fontSize: '1.6rem', fontWeight: 900, margin: 0, color: '#1e293b' }}>Admin Profile Dashboard</h1>
+        <div className="animate-fade-in">
+            <div className="sm-page-header" style={{ marginBottom: '32px' }}>
+                <div className="sm-page-title-block">
+                    <button onClick={onBack} className="sm-modal-close" style={{ marginRight: '8px' }}>
+                        <ArrowLeft size={18} />
+                    </button>
+                    <div>
+                        <h1 className="sm-page-title">Administrator Profile</h1>
+                        <p className="sm-page-subtitle">Detailed performance and branch overview.</p>
+                    </div>
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 350px) 1fr', gap: '32px', alignItems: 'flex-start' }}>
 
                 {/* LEFT PROFILE SECTION */}
-                <div className="sa-card" style={{ padding: '30px', position: 'sticky', top: '24px' }}>
+                <div className="sm-card" style={{ padding: '30px', position: 'sticky', top: '24px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '32px' }}>
                         <div style={{
                             width: '120px',
@@ -162,40 +150,40 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
 
                     {/* Performance Overview Cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                        <div className="sa-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="sm-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className="sm-stat-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444' }}>
                                 <Building2 size={20} />
                             </div>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Total Branches</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>{admin.assignedBranches.length}</div>
+                            <div className="sm-stat-body">
+                                <span className="sm-stat-label">Total Branches</span>
+                                <h2 className="sm-stat-value">{(admin.assignedBranches || []).length}</h2>
                             </div>
                         </div>
-                        <div className="sa-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(59,130,246,0.1)', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="sm-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className="sm-stat-icon" style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6' }}>
                                 <Users size={20} />
                             </div>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Total Staff</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>{totalStaff}</div>
+                            <div className="sm-stat-body">
+                                <span className="sm-stat-label">Total Staff</span>
+                                <h2 className="sm-stat-value">{totalStaff}</h2>
                             </div>
                         </div>
-                        <div className="sa-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(16,185,129,0.1)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="sm-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className="sm-stat-icon" style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981' }}>
                                 <TrendingUp size={20} />
                             </div>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Total Members</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>{totalMembers}</div>
+                            <div className="sm-stat-body">
+                                <span className="sm-stat-label">Total Members</span>
+                                <h2 className="sm-stat-value">{totalMembers}</h2>
                             </div>
                         </div>
-                        <div className="sa-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(139,92,246,0.1)', color: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="sm-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className="sm-stat-icon" style={{ background: 'rgba(139,92,246,0.1)', color: '#8B5CF6' }}>
                                 <DollarSign size={20} />
                             </div>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Monthly Rev</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>{(totalRevenue / 1000).toFixed(0)}K</div>
+                            <div className="sm-stat-body">
+                                <span className="sm-stat-label">Monthly Rev</span>
+                                <h2 className="sm-stat-value">{(totalRevenue / 1000).toFixed(0)}K</h2>
                             </div>
                         </div>
                     </div>
@@ -203,10 +191,10 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: '24px', alignItems: 'stretch' }}>
                         {/* Visual Charts */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            <div className="sa-card" style={{ padding: '24px', flex: 1 }}>
-                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b', marginBottom: '20px' }}>Branch Performance Chart</h3>
+                            <div className="sm-card" style={{ padding: '24px', flex: 1 }}>
+                                <h3 className="sm-section-title" style={{ marginBottom: '20px' }}>Branch Performance</h3>
                                 <div style={{ height: '200px', width: '100%' }}>
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                         <BarChart data={branchPerformances} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }} dy={10} />
@@ -218,8 +206,8 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
                                 </div>
                             </div>
 
-                            <div className="sa-card" style={{ padding: '24px', flex: 1 }}>
-                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b', marginBottom: '20px' }}>Member Growth Chart</h3>
+                            <div className="sm-card" style={{ padding: '24px', flex: 1 }}>
+                                <h3 className="sm-section-title" style={{ marginBottom: '20px' }}>Member Growth</h3>
                                 <div style={{ height: '200px', width: '100%' }}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={memberGrowthMock} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -235,13 +223,13 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
                         </div>
 
                         {/* Branch Staff Information */}
-                        <div className="sa-card" style={{ padding: '0', display: 'flex', flexDirection: 'column' }}>
+                        <div className="sm-card" style={{ padding: '0', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ padding: '24px', borderBottom: '1px solid #e2e8f0' }}>
-                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>Branch Staff Information</h3>
-                                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '4px 0 0 0' }}>Staff working in assigned branches</p>
+                                <h3 className="sm-section-title" style={{ margin: 0 }}>Staff Tracking</h3>
+                                <p className="sm-modal-subtitle" style={{ margin: '4px 0 0 0' }}>Managing staff across assigned locations.</p>
                             </div>
                             <div style={{ flex: 1, overflowY: 'auto', maxHeight: '550px' }} className="custom-scrollbar">
-                                {admin.assignedBranches.length > 0 ? admin.assignedBranches.map((branch, idx) => {
+                                {(admin.assignedBranches || []).length > 0 ? (admin.assignedBranches || []).map((branch, idx) => {
                                     const staffMembers = getBranchStaff(branch);
                                     return (
                                         <div key={idx} style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9' }}>

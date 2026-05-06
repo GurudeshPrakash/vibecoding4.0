@@ -91,15 +91,15 @@ exports.resetPassword = async (req, res) => {
 
 
 
-// @desc    Register a new admin
-// @route   POST /api/admin/signup
+// @desc    Register a new admin (Super Admin only or Signup)
+// @route   POST /api/admin/admins or /api/admin/signup
 exports.registerAdmin = async (req, res) => {
     try {
         if (!req.body) {
             console.error('Registration failed: No body found in request');
             return res.status(400).json({ message: 'Request body is missing' });
         }
-        const { firstName, lastName, email, password, phone } = req.body;
+        const { firstName, lastName, email, password, phone, nic, assignedBranches, profilePic } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
@@ -108,7 +108,16 @@ exports.registerAdmin = async (req, res) => {
         const userExists = await Admin.findOne({ email });
         if (userExists) return res.status(400).json({ message: 'Admin already exists' });
 
-        const admin = await Admin.create({ firstName, lastName, email, password, phone });
+        const admin = await Admin.create({ 
+            firstName, 
+            lastName, 
+            email, 
+            password, 
+            phone,
+            nic,
+            assignedBranches,
+            profilePic
+        });
         res.status(201).json({
             _id: admin._id,
             firstName: admin.firstName,
@@ -142,6 +151,7 @@ exports.loginAdmin = async (req, res) => {
             res.status(401).json({ message: 'Invalid email or password' });
         }
     } catch (error) {
+        console.error('Login Admin Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -160,12 +170,47 @@ exports.getAdminProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 // @desc    Get all admins (Super Admin only)
 // @route   GET /api/admin/admins
 exports.getAllAdmins = async (req, res) => {
     try {
         const admins = await Admin.find({ role: 'admin' }).select('-password');
         res.json(admins);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update an admin (Super Admin only)
+// @route   PUT /api/admin/admins/:id
+exports.updateAdmin = async (req, res) => {
+    try {
+        const admin = await Admin.findById(req.params.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        const { firstName, lastName, email, phone, nic, assignedBranches, profilePic } = req.body;
+
+        admin.firstName = firstName || admin.firstName;
+        admin.lastName = lastName || admin.lastName;
+        admin.email = email || admin.email;
+        admin.phone = phone || admin.phone;
+        admin.nic = nic || admin.nic;
+        admin.assignedBranches = assignedBranches || admin.assignedBranches;
+        admin.profilePic = profilePic || admin.profilePic;
+
+        if (req.body.password) {
+            admin.password = req.body.password;
+        }
+
+        const updatedAdmin = await admin.save();
+        res.json({
+            _id: updatedAdmin._id,
+            firstName: updatedAdmin.firstName,
+            lastName: updatedAdmin.lastName,
+            email: updatedAdmin.email,
+            role: updatedAdmin.role
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -1394,37 +1394,53 @@
 
 .branch-tabs-container {
     display: flex;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0;
+    gap: 8px;
+    padding: 4px 0;
     background: transparent;
     border-bottom: 2px solid #F1F5F9;
-    margin-bottom: 28px;
-    overflow: visible;
+    margin-bottom: 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 10px;
+}
+
+.branch-tabs-container::-webkit-scrollbar {
+    display: none;
 }
 
 .branch-tab-btn {
-    padding: 12px 4px;
+    padding: 10px 24px;
     border: none;
     background: transparent;
-    color: #475569;
-    font-size: 0.85rem;
-    font-weight: 700;
+    color: #94A3B8;
+    font-size: 0.72rem;
+    font-weight: 800;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     position: relative;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .branch-tab-btn:hover {
-    color: #1E293B;
+    color: #475569;
 }
 
 .branch-tab-btn.active {
     color: #FF0000;
-    border-bottom-color: #FF0000;
+}
+
+.branch-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #FF0000;
+    border-radius: 10px;
 }
 
 

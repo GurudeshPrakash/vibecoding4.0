@@ -3,7 +3,7 @@
  * @status STABLE - LOCKED
  * @description This module is development-complete. Avoid modifications unless specifically requested.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, Plus, User, Mail, Phone, MapPin, MoreHorizontal, CheckCircle2, XCircle, Eye } from 'lucide-react';
 import '../styles/MembersManagement.css';
 
@@ -12,46 +12,108 @@ const MembersManagement = ({ userRole = 'staff' }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingMember, setEditingMember] = useState(null);
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: 'Monthly', status: 'Active' });
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', type: 'Monthly', status: 'Active', branchId: '' });
+    const [members, setMembers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [branches, setBranches] = useState([]);
 
-    const [members, setMembers] = useState([
-        { id: 'M-1024', name: 'Arjun Perera', email: 'arjun.p@example.com', phone: '077 123 4567', type: 'Monthly', status: 'Active', enrollDate: '2026-01-10', expire: '2026-03-10' },
-        { id: 'M-1056', name: 'Sarah Mendis', email: 'sarah.m@example.com', phone: '071 234 5678', type: 'Annual', status: 'Active', enrollDate: '2025-11-20', expire: '2026-11-20' },
-        { id: 'M-1089', name: 'Dilshan Silva', email: 'dilshan.s@example.com', phone: '076 345 6789', type: 'Quarterly', status: 'Active', enrollDate: '2025-12-15', expire: '2026-03-15' },
-        { id: 'M-1102', name: 'Anjali Gunawardena', email: 'anjali@example.com', phone: '072 456 7890', type: 'Monthly', status: 'Active', enrollDate: '2026-02-05', expire: '2026-03-05' },
-        { id: 'M-1115', name: 'Kasun Rajapaksa', email: 'kasun.r@example.com', phone: '075 567 8901', type: 'Annual', status: 'Expired', enrollDate: '2025-02-10', expire: '2026-02-10' },
-        { id: 'M-1128', name: 'Nirosha Fernando', email: 'nirosha@example.com', phone: '070 678 9012', type: 'Monthly', status: 'Active', enrollDate: '2026-02-15', expire: '2026-03-15' },
-        { id: 'M-1142', name: 'Damith Perera', email: 'damith@example.com', phone: '077 789 0123', type: 'Quarterly', status: 'Active', enrollDate: '2026-01-05', expire: '2026-04-05' },
-        { id: 'M-1156', name: 'Priyanka Jayasuriya', email: 'priyanka@example.com', phone: '071 890 1234', type: 'Annual', status: 'Active', enrollDate: '2025-10-20', expire: '2026-10-20' }
-    ]);
-
-    const handleSave = (e) => {
-        e.preventDefault();
-        if (editingMember) {
-            setMembers(members.map(m => m.id === editingMember.id ? { ...m, ...formData } : m));
-        } else {
-            const newMember = {
-                ...formData,
-                id: `M-${Math.floor(1000 + Math.random() * 9000)}`,
-                enrollDate: new Date().toISOString().split('T')[0],
-                expire: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-            };
-            setMembers([...members, newMember]);
+    const fetchMembers = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/members', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setMembers(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch members:', error);
+        } finally {
+            setIsLoading(false);
         }
-        setShowModal(false);
-        setEditingMember(null);
-        setFormData({ name: '', email: '', phone: '', type: 'Monthly', status: 'Active' });
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Delete this member?')) {
-            setMembers(members.filter(m => m.id !== id));
+    const fetchBranches = async () => {
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/admin/branches', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setBranches(data);
+                if (data.length > 0) {
+                    setFormData(prev => ({ ...prev, branchId: data[0]._id }));
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch branches:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMembers();
+        fetchBranches();
+    }, []);
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+        const method = editingMember ? 'PUT' : 'POST';
+        const url = editingMember 
+            ? `http://localhost:5000/api/members/${editingMember._id}`
+            : 'http://localhost:5000/api/members';
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                setShowModal(false);
+                setEditingMember(null);
+                setFormData({ firstName: '', lastName: '', email: '', phone: '', type: 'Monthly', status: 'Active', branchId: branches[0]?._id });
+                fetchMembers();
+            }
+        } catch (error) {
+            console.error('Error saving member:', error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this member?')) return;
+        const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:5000/api/members/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                fetchMembers();
+            }
+        } catch (error) {
+            console.error('Error deleting member:', error);
         }
     };
 
     const openEdit = (member) => {
         setEditingMember(member);
-        setFormData({ name: member.name, email: member.email, phone: member.phone, type: member.type, status: member.status });
+        setFormData({ 
+            firstName: member.firstName, 
+            lastName: member.lastName, 
+            email: member.email, 
+            phone: member.phone, 
+            type: member.subscriptionType || member.type, 
+            status: member.status,
+            branchId: member.branchId?._id || member.branchId
+        });
         setShowModal(true);
     };
 
@@ -105,20 +167,22 @@ const MembersManagement = ({ userRole = 'staff' }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {members.filter(m =>
-                                m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                m.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                m.phone.includes(searchTerm)
-                            ).map((member, idx) => (
-                                <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                            {isLoading ? (
+                                <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center' }}>Loading members...</td></tr>
+                            ) : members.filter(m =>
+                                (m.firstName + ' ' + m.lastName).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (m._id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (m.phone || '').includes(searchTerm)
+                            ).map((member) => (
+                                <tr key={member._id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                             <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                                {member.name.charAt(0)}
+                                                {member.firstName?.charAt(0)}
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: '600', color: '#1E293B', fontSize: '0.9rem' }}>{member.name}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{member.id}</div>
+                                                <div style={{ fontWeight: '600', color: '#1E293B', fontSize: '0.9rem' }}>{member.firstName} {member.lastName}</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{member._id}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -127,7 +191,7 @@ const MembersManagement = ({ userRole = 'staff' }) => {
                                         <div style={{ fontSize: '0.75rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={14} color="#94A3B8" /> {member.email}</div>
                                     </td>
                                     <td style={{ padding: '16px' }}>
-                                        <span style={{ fontWeight: '600', fontSize: '0.85rem', color: '#334155' }}>{member.type}</span>
+                                        <span style={{ fontWeight: '600', fontSize: '0.85rem', color: '#334155' }}>{member.subscriptionType || member.type}</span>
                                     </td>
                                     <td style={{ padding: '16px' }}>
                                         <span style={{
@@ -146,7 +210,7 @@ const MembersManagement = ({ userRole = 'staff' }) => {
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px', fontSize: '0.85rem', color: '#64748B' }}>
-                                        {member.expire}
+                                        {member.expireDate?.split('T')[0] || member.expire}
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -158,7 +222,7 @@ const MembersManagement = ({ userRole = 'staff' }) => {
                                                     <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#3B82F6' }} onClick={() => openEdit(member)}>
                                                         Edit
                                                     </button>
-                                                    <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#EF4444' }} onClick={() => handleDelete(member.id)}>
+                                                    <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#EF4444' }} onClick={() => handleDelete(member._id)}>
                                                         Delete
                                                     </button>
                                                 </>
@@ -177,9 +241,15 @@ const MembersManagement = ({ userRole = 'staff' }) => {
                     <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '480px', padding: '24px' }}>
                         <h3 style={{ marginTop: 0 }}>{editingMember ? 'Edit Member' : 'Add New Member'}</h3>
                         <form onSubmit={handleSave}>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 600 }}>Name</label>
-                                <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 600 }}>First Name</label>
+                                    <input type="text" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 600 }}>Last Name</label>
+                                    <input type="text" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                                </div>
                             </div>
                             <div style={{ marginBottom: '16px' }}>
                                 <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 600 }}>Email</label>
@@ -188,6 +258,15 @@ const MembersManagement = ({ userRole = 'staff' }) => {
                             <div style={{ marginBottom: '16px' }}>
                                 <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 600 }}>Phone</label>
                                 <input type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                            </div>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 600 }}>Branch</label>
+                                <select value={formData.branchId} onChange={e => setFormData({ ...formData, branchId: e.target.value })} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                                    <option value="">Select Branch</option>
+                                    {branches.map(b => (
+                                        <option key={b._id} value={b._id}>{b.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', background: '#fff' }}>Cancel</button>

@@ -14,22 +14,9 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
     };
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [staffList, setStaffList] = useState(() => {
-        const saved = localStorage.getItem('mock_staff_db');
-        return saved ? JSON.parse(saved) : [];
-    });
-    const [branches, setBranches] = useState(() => {
-        const saved = localStorage.getItem('mock_branches_db');
-        return saved ? JSON.parse(saved) : [
-            { _id: 'b1', name: 'Colombo City Gym' },
-            { _id: 'b2', name: 'Kandy Fitness Center' },
-            { _id: 'b3', name: 'Galle Branch' },
-            { _id: 'b4', name: 'Negombo Fitness' },
-            { _id: 'b5', name: 'Kurunegala Gym' },
-            { _id: 'b6', name: 'Matara Fitness Hub' }
-        ];
-    });
-    const [isLoading, setIsLoading] = useState(!localStorage.getItem('mock_staff_db'));
+    const [staffList, setStaffList] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingStaff, setEditingStaff] = useState(null);
     const navigate = useNavigate();
@@ -48,7 +35,7 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
     });
 
     const fetchStaff = async () => {
-        if (staffList.length === 0) setIsLoading(true);
+        setIsLoading(true);
         try {
             const token = sessionStorage.getItem('admin_token');
             const response = await fetch('http://localhost:5000/api/admin/staff', {
@@ -59,24 +46,12 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
                 // Filter only Staff
                 const onlyStaff = data.filter(s => s.role === 'Staff');
                 setStaffList(onlyStaff);
-                localStorage.setItem('mock_staff_db', JSON.stringify(onlyStaff));
             } else {
                 throw new Error(`Server returned ${response.status}`);
             }
         } catch (error) {
-            console.warn('Backend reachability issue, using mock data:', error.message);
-            const savedMock = localStorage.getItem('mock_staff_db');
-            if (savedMock) {
-                setStaffList(JSON.parse(savedMock));
-            } else {
-                const defaultMocks = [
-                    { _id: 's1', firstName: 'Kamal', surname: 'Silva', email: 'kamal@vibecoding.lk', phone: '+94 71 000 3333', role: 'Staff', status: 'Active', lastLogin: '3 days ago', branchId: 'b1', nic: '199512345678', profilePhoto: null },
-                    { _id: 's2', firstName: 'Prakash', surname: 'Gurudesh', email: 'prakash@fitpro.lk', phone: '+94 77 555 1234', role: 'Staff', status: 'Active', lastLogin: 'Today, 09:15 AM', branchId: 'b1', nic: '199012345678', profilePhoto: null },
-                    { _id: 's3', firstName: 'Nimal', surname: 'Perera', email: 'nimal@vibecoding.lk', phone: '+94 71 111 2222', role: 'Staff', status: 'Inactive', lastLogin: '5 days ago', branchId: 'b2', nic: '199812345678', profilePhoto: null }
-                ];
-                setStaffList(defaultMocks);
-                localStorage.setItem('mock_staff_db', JSON.stringify(defaultMocks));
-            }
+            console.error('Failed to fetch staff:', error.message);
+            setStaffList([]);
         } finally {
             setIsLoading(false);
         }
@@ -91,10 +66,9 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
             if (response.ok) {
                 const data = await response.json();
                 setBranches(data);
-                localStorage.setItem('mock_branches_db', JSON.stringify(data));
             }
         } catch (error) {
-            // Keep existing branches if fetch fails
+            console.error('Failed to fetch branches:', error.message);
         }
     };
 
@@ -137,9 +111,8 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
         const submitData = {
             ...formData,
             role: 'Staff',
-            password: formData.tempPassword,
-            status: editingStaff ? editingStaff.status : 'Active',
-            lastLogin: editingStaff ? editingStaff.lastLogin : 'Never'
+            password: formData.tempPassword || 'Staff@123',
+            status: editingStaff ? editingStaff.status : 'Active'
         };
 
         try {
@@ -162,20 +135,8 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
                 alert(errorData.message || 'Failed to save staff');
             }
         } catch (error) {
-            console.warn('Network error, applying changes to mock database:', error.message);
-            const savedMock = JSON.parse(localStorage.getItem('mock_staff_db') || '[]');
-            if (editingStaff) {
-                const updated = savedMock.map(s => s._id === editingStaff._id ? { ...s, ...submitData } : s);
-                localStorage.setItem('mock_staff_db', JSON.stringify(updated));
-            } else {
-                const newItem = { ...submitData, _id: 'mock_s_' + Date.now() };
-                savedMock.push(newItem);
-                localStorage.setItem('mock_staff_db', JSON.stringify(savedMock));
-            }
-            setShowModal(false);
-            setEditingStaff(null);
-            resetForm();
-            fetchStaff();
+            console.error('Error saving staff:', error.message);
+            alert('Network error. Please try again.');
         }
     };
 
@@ -208,12 +169,14 @@ const StaffManagement = ({ userRole = 'super_admin', setActiveTab, setSelectedPr
                 },
                 body: JSON.stringify({ ...staff, status: newStatus })
             });
-            if (response.ok) fetchStaff();
+            if (response.ok) {
+                fetchStaff();
+            } else {
+                alert('Failed to update status');
+            }
         } catch (error) {
-            const savedMock = JSON.parse(localStorage.getItem('mock_staff_db') || '[]');
-            const updated = savedMock.map(s => s._id === staff._id ? { ...s, status: newStatus } : s);
-            localStorage.setItem('mock_staff_db', JSON.stringify(updated));
-            fetchStaff();
+            console.error('Error toggling status:', error);
+            alert('Network error');
         }
     };
 

@@ -7,9 +7,8 @@ import {
 // Shared UI Components
 // Constants & Mock Data
 import {
-    ADMIN_BRANCHES,
-    DEFAULT_STAFF,
-    AVATAR_COLORS
+    AVATAR_COLORS,
+    ADMIN_BRANCHES
 } from '../constants/mockData';
 
 // Feature Components
@@ -85,19 +84,32 @@ const Toast = ({ message, type = 'success', visible }) => (
 
 const StaffManagement = ({ showCreateModal = false }) => {
     // ── State ────────────────────────────────────────────────────────────────
-    const [staff, setStaff] = useState(() => {
-        try {
-            const saved = localStorage.getItem('admin_staff_db');
-            return saved ? JSON.parse(saved) : DEFAULT_STAFF;
-        } catch { return DEFAULT_STAFF; }
-    });
-
+    const [staff, setStaff] = useState([]);
+    const [branches, setBranches] = useState([]);
     const [selectedStaff, setSelectedStaff] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [modalMode, setModalMode] = useState(showCreateModal ? 'add' : null); // 'edit' | 'view' | 'add'
     const [formData, setFormData] = useState(showCreateModal ? EMPTY_FORM : {});
     const [formErrors, setFormErrors] = useState({});
     const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+    const fetchStaff = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token');
+            const response = await fetch('http://localhost:5000/api/admin/staff', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setStaff(data.filter(s => s.role === 'Staff'));
+            }
+        } catch (error) {
+            console.error('Failed to fetch staff:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // ── Search & Filter State ────────────────────────────────────────────────
     const [searchName, setSearchName] = useState('');
@@ -105,11 +117,25 @@ const StaffManagement = ({ showCreateModal = false }) => {
     const [searchNic, setSearchNic] = useState('');
     const [filterBranch, setFilterBranch] = useState('all');
 
-    // ── Persist ──────────────────────────────────────────────────────────────
-    const persist = (updated) => {
-        setStaff(updated);
-        try { localStorage.setItem('admin_staff_db', JSON.stringify(updated)); } catch { }
+    const fetchBranches = async () => {
+        try {
+            const token = sessionStorage.getItem('admin_token');
+            const response = await fetch('http://localhost:5000/api/admin/branches', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setBranches(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch branches:', error);
+        }
     };
+
+    useEffect(() => {
+        fetchStaff();
+        fetchBranches();
+    }, []);
 
     // ── Toast helper ─────────────────────────────────────────────────────────
     const showToast = (message, type = 'success') => {
@@ -150,10 +176,21 @@ const StaffManagement = ({ showCreateModal = false }) => {
         setModalMode('view');
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this staff member?')) {
-            persist(staff.filter(s => s._id !== id));
-            showToast('Staff deleted successfully!');
+    const deleteStaff = async (id) => {
+        if (window.confirm('Are you sure you want to remove this staff member?')) {
+            try {
+                const token = sessionStorage.getItem('admin_token');
+                const response = await fetch(`http://localhost:5000/api/admin/staff/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    fetchStaff();
+                    showToast('Staff removed successfully');
+                }
+            } catch (error) {
+                console.error('Error deleting staff:', error);
+            }
         }
     };
 
@@ -187,24 +224,45 @@ const StaffManagement = ({ showCreateModal = false }) => {
         return errors;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const errors = validate();
         if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
 
-        if (modalMode === 'add') {
-            const newStaff = {
-                ...formData,
-                _id: `s${Date.now()}`,
-                staffId: `STF-${Math.floor(1000 + Math.random() * 9000)}`,
-            };
-            persist([...staff, newStaff]);
-            showToast('Staff added successfully!');
-        } else {
-            persist(staff.map(s => s._id === selectedStaff._id ? { ...s, ...formData } : s));
-            showToast('Staff details updated successfully!');
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token');
+            const url = modalMode === 'add' 
+                ? 'http://localhost:5000/api/admin/staff'
+                : `http://localhost:5000/api/admin/staff/${selectedStaff._id || selectedStaff.id}`;
+            const method = modalMode === 'add' ? 'POST' : 'PUT';
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    role: 'Staff',
+                    password: formData.password || (modalMode === 'add' ? 'Staff@123' : undefined)
+                })
+            });
+
+            if (response.ok) {
+                fetchStaff();
+                showToast(modalMode === 'add' ? 'Staff added successfully!' : 'Staff details updated successfully!');
+                closeModal();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || 'Failed to save staff');
+            }
+        } catch (error) {
+            console.error('Error saving staff:', error);
+        } finally {
+            setIsLoading(false);
         }
-        closeModal();
     };
 
     // ── Stats ────────────────────────────────────────────────────────────────
@@ -417,7 +475,7 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 onChange={handleChange}
                 onSubmit={handleSubmit}
                 selectedStaff={selectedStaff}
-                branches={ADMIN_BRANCHES}
+                branches={branches}
                 staffList={staff}
             />
 
@@ -428,9 +486,24 @@ const StaffManagement = ({ showCreateModal = false }) => {
                 branches={ADMIN_BRANCHES}
                 branchName={getBranchNames(selectedStaff?.branchIds || (selectedStaff?.branchId ? [selectedStaff.branchId] : []))}
                 avatarColor={selectedStaff ? getAvatarColor(selectedStaff.firstName) : ''}
-                onUpdate={(id, updatedData) => {
-                    persist(staff.map(s => s._id === id ? { ...s, ...updatedData } : s));
-                    showToast('Staff details updated successfully!');
+                onUpdate={async (id, updatedData) => {
+                    try {
+                        const token = sessionStorage.getItem('admin_token');
+                        const response = await fetch(`http://localhost:5000/api/admin/staff/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(updatedData)
+                        });
+                        if (response.ok) {
+                            fetchStaff();
+                            showToast('Staff details updated successfully!');
+                        }
+                    } catch (error) {
+                        console.error('Error updating staff:', error);
+                    }
                 }}
                 formatDate={formatDate}
             />

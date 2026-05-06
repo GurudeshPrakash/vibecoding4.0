@@ -3,14 +3,19 @@ const bcrypt = require('bcryptjs');
 
 const staffSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    lastName: { type: String },
+    surname: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone: { type: String, required: true },
-    role: { type: String, default: 'staff' },
+    phone: { type: String },
+    nic: { type: String },
+    role: { type: String, default: 'Staff' },
     branch: { type: String },
     assignedArea: { type: String },
-    profilePicture: { type: String }, // Stores URL or base64 string
+    branchId: { type: String },
+    status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+    profilePhoto: { type: String },
+    lastLogin: { type: String, default: 'Never' },
     createdAt: { type: Date, default: Date.now }
 });
 

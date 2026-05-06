@@ -18,15 +18,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-const adminRoutes = require('./routes/adminRoutes');
-const staffRoutes = require('./routes/staffRoutes');
-const equipmentRoutes = require('./routes/equipmentRoutes');
-const sharedRoutes = require('./routes/sharedRoutes');
+const adminRoutes = require('./routes/adminRoutes.js');
+const checkInRoutes = require('./routes/checkInRoutes.js');
+const equipmentRoutes = require('./routes/equipmentRoutes.js');
+const memberRoutes = require('./routes/memberRoutes.js');
+const paymentRoutes = require('./routes/paymentRoutes.js');
+const sharedRoutes = require('./routes/sharedRoutes.js');
+const staffRoutes = require('./routes/staffRoutes.js');
 
 app.use('/api/admin', adminRoutes);
-app.use('/api/staff', staffRoutes);
+app.use('/api/checkins', checkInRoutes);
 app.use('/api/equipment', equipmentRoutes);
+app.use('/api/members', memberRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/shared', sharedRoutes);
+app.use('/api/staff', staffRoutes);
 
 // Root Route
 app.get('/', (req, res) => {

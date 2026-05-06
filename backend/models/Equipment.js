@@ -1,37 +1,30 @@
 const mongoose = require('mongoose');
 
 const equipmentSchema = new mongoose.Schema({
-    customId: { type: String }, // User-defined Machine ID (e.g. TM-001)
+    id: { type: String }, // Machine ID
     name: { type: String, required: true },
-    type: { type: String, required: true },
-    category: { type: String, required: true },
-    status: { type: String, enum: ['Good', 'Maintenance', 'Dismantled'], default: 'Good' },
-    area: { type: String, required: true },
-    branch: { type: String, required: true },
+    category: { type: String },
+    status: { type: String, enum: ['Good', 'Available', 'Maintenance', 'Damaged', 'Dismantled'], default: 'Good' },
+    area: { type: String },
+    branchId: { type: String },
     serial: { type: String },
     brand: { type: String },
-    model: { type: String },
     mfgYear: { type: String },
-    origin: { type: String },
+    purchaseDate: { type: String },
     warranty: { type: String },
-    maxLoad: { type: String },
-    power: { type: String },
-    voltage: { type: String },
-    usageType: { type: String, default: 'Commercial' },
-    photo: { type: String }, // URL to photo
-    lastMaintenance: { type: Date },
-    nextMaintenance: { type: Date },
-    vendor: { type: String },
-    totalUsageHours: { type: String, default: '0' },
-    boughtDate: { type: Date },
-    price: { type: Number, default: 0 },
+    lastMaintenance: { type: String },
+    nextMaintenance: { type: String },
+    supplier: { type: String },
+    manualUrl: { type: String },
+    spareInfo: { type: String },
+    desc: { type: String },
+    photo: { type: String },
     maintenanceHistory: [{
-        date: { type: Date, default: Date.now },
+        date: { type: String },
         description: { type: String },
         cost: { type: Number, default: 0 },
         technician: { type: String }
     }],
-    addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
     createdAt: { type: Date, default: Date.now }
 });
 

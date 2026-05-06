@@ -1,0 +1,56 @@
+﻿On branch dev_Guru
+Your branch is up to date with 'origin/dev_Guru'.
+
+Last commands done (2 commands done):
+   pick 702a32f4 # navi bar chnage
+   pick fe8faf6a # Restore missing backend files and fix startup errors
+No commands remaining.
+You are currently editing a commit while rebasing branch 'dev_Guru' on '99bb8e04'.
+  (use "git commit --amend" to amend the current commit)
+  (use "git rebase --continue" once you are satisfied with your changes)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   frontend/src/super-admin/components/AdminProfileDashboard.jsx
+	modified:   frontend/src/super-admin/pages/AdminManagement.jsx
+	modified:   frontend/src/super-admin/styles/AdminManagement.css
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   backend/controllers/adminController.js
+	modified:   backend/models/Admin.js
+	modified:   backend/models/Branch.js
+	modified:   backend/models/Equipment.js
+	modified:   backend/models/Staff.js
+	modified:   backend/routes/adminRoutes.js
+	modified:   backend/server.js
+	modified:   frontend/src/admin/pages/AdminDashboard.jsx
+	modified:   frontend/src/admin/pages/InventoryManagement.jsx
+	modified:   frontend/src/admin/pages/MembersManagement.jsx
+	modified:   frontend/src/admin/pages/StaffManagement.jsx
+	modified:   frontend/src/auth/services/authService.js
+	modified:   frontend/src/staff/pages/CheckIns.jsx
+	modified:   frontend/src/staff/pages/InventoryManagement.jsx
+	modified:   frontend/src/staff/pages/MembersManagement.jsx
+	modified:   frontend/src/staff/pages/Payments.jsx
+	modified:   frontend/src/staff/pages/StaffDashboard.jsx
+	modified:   frontend/src/super-admin/pages/AdminManagement.jsx
+	modified:   frontend/src/super-admin/pages/BranchManagement.jsx
+	modified:   frontend/src/super-admin/pages/MemberManagement.jsx
+	modified:   frontend/src/super-admin/pages/StaffManagement.jsx
+	modified:   frontend/src/super-admin/pages/SuperAdminDashboard.jsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	backend/controllers/checkInController.js
+	backend/controllers/memberController.js
+	backend/controllers/paymentController.js
+	backend/models/CheckIn.js
+	backend/models/Member.js
+	backend/models/Payment.js
+	backend/routes/checkInRoutes.js
+	backend/routes/memberRoutes.js
+	backend/routes/paymentRoutes.js
+	git_status2.txt
+

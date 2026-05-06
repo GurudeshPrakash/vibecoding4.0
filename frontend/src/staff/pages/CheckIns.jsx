@@ -9,21 +9,86 @@ import '../styles/CheckIns.css';
 
 const CheckIns = () => {
     const [scannedId, setScannedId] = useState('');
+    const [recentActivity, setRecentActivity] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [activeNow, setActiveNow] = useState(0);
+    const [branchId, setBranchId] = useState('');
 
-    const recentActivity = [
-        { id: 'M-001', name: 'John Doe', time: '08:30 AM', action: 'Check In', method: 'RFID' },
-        { id: 'M-002', name: 'Jane Smith', time: '09:15 AM', action: 'Check In', method: 'QR Code' },
-        { id: 'M-003', name: 'Mike Ross', time: '09:45 AM', action: 'Check Out', method: 'Manual' },
-        { id: 'M-004', name: 'Rachel Zane', time: '10:00 AM', action: 'Check In', method: 'RFID' },
-    ];
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const storedBranchId = localStorage.getItem('branchId');
+            
+            // If No branchId in localStorage, fetch from branches API
+            let bId = storedBranchId;
+            if (!bId) {
+                const bRes = await fetch('http://localhost:5000/api/admin/branches', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (bRes.ok) {
+                    const bData = await bRes.json();
+                    bId = bData[0]?._id;
+                }
+            }
+            setBranchId(bId);
 
-    const activeNow = 42;
+            if (bId) {
+                const response = await fetch(`http://localhost:5000/api/checkins/branch/${bId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setRecentActivity(data);
+                    
+                    // Simple estimate of active members: Check-ins minus Check-outs today
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayActs = data.filter(a => a.timestamp.startsWith(today));
+                    const ins = todayActs.filter(a => a.action === 'Check In').length;
+                    const outs = todayActs.filter(a => a.action === 'Check Out').length;
+                    setActiveNow(Math.max(0, ins - outs));
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch check-ins:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    const handleScan = (e) => {
-        e.preventDefault();
-        if (scannedId) {
-            alert(`Processed ID: ${scannedId}`);
-            setScannedId('');
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleScan = async (e, action = 'Check In') => {
+        if (e) e.preventDefault();
+        if (!scannedId) return;
+
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/checkins', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    memberId: scannedId,
+                    action,
+                    method: 'Manual',
+                    branchId
+                })
+            });
+
+            if (response.ok) {
+                setScannedId('');
+                fetchData();
+            } else {
+                const err = await response.json();
+                alert(err.message || 'Check-in failed');
+            }
+        } catch (error) {
+            console.error('Error logging check-in:', error);
         }
     };
 
@@ -42,7 +107,7 @@ const CheckIns = () => {
             </header>
 
             <div className="branch-grid" style={{ gridTemplateColumns: '1fr 2fr' }}>
-                <aside classNameclassName="sa-sidebar-col">
+                <aside className="sa-sidebar-col">
                     <div className="sa-card">
                         <div className="sa-card-header">
                             <h3>Scan & Entry</h3>
@@ -73,10 +138,16 @@ const CheckIns = () => {
                             </form>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '24px' }}>
-                                <button style={{ padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '8px', color: '#10B981', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <button 
+                                    onClick={(e) => handleScan(e, 'Check In')}
+                                    style={{ padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '8px', color: '#10B981', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+                                >
                                     <UserCheck size={18} /> Check In
                                 </button>
-                                <button style={{ padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '8px', color: '#EF4444', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <button 
+                                    onClick={(e) => handleScan(e, 'Check Out')}
+                                    style={{ padding: '12px', background: '#F1F5F9', border: 'none', borderRadius: '8px', color: '#EF4444', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+                                >
                                     <UserMinus size={18} /> Check Out
                                 </button>
                             </div>
@@ -106,11 +177,11 @@ const CheckIns = () => {
                                     {recentActivity.map((activity, idx) => (
                                         <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                             <td style={{ padding: '16px 0' }}>
-                                                <div style={{ fontWeight: '600', color: '#1E293B' }}>{activity.name}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{activity.id}</div>
+                                                <div style={{ fontWeight: '600', color: '#1E293B' }}>{activity.memberName}</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{activity.memberId}</div>
                                             </td>
                                             <td style={{ padding: '16px 0', color: '#475569', fontWeight: '500' }}>
-                                                {activity.time}
+                                                {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </td>
                                             <td style={{ padding: '16px 0' }}>
                                                 <span style={{

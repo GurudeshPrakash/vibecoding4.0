@@ -194,7 +194,7 @@ const AdminProfileDashboard = ({ admin, onBack }) => {
                             <div className="sm-card" style={{ padding: '24px', flex: 1 }}>
                                 <h3 className="sm-section-title" style={{ marginBottom: '20px' }}>Branch Performance</h3>
                                 <div style={{ height: '200px', width: '100%' }}>
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                         <BarChart data={branchPerformances} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }} dy={10} />

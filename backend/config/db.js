@@ -1,4 +1,9 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+
+// Force Node.js to use Google DNS internally to bypass local network SRV blocks
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 const setupTestUsers = require('../scripts/setupTestUsers');
 
 const connectDB = async () => {

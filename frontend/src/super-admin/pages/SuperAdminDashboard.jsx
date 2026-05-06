@@ -518,7 +518,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                             </div>
                         </div>
                         <div style={{ width: '100%', height: 350 }}>
-                            <ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <LineChart data={statsState.memberGrowth}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600 }} dy={10} />
@@ -556,7 +556,7 @@ const SuperAdminDashboard = ({ adminName = "Super Admin", setActiveTab, userRole
                             </div>
                         </div>
                         <div style={{ width: '100%', height: 350 }}>
-                            <ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <BarChart data={statsState.revenueTrend.map((d, idx) => {
                                     const now = new Date();
                                     const currentMonthIdx = now.getMonth();

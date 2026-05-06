@@ -7,7 +7,8 @@ import {
 // Shared UI Components
 // Constants & Mock Data
 import {
-    AVATAR_COLORS
+    AVATAR_COLORS,
+    ADMIN_BRANCHES
 } from '../constants/mockData';
 
 // Feature Components
@@ -109,6 +110,12 @@ const StaffManagement = ({ showCreateModal = false }) => {
             setIsLoading(false);
         }
     };
+
+    // ── Search & Filter State ────────────────────────────────────────────────
+    const [searchName, setSearchName] = useState('');
+    const [searchId, setSearchId] = useState('');
+    const [searchNic, setSearchNic] = useState('');
+    const [filterBranch, setFilterBranch] = useState('all');
 
     const fetchBranches = async () => {
         try {

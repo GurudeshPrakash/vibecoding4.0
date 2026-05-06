@@ -35,11 +35,11 @@ router.post('/reset-password/:token', resetPassword);
 router.get('/profile', protect, rbac('admin', 'super_admin'), getAdminProfile);
 
 // Admins Management (Super Admin only)
-const { getAllAdmins, deleteAdmin } = require('../controllers/adminController');
+const { getAllAdmins, updateAdmin, deleteAdmin } = require('../controllers/adminController');
 router.get('/admins', protect, rbac('super_admin'), getAllAdmins);
 router.post('/admins', protect, rbac('super_admin'), registerAdmin);
+router.put('/admins/:id', protect, rbac('super_admin'), updateAdmin);
 router.delete('/admins/:id', protect, rbac('super_admin'), deleteAdmin);
-// router.get('/admin-logs', protect, rbac('super_admin'), getAdminLogs);
 
 // Gym Owners Management
 router.get('/owners', protect, rbac('admin', 'super_admin'), getAllOwners);

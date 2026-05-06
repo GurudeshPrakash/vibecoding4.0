@@ -5,13 +5,13 @@ const Branch = require('../models/Branch');
 const setupTestUsers = async () => {
     try {
         // 1. Setup Super Admin: Alex Fernando
-        let superAdmin = await Admin.findOne({ email: 'superadmin@powerworld.com' });
+        let superAdmin = await Admin.findOne({ email: 'alex@powerworld.com' });
         if (!superAdmin) {
             superAdmin = new Admin({
                 firstName: 'Alex',
                 lastName: 'Fernando',
-                email: 'superadmin@powerworld.com',
-                password: 'SuperAdmin123',
+                email: 'alex@powerworld.com',
+                password: 'admin123',
                 phone: '0711111111',
                 role: 'super_admin'
             });
@@ -20,13 +20,13 @@ const setupTestUsers = async () => {
         }
 
         // 2. Setup Admin: Daniel Perera
-        let admin = await Admin.findOne({ email: 'admin@powerworld.com' });
+        let admin = await Admin.findOne({ email: 'daniel@powerworld.com' });
         if (!admin) {
             admin = new Admin({
                 firstName: 'Daniel',
                 lastName: 'Perera',
-                email: 'admin@powerworld.com',
-                password: 'Admin123',
+                email: 'daniel@powerworld.com',
+                password: 'admin123',
                 phone: '0722222222',
                 role: 'admin'
             });
@@ -54,13 +54,13 @@ const setupTestUsers = async () => {
         }
 
         // 4. Setup Staff: Nimal Silva
-        let staff = await Staff.findOne({ email: 'staff@powerworld.com' });
+        let staff = await Staff.findOne({ email: 'nimal@powerworld.com' });
         if (!staff) {
             staff = new Staff({
                 firstName: 'Nimal',
                 lastName: 'Silva',
-                email: 'staff@powerworld.com',
-                password: 'Staff123',
+                email: 'nimal@powerworld.com',
+                password: 'admin123',
                 phone: '0733333333',
                 role: 'staff',
                 branch: 'Galle Branch',

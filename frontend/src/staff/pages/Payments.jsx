@@ -10,46 +10,120 @@ import '../styles/Payments.css';
 const Payments = ({ userRole = 'staff' }) => {
     const isPowerUser = userRole === 'admin' || userRole === 'super_admin';
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [editingPayment, setEditingPayment] = useState(null);
-    const [formData, setFormData] = useState({ memberId: '', name: '', amount: '', type: 'Monthly', method: 'Cash' });
+    const [formData, setFormData] = useState({ memberId: '', memberName: '', amount: '', type: 'Monthly', method: 'Cash', branchId: '' });
 
-    const [payments, setPayments] = useState([
-        { id: 'PAY-8001', memberId: 'M-1024', name: 'Arjun Perera', amount: 'LKR 4,500', date: '2026-03-04', status: 'Completed', type: 'Monthly', method: 'Cash' },
-        { id: 'PAY-8002', memberId: 'M-1056', name: 'Sarah Mendis', amount: 'LKR 45,000', date: '2026-03-04', status: 'Completed', type: 'Annual', method: 'Card' },
-        { id: 'PAY-8003', memberId: 'M-1089', name: 'Dilshan Silva', amount: 'LKR 12,000', date: '2026-03-03', status: 'Pending', type: 'Quarterly', method: 'Online' },
-        { id: 'PAY-8004', memberId: 'M-1102', name: 'Anjali Gunawardena', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Card' },
-        { id: 'PAY-8005', memberId: 'M-1128', name: 'Nirosha Fernando', amount: 'LKR 4,500', date: '2026-03-02', status: 'Completed', type: 'Monthly', method: 'Cash' }
-    ]);
+    const [payments, setPayments] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [selectedBranchId, setSelectedBranchId] = useState('');
 
-    const handleProcessPayment = (e) => {
-        e.preventDefault();
-        if (editingPayment) {
-            setPayments(payments.map(p => p.id === editingPayment.id ? { ...p, ...formData, amount: `LKR ${formData.amount}` } : p));
-        } else {
-            const newPayment = {
-                id: `PAY-${Math.floor(8000 + Math.random() * 1000)}`,
-                ...formData,
-                amount: `LKR ${formData.amount}`,
-                date: new Date().toISOString().split('T')[0],
-                status: 'Completed'
-            };
-            setPayments([newPayment, ...payments]);
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            // Fetch branches first
+            const bRes = await fetch('http://localhost:5000/api/admin/branches', { headers });
+            if (bRes.ok) {
+                const bData = await bRes.json();
+                setBranches(bData);
+                
+                // For staff, they usually belong to one branch. For admin, they can select.
+                // We'll try to find the branch the user belongs to or default to the first one.
+                const storedBranchId = localStorage.getItem('branchId');
+                const initialBranchId = storedBranchId || bData[0]?._id;
+                setSelectedBranchId(initialBranchId);
+                
+                if (initialBranchId) {
+                    fetchBranchData(initialBranchId, headers);
+                }
+            }
+
+            // Fetch all members for the dropdown/search
+            const mRes = await fetch('http://localhost:5000/api/members', { headers });
+            if (mRes.ok) {
+                const mData = await mRes.json();
+                setMembers(mData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+        } finally {
+            setIsLoading(false);
         }
-        setPaymentSuccess(true);
-        setTimeout(() => {
-            setShowPaymentModal(false);
-            setPaymentSuccess(false);
-            setEditingPayment(null);
-            setFormData({ memberId: '', name: '', amount: '', type: 'Monthly', method: 'Cash' });
-        }, 1500);
     };
 
-    const handleDelete = (id) => {
+    const fetchBranchData = async (branchId, headers) => {
+        try {
+            const pRes = await fetch(`http://localhost:5000/api/payments/branch/${branchId}`, { headers });
+            if (pRes.ok) {
+                const pData = await pRes.json();
+                setPayments(pData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch payments:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleProcessPayment = async (e) => {
+        e.preventDefault();
+        try {
+            const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+            const url = editingPayment 
+                ? `http://localhost:5000/api/payments/${editingPayment._id}`
+                : 'http://localhost:5000/api/payments';
+            const method = editingPayment ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    branchId: selectedBranchId
+                })
+            });
+
+            if (response.ok) {
+                setPaymentSuccess(true);
+                setTimeout(() => {
+                    setShowPaymentModal(false);
+                    setPaymentSuccess(false);
+                    setEditingPayment(null);
+                    setFormData({ memberId: '', memberName: '', amount: '', type: 'Monthly', method: 'Cash', branchId: '' });
+                    fetchBranchData(selectedBranchId, { 'Authorization': `Bearer ${token}` });
+                }, 1500);
+            }
+        } catch (error) {
+            console.error('Payment processing failed:', error);
+        }
+    };
+
+    const handleDelete = async (id) => {
         if (window.confirm('Delete this transaction record?')) {
-            setPayments(payments.filter(p => p.id !== id));
+            try {
+                const token = sessionStorage.getItem('admin_token') || localStorage.getItem('token');
+                const response = await fetch(`http://localhost:5000/api/payments/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    fetchBranchData(selectedBranchId, { 'Authorization': `Bearer ${token}` });
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+            }
         }
     };
 
@@ -57,10 +131,11 @@ const Payments = ({ userRole = 'staff' }) => {
         setEditingPayment(payment);
         setFormData({
             memberId: payment.memberId,
-            name: payment.name,
-            amount: payment.amount.replace('LKR ', '').replace(',', ''),
+            memberName: payment.memberName,
+            amount: payment.amount,
             type: payment.type,
-            method: payment.method
+            method: payment.method,
+            branchId: payment.branchId
         });
         setShowPaymentModal(true);
     };
@@ -87,21 +162,21 @@ const Payments = ({ userRole = 'staff' }) => {
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}><DollarSign /></div>
                     <div className="card-data">
-                        <span className="label">Today's Revenue</span>
-                        <h2 className="value">LKR 25,500</h2>
+                        <span className="label">Total Revenue</span>
+                        <h2 className="value">LKR {payments.reduce((sum, p) => sum + (p.amount || 0), 0).toLocaleString()}</h2>
                     </div>
                 </div>
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}><Clock /></div>
                     <div className="card-data">
                         <span className="label">Pending Collections</span>
-                        <h2 className="value">LKR 45,000</h2>
+                        <h2 className="value">LKR {payments.filter(p => p.status === 'Pending').reduce((sum, p) => sum + (p.amount || 0), 0).toLocaleString()}</h2>
                     </div>
                 </div>
                 <div className="live-card">
                     <div className="icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><Receipt /></div>
                     <div className="card-data">
-                        <span className="label">Transactions Today</span>
+                        <span className="label">Transactions</span>
                         <h2 className="value">{payments.length}</h2>
                     </div>
                 </div>
@@ -142,24 +217,24 @@ const Payments = ({ userRole = 'staff' }) => {
                         </thead>
                         <tbody>
                             {payments.filter(p =>
-                                p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                p.memberId.toLowerCase().includes(searchTerm.toLowerCase())
+                                (p.memberName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (p._id || p.id)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                p.memberId?.toLowerCase().includes(searchTerm.toLowerCase()))
                             ).map((payment, idx) => (
                                 <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                     <td style={{ padding: '16px', fontWeight: 'bold', color: '#334155' }}>
-                                        {payment.id}
+                                        {payment._id?.slice(-8).toUpperCase() || payment.id}
                                     </td>
                                     <td style={{ padding: '16px' }}>
-                                        <div style={{ fontWeight: '600', color: '#1E293B' }}>{payment.name}</div>
+                                        <div style={{ fontWeight: '600', color: '#1E293B' }}>{payment.memberName}</div>
                                         <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{payment.memberId}</div>
                                     </td>
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ fontWeight: '500', color: '#334155' }}>{payment.type}</div>
-                                        <div style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 'bold' }}>{payment.amount}</div>
+                                        <div style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 'bold' }}>LKR {payment.amount?.toLocaleString()}</div>
                                     </td>
                                     <td style={{ padding: '16px', fontSize: '0.85rem', color: '#64748B' }}>
-                                        {payment.date}
+                                        {new Date(payment.date).toLocaleDateString()}
                                     </td>
                                     <td style={{ padding: '16px' }}>
                                         <span style={{
@@ -190,7 +265,7 @@ const Payments = ({ userRole = 'staff' }) => {
                                                     <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#3B82F6' }} onClick={() => openEdit(payment)}>
                                                         Edit
                                                     </button>
-                                                    <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#EF4444' }} onClick={() => handleDelete(payment.id)}>
+                                                    <button className="action-btn-light" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#EF4444' }} onClick={() => handleDelete(payment._id || payment.id)}>
                                                         Delete
                                                     </button>
                                                 </>
@@ -224,7 +299,7 @@ const Payments = ({ userRole = 'staff' }) => {
                                 <form onSubmit={handleProcessPayment}>
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Member Name</label>
-                                        <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="Search member..." required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
+                                        <input type="text" value={formData.memberName} onChange={e => setFormData({ ...formData, memberName: e.target.value })} placeholder="Search member..." required style={{ width: '100%', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.75rem' }} />
                                     </div>
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ display: 'block', fontSize: '0.62rem', fontWeight: '700', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Member ID</label>

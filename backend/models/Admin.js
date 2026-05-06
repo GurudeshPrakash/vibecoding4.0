@@ -6,8 +6,12 @@ const adminSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone: { type: String, required: true },
-    role: { type: String, default: 'admin' },
+    phone: { type: String },
+    nic: { type: String },
+    role: { type: String, default: 'admin' }, // 'admin' or 'super_admin'
+    assignedBranches: { type: [String], default: [] },
+    profilePic: { type: String },
+    lastLogin: { type: String },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     createdAt: { type: Date, default: Date.now }

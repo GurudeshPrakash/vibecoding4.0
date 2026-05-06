@@ -11,8 +11,7 @@ import {
     ADMIN_BRANCHES,
     STATUS_CONFIG,
     CATEGORIES,
-    STATUSES,
-    MOCK_INVENTORY
+    STATUSES
 } from '../constants/mockData';
 
 import EquipmentDetailModal from '../components/EquipmentDetailModal';
@@ -22,16 +21,15 @@ import InventoryCard from '../components/InventoryCard';
 
 const InventoryManagement = () => {
     // ─── State ──────────────────────────────────────────────────────────────
-    const [inventory, setInventory] = useState(() => {
-        const saved = localStorage.getItem('admin_inventory_db');
-        return saved ? JSON.parse(saved) : MOCK_INVENTORY;
-    });
+    const [inventory, setInventory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [activeBranchId, setActiveBranchId] = useState(() => {
         const context = localStorage.getItem('selected_branch_context');
         return context ? JSON.parse(context)._id : 'b1';
     });
 
+    const [branches, setBranches] = useState([]);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All');
@@ -40,8 +38,47 @@ const InventoryManagement = () => {
     const [editingItem, setEditingItem] = useState(null);
     const [qrItem, setQrItem] = useState(null);
 
+    const fetchInventory = async () => {
+        setIsLoading(true);
+        try {
+            const token = sessionStorage.getItem('admin_token');
+            const response = await fetch('http://localhost:5000/api/equipment', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setInventory(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch inventory:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchBranches = async () => {
+        try {
+            const token = sessionStorage.getItem('admin_token');
+            const response = await fetch('http://localhost:5000/api/admin/branches', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setBranches(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch branches:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchInventory();
+        fetchBranches();
+    }, []);
+
     // ─── Service Reminders ──────────────────────────────────────────────────
     useEffect(() => {
+        if (inventory.length === 0) return;
         const today = new Date();
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -55,23 +92,23 @@ const InventoryManagement = () => {
             if (item.nextMaintenance) {
                 if (item.nextMaintenance === todayStr) {
                     reminders.push({
-                        id: `SR-${item.id}-today`,
+                        id: `SR-${item._id}-today`,
                         type: 'Maintenance',
                         priority: 'High',
                         title: 'Service Required Today',
                         message: `Equipment ${item.id} (${item.name}) must be serviced today.`,
-                        equipmentId: item.id,
+                        equipmentId: item._id,
                         timestamp: new Date().toISOString(),
                         unread: true
                     });
                 } else if (item.nextMaintenance === tomorrowStr) {
                     reminders.push({
-                        id: `SR-${item.id}-tom`,
+                        id: `SR-${item._id}-tom`,
                         type: 'Maintenance',
                         priority: 'Medium',
                         title: 'Service Required Tomorrow',
                         message: `Equipment ${item.id} (${item.name}) requires service tomorrow.`,
-                        equipmentId: item.id,
+                        equipmentId: item._id,
                         timestamp: new Date().toISOString(),
                         unread: true
                     });
@@ -81,7 +118,6 @@ const InventoryManagement = () => {
 
         if (reminders.length > 0) {
             const devNotifs = JSON.parse(localStorage.getItem('dev_notifications') || '[]');
-            // Filter out ones already added (by ID)
             const existingIds = new Set(devNotifs.map(n => n.id));
             const newReminders = reminders.filter(r => !existingIds.has(r.id));
             
@@ -95,9 +131,9 @@ const InventoryManagement = () => {
     const branchItems = inventory.filter(i => i.branchId === activeBranchId);
 
     const filtered = branchItems.filter(item => {
-        const matchSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
-            item.id?.toLowerCase().includes(search.toLowerCase()) ||
-            item.area?.toLowerCase().includes(search.toLowerCase());
+        const matchSearch = (item.name || '').toLowerCase().includes(search.toLowerCase()) ||
+            (item.id || '').toLowerCase().includes(search.toLowerCase()) ||
+            (item.area || '').toLowerCase().includes(search.toLowerCase());
         const matchCat = categoryFilter === 'All' || item.category === categoryFilter;
         const matchStatus = statusFilter === 'All' || item.status === statusFilter;
         return matchSearch && matchCat && matchStatus;
@@ -121,27 +157,50 @@ const InventoryManagement = () => {
         setShowAddEditModal(true);
     };
 
-    const handleSaveEquipment = (formData) => {
-        let updated;
-        if (editingItem) {
-            updated = inventory.map(item => item.id === editingItem.id ? { ...item, ...formData } : item);
-        } else {
-            const newItem = {
-                ...formData,
-                status: 'Good' // Default to Good
-            };
-            updated = [newItem, ...inventory];
+    const handleSaveEquipment = async (formData) => {
+        const token = sessionStorage.getItem('admin_token');
+        const method = editingItem ? 'PUT' : 'POST';
+        const url = editingItem 
+            ? `http://localhost:5000/api/equipment/${editingItem._id}`
+            : 'http://localhost:5000/api/equipment';
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ ...formData, branchId: activeBranchId })
+            });
+
+            if (response.ok) {
+                setShowAddEditModal(false);
+                fetchInventory();
+            } else {
+                const err = await response.json();
+                alert(err.message || 'Failed to save equipment');
+            }
+        } catch (error) {
+            console.error('Error saving equipment:', error);
+            alert('Network error');
         }
-        setInventory(updated);
-        localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
-        setShowAddEditModal(false);
     };
 
-    const handleRemoveEquipment = (id) => {
+    const handleRemoveEquipment = async (id) => {
         if (!window.confirm('Are you sure you want to remove this equipment?')) return;
-        const updated = inventory.filter(i => i.id !== id);
-        setInventory(updated);
-        localStorage.setItem('admin_inventory_db', JSON.stringify(updated));
+        const token = sessionStorage.getItem('admin_token');
+        try {
+            const response = await fetch(`http://localhost:5000/api/equipment/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                fetchInventory();
+            }
+        } catch (error) {
+            console.error('Error removing equipment:', error);
+        }
     };
 
     const handlePrintQR = () => {
@@ -233,7 +292,7 @@ const InventoryManagement = () => {
             <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {/* Branch Navigation */}
                 <div className="branch-tabs-container">
-                    {ADMIN_BRANCHES.map(branch => (
+                    {branches.length > 0 ? branches.map(branch => (
                         <button
                             key={branch._id}
                             onClick={() => setActiveBranchId(branch._id)}
@@ -241,7 +300,9 @@ const InventoryManagement = () => {
                         >
                             {branch.name}
                         </button>
-                    ))}
+                    )) : (
+                        <div style={{ color: '#94A3B8', fontSize: '0.8rem', padding: '10px' }}>No branches found</div>
+                    )}
                 </div>
 
             {/* Filters */}
@@ -372,7 +433,7 @@ const InventoryManagement = () => {
                 onClose={() => setShowAddEditModal(false)}
                 onSave={handleSaveEquipment}
                 editingItem={editingItem}
-                branches={ADMIN_BRANCHES}
+                branches={branches}
                 defaultBranchId={activeBranchId}
             />
 

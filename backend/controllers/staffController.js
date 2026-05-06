@@ -95,6 +95,7 @@ exports.loginStaff = async (req, res) => {
             res.status(401).json({ message: 'Invalid email or password' });
         }
     } catch (error) {
+        console.error('Login Staff Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
